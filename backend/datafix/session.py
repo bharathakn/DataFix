@@ -5,6 +5,7 @@ Undo / redo / restore never rewrite history; they append entries and flip derive
 """
 import pickle
 import uuid
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -321,6 +322,52 @@ class Session:
             self.checkpoints[-1].quality_score = self.score()
         return n
 
+    def _accept_all_batch(self, tier: str, column: str | None) -> tuple[list[RepairProposal], list[RepairProposal]]:
+        """Pending proposals of a tier that can be accepted together, plus the ones that would collide.
+        Cell fixes go first (most confident first, one per cell); merges last, skipping rows already merged away."""
+        pending = [p for p in self.proposals.values() if p.tier == tier and p.status == "pending" and p.candidates
+                   and (not column or p.column == column)]
+        cells = sorted((p for p in pending if p.column != ROW), key=lambda p: -p.confidence)
+        merges = sorted((p for p in pending if p.column == ROW), key=lambda p: -p.confidence)
+        seen: set = set()
+        take, skip = [], []
+        for p in cells:
+            key = (p.table, p.row_id, p.column)
+            (skip if key in seen else take).append(p)
+            seen.add(key)
+        gone: dict[str, set] = {}
+        for p in merges:
+            g = gone.setdefault(p.table, set(self._base_state(p.table)[2]))
+            if p.row_id in g or p.meta.get("survivor") in g:
+                skip.append(p)
+                continue
+            g.add(p.row_id)
+            take.append(p)
+        return take, skip
+
+    def accept_all_preview(self, tier: str = "review", column: str | None = None) -> dict:
+        take, skip = self._accept_all_batch(tier, column)
+        confs = [p.confidence for p in take]
+        by_col = Counter("duplicate rows" if p.column == ROW else p.column for p in take)
+        return {"count": len(take), "skipped": len(skip), "by_column": dict(by_col.most_common()),
+                "avg_confidence": round(sum(confs) / len(confs), 4) if confs else None,
+                "min_confidence": round(min(confs), 4) if confs else None,
+                "below_80": sum(c < 0.80 for c in confs),
+                "expected_wrong": round(sum(1 - c for c in confs)),  # confidence is calibrated, so Σ(1−c) ≈ wrong fixes
+                "merges": by_col.get("duplicate rows", 0)}
+
+    def accept_all(self, tier: str = "review", column: str | None = None, actor: str = "user") -> tuple[Checkpoint | None, int, int]:
+        """Accept every pending suggestion of a tier (optionally one column) as ONE checkpoint, so one click undoes it."""
+        take, skip = self._accept_all_batch(tier, column)
+        if not take:
+            return None, 0, len(skip)
+        what = f"'{column}'" if column and column != ROW else "duplicate-row" if column == ROW else "all"
+        k = self._new_checkpoint(f"Accepted {what} {tier} suggestions in bulk ({len(take):,})", "bulk")
+        for p in take:
+            self.apply_proposal(p.proposal_id, 0, actor=actor, checkpoint=k, rescore=False)
+        k.quality_score = self.score()
+        return k, len(take), len(skip)
+
     # ------------------------------------------------------------------ undo / redo / time travel
     def _set_status(self, change: Change, applied: bool, actor: str) -> None:
         if (change.status == "applied") == applied:
@@ -335,7 +382,10 @@ class Session:
         if p:
             ids = p.meta.get("change_ids", [])
             states = [self._by_id(i).status for i in ids]
-            p.status = "applied" if all(s == "applied" for s in states) else "undone"
+            if all(s == "applied" for s in states):
+                p.status = "applied"
+            else:  # an undone review suggestion still needs a human decision, so it goes back in the queue
+                p.status = "pending" if p.tier == "review" and not any(s == "applied" for s in states) else "undone"
 
     def _by_id(self, change_id: str) -> Change:
         for c in self.changes:

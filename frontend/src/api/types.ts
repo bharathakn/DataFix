@@ -101,6 +101,11 @@ export interface Change {
   record_id?: string | number | null
 }
 
+export interface AcceptAllPreview {
+  count: number; skipped: number; by_column: Record<string, number>; avg_confidence: number | null
+  min_confidence: number | null; below_80: number; expected_wrong: number; merges: number
+}
+
 export interface Checkpoint {
   checkpoint_id: string; label: string; kind: 'original' | 'auto' | 'review' | 'mask' | 'user'
   change_ids: string[]; created_at: string; quality_score: number; changes: number; active: boolean

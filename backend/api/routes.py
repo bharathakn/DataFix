@@ -337,6 +337,31 @@ def review_bulk(sid: str, body: BulkBody):
         return {"applied": n, "change_ids": change_ids, "checkpoint": k.to_dict(), "score_now": s.score()}
 
 
+class AcceptAllBody(BaseModel):
+    tier: Literal["review"] = "review"
+    column: str | None = None
+
+
+@router.get("/sessions/{sid}/review/accept-all/preview")
+@locked
+def accept_all_preview(sid: str, tier: Literal["review"] = "review", column: str | None = None):
+    s = _session(sid)
+    _require_plan(s)
+    return s.accept_all_preview(tier, column or None)
+
+
+@router.post("/sessions/{sid}/review/accept-all")
+@locked
+def accept_all(sid: str, body: AcceptAllBody):
+    s = _session(sid)
+    _require_plan(s)
+    with registry.lock(sid):
+        k, n, skipped = s.accept_all(body.tier, body.column or None)
+        if n:
+            registry.save(s)
+        return {"applied": n, "skipped": skipped, "checkpoint": k.to_dict() if k else None, "score_now": s.score()}
+
+
 class ReviewBody(BaseModel):
     action: Literal["accept", "reject", "choose"]
     candidate_index: int = 0

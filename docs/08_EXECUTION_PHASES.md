@@ -155,3 +155,5 @@ Order: Validation + benchmark → Diagnosis (causes + learned rules) → Chat dr
 - One module per request; ask for its tests in the same request; run them before moving on.
 - Commit at the end of every checklist block (`git commit -m "phase2: pin recovery"`), so a bad change is one `git revert` away.
 - When something in a spec turns out wrong, update the doc in the same commit.
+
+**Post-Phase 7 (2026-11-19): Accept all for the review queue.** Clicking through about 3k review items one at a time was too slow, so there is now a warned "Accept all" (see 07 and 04). Server side: `Session.accept_all()` applies every pending review suggestion as one `bulk` checkpoint. Cell fixes go first, most confident first, one per cell; merges go last, skipping rows already merged away. Undoing a review suggestion now returns it to `pending` instead of hiding it as `undone`. Demo: 281 items in 0.1 s; `ui_accept_all.mjs` passes with no console errors; 64 tests pass.

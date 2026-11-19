@@ -1,5 +1,5 @@
 import type {
-  BenchmarkResult, Change, ChatReply, Checkpoint, Diagnosis, Heatmap, LearnedRule, LlmStatus, MaskMethod, PiiFinding, PlanSummary,
+  AcceptAllPreview, BenchmarkResult, Change, ChatReply, Checkpoint, Diagnosis, Heatmap, LearnedRule, LlmStatus, MaskMethod, PiiFinding, PlanSummary,
   ProposalGroup, RepairProposal, RowDetail, RowsPage, ScanResult, SessionSummary, Validation, Warning,
 } from './types'
 
@@ -79,6 +79,11 @@ export const api = {
     req<{ proposal: RepairProposal; changes: Change[]; score_now: number }>('POST', `${S(sid)}/review/${pid}`, body),
   bulkReview: (sid: string, ids: string[], action: 'accept' | 'reject') =>
     req<{ applied: number; change_ids: string[] }>('POST', `${S(sid)}/review/bulk`, { proposal_ids: ids, action }),
+
+  acceptAllPreview: (sid: string, column?: string) =>
+    req<AcceptAllPreview>('GET', `${S(sid)}/review/accept-all/preview`, undefined, { tier: 'review', column }),
+  acceptAll: (sid: string, column?: string) =>
+    req<{ applied: number; skipped: number; checkpoint: Checkpoint | null; score_now: number }>('POST', `${S(sid)}/review/accept-all`, { tier: 'review', column: column || null }),
 
   checkpoints: (sid: string) => req<Checkpoint[]>('GET', `${S(sid)}/checkpoints`),
   restore: (sid: string, cid: string) => req<Checkpoint[]>('POST', `${S(sid)}/checkpoints/${cid}/restore`),

@@ -144,7 +144,7 @@ class Change:
 class Checkpoint:
     checkpoint_id: str
     label: str
-    kind: str  # original | auto | review | mask | user
+    kind: str  # original | auto | review | bulk | mask | user
     change_ids: list[str]
     created_at: str
     quality_score: float

@@ -133,3 +133,18 @@ def test_save_and_load(fixed, tmp_path):
     path = fixed.save(tmp_path)
     again = Session.load(path)
     assert again.current().equals(fixed.current()) and again.verify_audit()["valid"]
+
+
+def test_accept_all_review_is_one_undoable_checkpoint(fixed):
+    before = fixed.current().copy()
+    prev = fixed.accept_all_preview("review")
+    assert prev["count"] > 100 and prev["expected_wrong"] >= 0 and prev["min_confidence"] >= 0.0
+    k, n, skipped = fixed.accept_all("review")
+    assert n == prev["count"] and skipped == prev["skipped"] and k.kind == "bulk"
+    assert not [p for p in fixed.proposals.values() if p.tier == "review" and p.status == "pending"
+                and p.candidates and p.column != ROW and (p.table, p.row_id, p.column) not in
+                {(q.table, q.row_id, q.column) for q in fixed.proposals.values() if q.status == "applied"}]
+    fixed.undo_checkpoint(k.checkpoint_id)
+    assert fixed.current().equals(before) and fixed.verify_audit()["valid"]
+    assert fixed.accept_all_preview("review")["count"] == n  # undone review items are back in the queue
+    assert fixed.accept_all_preview("review", "city")["by_column"].keys() <= {"city"}
