@@ -56,7 +56,7 @@ All injections recorded in `truth.json`: `{row_id, column, clean_value, dirty_va
 
 | Row | Setup | Expected behaviour |
 |---|---|---|
-| 412 (`C-10413`) | city Mumbai, locality "Stock Exchange", PIN `40001` | 25 valid PINs one digit away, 16 in Mumbai; only `400001` serves Stock Exchange → confidence ≥ 0.95 |
+| 412 (`C-10413`) | city Mumbai, locality "Stock Exchange", PIN `40001` | 29 valid PINs one digit away, 19 in Mumbai; only `400001` serves Stock Exchange → confidence ≥ 0.95 |
 | 52 | city `Banglore`, PIN 560001, state Karnataka | → `Bengaluru`; evidence: similarity 91%, PIN 560001, state; chatbot "Why did row 52 change?" |
 | 777 | phone `98765` (5 digits), orders for this customer have one distinct phone | Recovered from orders, confidence ~0.92 |
 | 1043 | phone missing, orders for this customer contain **two different phones** | **Refused**: "2 conflicting phones in orders — DataFix won't guess" |
@@ -75,7 +75,7 @@ Practise to time. Speak to the problem, not the tech.
 | 0:40 | 2. Scan | "Score 61. Here's what's wrong and where." | Overview: KPIs, warnings, heatmap stripe at batch B07 |
 | 1:00 | 3. Root cause | "Not just *what* — *why*. 71 of 73 blank cities came from one mobile-app batch. Branch uploads went through Excel and destroyed phone numbers." | Diagnosis page; learned rules table: "nobody wrote PIN→City, DataFix learned it" |
 | 1:40 | 4. Auto-fix | "Only fixes it can prove — 95%+ confidence." | Plan → Apply; timeline fills with checkpoints; score jumps |
-| 2:00 | 5. Row 412 | "PIN 40001 has 5 digits. 25 real PINs are one digit away, 16 of them in Mumbai — city alone can't decide. Only one serves this row's locality, Stock Exchange." | Evidence card with signals narrowing 25 → 16 → 1 |
+| 2:00 | 5. Row 412 | "PIN 40001 has 5 digits. 29 real PINs are one digit away, 19 of them in Mumbai — city alone can't decide. Only one serves this row's locality, Stock Exchange." | Evidence card with signals narrowing 29 → 19 → 1 |
 | 2:30 | 6. Recovery + refusal | "Row 777's phone recovered from orders. Row 1043 has two different phones in orders — DataFix **refuses to guess**." | Refused tab, refusal banner — pause here |
 | 3:00 | 7. Undo | "Change of mind? Jump back to any checkpoint. The original file is never touched." | Restore → forward |
 | 3:15 | 8. Chat | "Ask in English. Answers come from executed queries — here's the query it ran." | "How many customers are in Pune?", "Why did row 52 change?" |

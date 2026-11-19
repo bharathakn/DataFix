@@ -29,7 +29,7 @@ If the window is only 24 hours, apply the **24h cut** noted in each phase.
 - [x] PIN reference: download the All-India Pincode directory CSV from data.gov.in → `scripts/build_pin_reference.py` → `data/reference/pincodes.csv` (`pin,office,district,state`, deduped to pin+district+state). **If download fails**, generate a reference from the demo generator's city table for the demo PINs and note it.
 - [x] `scripts/make_demo_data.py` per [09_DEMO_AND_PITCH.md](09_DEMO_AND_PITCH.md) §1 — writes `customers_clean.csv`, `customers_dirty.csv`, `orders.csv`, `truth.json`.
 - [x] `.env.example` with `GEMINI_API_KEY=`, `GEMINI_MODEL=`.
-- [ ] Verify Gemini key with a 5-line script.
+- [x] Verify Gemini key with a 5-line script (`gemini-2.5-flash`, v1beta, function calling OK).
 
 ## Phase 1 — Detect (H1.5–H5.5)
 

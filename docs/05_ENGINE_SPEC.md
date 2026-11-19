@@ -131,7 +131,9 @@ Cleaned export adds `_datafix_status` per row: `repaired` (≥ 1 applied change)
 4. For each, signals: `row_context` = reference district/state matches the row's city/state (casefolded, alias-aware: city "Bengaluru" ↔ district "Bangalore"); `locality_match` (reliability 0.95) = the row's `locality` is a post office served by that PIN in the reference; `fd_majority` if own data has the PIN with that city.
 5. Exactly one candidate with row-context **and** locality agreement → confidence ≈ 0.97 → auto/review. Several agree → top 3, review. None agree → refused: "no valid PIN within one digit matches Mumbai".
 
-Verified on real data: `40001` has 25 valid PINs within one digit, 16 of them in Mumbai (`400010`–`400019`, `400021`, …). City alone cannot decide; locality "Stock Exchange" is served only by `400001`. Demo line: *"25 valid PINs are one digit away, 16 are in Mumbai, only one serves Stock Exchange."*
+Verified on the full India Post directory: `40001` has 29 valid PINs within one digit, 19 of them in Mumbai (`400010`–`400019`, `400021`, …). City alone cannot decide; locality "Stock Exchange" is served only by `400001`. Demo line: *"29 valid PINs are one digit away, 19 are in Mumbai, only one serves Stock Exchange."*
+
+Locality matching must normalise office names: the directory writes `Stock Exchange SO`, `Pune H.O`, `Kothimir B.O`, `Mumbai GPO`, while the API (and our demo data) writes `Stock Exchange`. Strip `SO / S.O / BO / B.O / HO / H.O / GPO / EDO` suffixes, casefold, then fuzzy-match (RapidFuzz ≥ 90). District names also differ (`BENGALURU URBAN` vs `Bangalore`), so city ↔ district comparison is alias- and fuzzy-aware.
 
 ## 6. Root-cause diagnosis (`diagnose.py`)
 

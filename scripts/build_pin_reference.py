@@ -8,6 +8,7 @@ Usage: python scripts/build_pin_reference.py [--no-api]
 """
 import csv
 import json
+import re
 import sys
 import time
 import urllib.request
@@ -48,6 +49,14 @@ COLUMN_ALIASES = {
     "district": ["districtname", "district", "district_name"],
     "state": ["statename", "state", "state_name"],
 }
+
+
+_OFFICE_SUFFIX = re.compile(r"\s+(?:s\.?\s?o|b\.?\s?o|h\.?\s?o|g\.?\s?p\.?\s?o|e\.?\s?d\.?\s?o)\.?$", re.I)
+
+
+def office_key(name: str) -> str:
+    """'Stock Exchange SO' and 'Stock Exchange' are the same office (directory vs API naming)."""
+    return re.sub(r"\s+", " ", _OFFICE_SUFFIX.sub("", name.strip())).lower()
 
 
 def fetch_pin(pin: str, cache: dict) -> list[dict]:
@@ -114,7 +123,7 @@ def main() -> None:
     seen, out = set(), []
     for r in rows:
         r["city"] = r["city"] or seed_city.get(r["pin"], "")
-        key = (r["pin"], r["office"].lower())
+        key = (r["pin"], office_key(r["office"]))
         if key not in seen:
             seen.add(key)
             out.append(r)

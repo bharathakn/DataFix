@@ -45,7 +45,7 @@ Masking changes are `Change` records with `algorithm="privacy_mask"`. They are e
 
 Implementation: `llm.py` exposes `explain(structured) -> str`, `chat(messages, tools) -> …`, `rule_from_text(text, schema) -> RuleSpec`. Every function has a template / regex fallback. A `sanitize()` step runs on every payload before it leaves the process and drops PII-typed fields.
 
-Config: `GEMINI_API_KEY`, `GEMINI_MODEL` from `.env`. Timeout 8 s; on error or timeout → fallback and the header badge shows "offline templates". Cache responses by payload hash (in-memory dict) so the demo is instant on repeats.
+Config: `GEMINI_API_KEY`, `GEMINI_MODEL` (`gemini-2.5-flash`) from `.env`. Create the client with `http_options=types.HttpOptions(api_version="v1beta")`, because function calling fails on `v1` with this key. Failover order on 429/503/timeout: retry once after 1 s → `GEMINI_API_KEY_BACKUP` → offline templates. Timeout 8 s; on final error or timeout → fallback and the header badge shows "offline templates". Cache responses by payload hash (in-memory dict) so the demo is instant on repeats.
 
 ## 3. Chatbot design (`chat_tools.py` + `/chat`)
 
