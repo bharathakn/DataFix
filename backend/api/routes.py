@@ -246,14 +246,18 @@ def plan(sid: str, body: PlanBody | None = None):
 
 @router.get("/sessions/{sid}/proposals")
 def proposals(sid: str, tier: str | None = None, column: str | None = None, status: str | None = None,
-              table: str | None = None, algorithm: str | None = None, sort: Literal["row", "confidence"] = "row",
+              table: str | None = None, algorithm: str | None = None,
+              sort: Literal["row", "confidence", "-confidence"] = "row",
               offset: int = 0, limit: int = Query(100, le=1000)):
     s = _session(sid)
     _require_plan(s)
     ps = [p for p in s.proposals.values() if (not tier or p.tier == tier) and (not column or p.column == column)
           and (not status or p.status == status) and (not table or p.table == table)
           and (not algorithm or p.algorithm == algorithm)]
-    ps.sort(key=(lambda p: p.confidence) if sort == "confidence" else (lambda p: (p.table != s.main, p.row_id)))
+    if sort == "row":
+        ps.sort(key=lambda p: (p.table != s.main, p.row_id))
+    else:
+        ps.sort(key=lambda p: (p.confidence, p.row_id), reverse=sort == "-confidence")
     items = []
     for p in ps[offset:offset + limit]:
         d = p.to_dict()
@@ -298,10 +302,13 @@ def review_bulk(sid: str, body: BulkBody):
     s = _session(sid)
     _require_plan(s)
     with registry.lock(sid):
+        before = {pid: s.proposals[pid].status for pid in body.proposal_ids}
         n = s.bulk_review(body.proposal_ids, body.action)
         registry.save(s)
         k = s.checkpoints[-1]
-        return {"applied": n, "checkpoint": k.to_dict(), "score_now": s.score()}
+        change_ids = [cid for pid in body.proposal_ids if before[pid] == "pending" and s.proposals[pid].status == "applied"
+                      for cid in s.proposals[pid].meta.get("change_ids", [])]
+        return {"applied": n, "change_ids": change_ids, "checkpoint": k.to_dict(), "score_now": s.score()}
 
 
 class ReviewBody(BaseModel):

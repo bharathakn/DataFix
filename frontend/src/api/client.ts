@@ -1,5 +1,5 @@
 import type {
-  BenchmarkResult, ChatReply, Checkpoint, Diagnosis, Heatmap, LearnedRule, LlmStatus, PiiFinding, PlanSummary,
+  BenchmarkResult, Change, ChatReply, Checkpoint, Diagnosis, Heatmap, LearnedRule, LlmStatus, PiiFinding, PlanSummary,
   ProposalGroup, RepairProposal, RowDetail, RowsPage, ScanResult, SessionSummary, Validation, Warning,
 } from './types'
 
@@ -68,7 +68,7 @@ export const api = {
   heatmap: (sid: string, blocks = 40) => req<Heatmap>('GET', `${S(sid)}/heatmap`, undefined, { blocks }),
   rules: (sid: string) => req<LearnedRule[]>('GET', `${S(sid)}/rules`),
   rows: (sid: string, q: Query) => req<RowsPage>('GET', `${S(sid)}/rows`, undefined, q),
-  row: (sid: string, rowId: number) => req<RowDetail>('GET', `${S(sid)}/row/${rowId}`),
+  row: (sid: string, rowId: number, table?: string) => req<RowDetail>('GET', `${S(sid)}/row/${rowId}`, undefined, { table }),
 
   plan: (sid: string) => req<PlanSummary>('POST', `${S(sid)}/repair/plan`, {}),
   proposals: (sid: string, q: Query) => req<{ total: number; items: RepairProposal[] }>('GET', `${S(sid)}/proposals`, undefined, q),
@@ -76,9 +76,9 @@ export const api = {
   explain: (sid: string, pid: string) => req<{ text: string; mode: string }>('GET', `${S(sid)}/proposals/${pid}/explain`),
   applyAuto: (sid: string) => req<{ checkpoints: Checkpoint[]; applied: number; score_now: number }>('POST', `${S(sid)}/repair/apply-auto`),
   review: (sid: string, pid: string, body: { action: 'accept' | 'reject' | 'choose'; candidate_index?: number; custom_value?: string }) =>
-    req<{ proposal: RepairProposal; score_now: number }>('POST', `${S(sid)}/review/${pid}`, body),
+    req<{ proposal: RepairProposal; changes: Change[]; score_now: number }>('POST', `${S(sid)}/review/${pid}`, body),
   bulkReview: (sid: string, ids: string[], action: 'accept' | 'reject') =>
-    req<{ applied: number }>('POST', `${S(sid)}/review/bulk`, { proposal_ids: ids, action }),
+    req<{ applied: number; change_ids: string[] }>('POST', `${S(sid)}/review/bulk`, { proposal_ids: ids, action }),
 
   checkpoints: (sid: string) => req<Checkpoint[]>('GET', `${S(sid)}/checkpoints`),
   restore: (sid: string, cid: string) => req<Checkpoint[]>('POST', `${S(sid)}/checkpoints/${cid}/restore`),
@@ -86,6 +86,8 @@ export const api = {
   undoChange: (sid: string, changeId: string) => req<unknown>('POST', `${S(sid)}/changes/${changeId}/undo`),
   undoChanges: (sid: string, ids: string[]) => req<unknown>('POST', `${S(sid)}/changes/undo`, { change_ids: ids }),
 
+  changes: (sid: string, q: Query) => req<{ total: number; items: Change[] }>('GET', `${S(sid)}/changes`, undefined, q),
+  auditVerify: (sid: string) => req<{ valid: boolean; entries: number; head_hash: string; broken_at: string | null }>('GET', `${S(sid)}/audit/verify`),
   validation: (sid: string) => req<Validation>('GET', `${S(sid)}/validation`),
   benchmark: (sid: string, body: { sample_rows?: number; seed?: number } = {}) => req<BenchmarkResult>('POST', `${S(sid)}/benchmark`, body),
   privacy: (sid: string) => req<PiiFinding[]>('GET', `${S(sid)}/privacy`),

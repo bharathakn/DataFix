@@ -28,6 +28,7 @@ export function maskSample(x: string, type: string): string {
   const v = x.trim()
   if (!v) return v
   const digits = v.replace(/\D/g, '')
+  if (digits.length >= 5 && /^(\d)\1+$/.test(digits)) return v  // placeholder like 9999999999, not personal data
   switch (type) {
     case 'phone': return digits.length >= 4 ? `${digits.slice(0, 2)}XXXXXX${digits.slice(-2)}` : 'XXXX'
     case 'email': { const [l, d] = v.split('@'); return d ? `${l.slice(0, 2)}***@${d}` : '***' }

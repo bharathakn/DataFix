@@ -20,7 +20,8 @@ Implemented in `backend/api/routes.py`, verified by `scripts/smoke_api.py` (46 e
 | `SessionSummary` (5A) | Once scanned also carries `dimensions`, `dimensions_now` (fast estimate from unresolved issues), `pii_columns`, `tiers`, `pending` (by tier), `applied`, `checkpoints`, `rows_main_pending`, `score_now`. |
 | `GET /rows` | Extra filters `table`, `state` (cell state), `row_ids=1,2,3`. `cell_state` lists **only non-clean cells**; new `original` map gives before-values of repaired / estimated / masked cells. `view=diff` = rows with ≥ 1 applied change. |
 | `GET /row/{row_id}` | `{row_id, table, deleted, record_id, values, original, cell_state, issues, proposals, changes}`. |
-| `GET /proposals` | Extra filters `table`, `algorithm`, `sort=row|confidence`; items include `record_id` (the dataset's own ID). |
+| `GET /proposals` | Extra filters `table`, `algorithm`, `sort=row|confidence|-confidence`; items include `record_id` (the dataset's own ID). |
+| `POST /review/bulk` | Returns `{applied, change_ids, checkpoint, score_now}`; `change_ids` lets the UI undo exactly that bulk action. |
 | `POST /repair/plan` | Returns `{tiers, by_class, duration_ms}` plus `auto/review/flag/refused` at top level. Rejected (409) once repairs exist. |
 | `POST /privacy/mask` | Body `{column, method, table?, pii_type?}`; returns `{checkpoint, affected, findings}`. Unknown column → 409. |
 | `POST /benchmark` | Body `{sample_rows (100–20000), error_rate, seed}`; result shape in `types.ts` (`BenchmarkResult`). |

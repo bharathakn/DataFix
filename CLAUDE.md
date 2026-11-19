@@ -30,6 +30,7 @@ cd backend && uv run python ../scripts/smoke_api.py          # every endpoint; -
 cd frontend && npm run dev
 cd frontend && npm run build   # type-check
 cd frontend && node scripts/ui_walkthrough.mjs <outdir>   # headless Chrome click-through + screenshots (needs both servers)
+cd frontend && node scripts/ui_repair.mjs <outdir>         # Repair Studio + History check
 python3 scripts/build_pin_reference.py                     # stdlib only
 cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv
 ```
