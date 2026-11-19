@@ -50,11 +50,13 @@ def test_groq_used_when_no_gemini_key_and_payload_is_sanitized(env):
     assert "9876543210" not in body and "a@b.com" not in body
     assert sent[0]["headers"]["Authorization"] == "Bearer gsk_test_secret"
     st = llm.status()
-    assert st["provider"] == "groq" and st["model"] == L.GROQ_DEFAULT_MODEL and st["backup"]["configured"]
+    assert st["provider"] == "groq" and st["model"] == "openai/gpt-oss-120b" and st["backup"]["configured"]
     assert "gsk_test_secret" not in json.dumps(st)
 
 
 def test_groq_429_cools_down_and_falls_back_to_template(env):
+    env.setenv("GROQ_MODEL", "m1")
+    L.reset_llm()
     sent: list = []
     env.setattr(httpx, "post", _post_returning(sent, FakeResp(429, headers={"retry-after": "30"})))
     _, mode = L.causes_narrative([{"title": "A", "explanation": "b"}])
@@ -63,6 +65,16 @@ def test_groq_429_cools_down_and_falls_back_to_template(env):
     assert mode == "offline" and len(sent) == 1  # cooling down: no second request
     st = L.get_llm().status()
     assert st["backup"]["cooling_down"] > 0 and "gsk_test_secret" not in json.dumps(st)
+
+
+def test_groq_skips_retired_model(env):
+    sent: list = []
+    env.setattr(httpx, "post", _post_returning(sent, FakeResp(404),
+                                               FakeResp(200, {"choices": [{"message": {"content": "ok"}}]})))
+    llm = L.get_llm()
+    assert llm.text("hi") == "ok"
+    assert [x["json"]["model"] for x in sent] == ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
+    assert llm.status()["model"] == "qwen/qwen3.8-27b"
 
 
 def test_gemini_failure_falls_through_to_groq(env):

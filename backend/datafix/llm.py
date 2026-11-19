@@ -31,7 +31,8 @@ def sanitize(obj):
 
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile"
+# tried in order; a model that is gone (404) or rate-limited (429) is skipped. llama-3.3-70b was retired.
+GROQ_DEFAULT_MODELS = "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b"
 
 
 def _offline() -> bool:
@@ -43,46 +44,64 @@ class Groq:
 
     def __init__(self):
         self.key = os.getenv("GROQ_API_KEY", "").strip()
-        self.model = os.getenv("GROQ_MODEL", "").strip() or GROQ_DEFAULT_MODEL
+        self.models = [m.strip() for m in (os.getenv("GROQ_MODEL", "").strip() or GROQ_DEFAULT_MODELS).split(",")
+                       if m.strip()]
+        self.model = self.models[0]
         self.timeout_s = int(os.getenv("DATAFIX_LLM_TIMEOUT_MS", "15000")) / 1000
-        self.cooldown_until = 0.0
+        self.cooldown: dict[str, float] = {}  # model -> time until which it is skipped
         self.last_error: str | None = None
 
     @property
     def enabled(self) -> bool:
         return bool(self.key) and not _offline()
 
+    @property
+    def cooldown_until(self) -> float:
+        return min((self.cooldown.get(m, 0.0) for m in self.models), default=0.0)
+
+    def _redact(self, text: str) -> str:
+        return text.replace(self.key, "***") if self.key else text
+
     def chat(self, messages: list[dict], tools: list[dict] | None = None, temperature: float = 0.2,
              log=None) -> dict:
-        """One chat-completions call; returns the assistant message dict. Raises LLMUnavailable on any failure."""
+        """One chat-completions call (first model that answers); returns the assistant message dict.
+        Raises LLMUnavailable when every model fails."""
         if not self.enabled:
             raise LLMUnavailable("no Groq key configured")
-        if self.cooldown_until > time.time():
-            raise LLMUnavailable("Groq rate-limited")
         import httpx
-        body = {"model": self.model, "messages": sanitize(messages), "temperature": temperature}
-        if tools:
-            body["tools"] = [{"type": "function", "function": t} for t in tools]
-            body["tool_choice"] = "auto"
-        t0 = time.time()
-        try:
-            r = httpx.post(GROQ_URL, json=body, timeout=self.timeout_s,
-                           headers={"Authorization": f"Bearer {self.key}"})
-            if r.status_code == 429:
-                retry = r.headers.get("retry-after", "")
-                self.cooldown_until = time.time() + (float(retry) if retry.replace(".", "").isdigit() else 60)
-            r.raise_for_status()
-            msg = r.json()["choices"][0]["message"]
-        except Exception as e:  # quota, timeout, network, bad JSON
-            text = f"{type(e).__name__}: {str(e)[:150]}".replace(self.key, "***") if self.key else str(e)
-            self.last_error = text
+        safe = sanitize(messages)
+        last = "every Groq model is cooling down"
+        for model in self.models:
+            if self.cooldown.get(model, 0) > time.time():
+                continue
+            body = {"model": model, "messages": safe, "temperature": temperature}
+            if model.startswith("openai/gpt-oss"):
+                body["reasoning_effort"] = "low"  # reasoning model: keep it quick
+            if tools:
+                body["tools"] = [{"type": "function", "function": t} for t in tools]
+                body["tool_choice"] = "auto"
+            t0 = time.time()
+            try:
+                r = httpx.post(GROQ_URL, json=body, timeout=self.timeout_s,
+                               headers={"Authorization": f"Bearer {self.key}"})
+                if r.status_code == 429:
+                    retry = r.headers.get("retry-after", "")
+                    self.cooldown[model] = time.time() + (float(retry) if retry.replace(".", "").isdigit() else 60)
+                elif r.status_code == 404:  # model retired or not available to this key
+                    self.cooldown[model] = time.time() + 6 * 3600
+                r.raise_for_status()
+                msg = r.json()["choices"][0]["message"]
+            except Exception as e:  # quota, missing model, timeout, network, bad JSON
+                last = self._redact(f"{type(e).__name__}: {str(e).splitlines()[0][:150]}")
+                if log:
+                    log(model, -1, t0, last[:60])
+                continue
+            self.last_error, self.model = None, model
             if log:
-                log(self.model, -1, t0, text[:60])
-            raise LLMUnavailable(text) from e
-        self.last_error = None
-        if log:
-            log(self.model, -1, t0, "ok")
-        return msg
+                log(model, -1, t0, "ok")
+            return msg
+        self.last_error = last
+        raise LLMUnavailable(last)
 
 
 class Gemini:
