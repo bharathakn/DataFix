@@ -27,17 +27,17 @@ function Timeline({ sid, cps, selected, onSelect }: { sid: string; cps: Checkpoi
             const isHead = k.checkpoint_id === head
             return (
               <li key={k.checkpoint_id} className="flex items-center">
-                {i > 0 && <div className={cn('h-0.5 w-8', k.active ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700')} />}
+                {i > 0 && <div className={cn('h-0.5 w-6', k.active ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700')} />}
                 <button onClick={() => onSelect(selected === k.checkpoint_id ? null : k.checkpoint_id)}
-                  className={cn('h-[104px] w-44 rounded-lg border p-3 text-left align-top transition',
+                  className={cn('flex h-[118px] w-48 flex-col justify-start rounded-xl border p-3.5 text-left transition',
                     selected === k.checkpoint_id ? 'border-brand-600 ring-2 ring-brand-200 dark:ring-brand-700' : 'border-slate-200 dark:border-slate-700',
                     k.active ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 opacity-60 dark:bg-slate-900/40')}>
                   <div className="flex items-center justify-between text-xs text-slate-500">
                     <span className="font-mono">{k.checkpoint_id}</span>
                     {isHead ? <Badge tone="blue">you are here</Badge> : !k.active && <Badge>undone</Badge>}
                   </div>
-                  <div className="mt-1 line-clamp-2 text-sm font-medium" title={k.label}>{k.label}</div>
-                  <div className="tabular mt-1 text-xs text-slate-500">{k.kind === 'original' ? 'untouched upload' : `${num(k.changes)} changes`} · score {k.quality_score}</div>
+                  <div className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug" title={k.label}>{k.label}</div>
+                  <div className="tabular mt-auto text-xs text-slate-500">{k.kind === 'original' ? 'untouched upload' : `${num(k.changes)} changes`} · score {k.quality_score}</div>
                 </button>
               </li>
             )
@@ -105,11 +105,11 @@ export default function History() {
   const pages = Math.max(1, Math.ceil(total / PAGE))
 
   return (
-    <div className="mx-auto max-w-7xl space-y-5 p-6">
+    <div className="mx-auto max-w-7xl space-y-5 px-6 pb-14 pt-5 lg:px-9">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">History</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Every repair batch is a checkpoint. Jump back or forward at any time; the original file is never touched.</p>
+          <h1 className="font-display text-[34px] leading-[1.12] text-slate-900 dark:text-slate-50">History</h1>
+          <p className="mt-2.5 max-w-3xl text-[14.5px] leading-relaxed text-slate-500 dark:text-slate-400">Every repair batch is a checkpoint. Jump back or forward at any time; the original file is never touched.</p>
         </div>
         {audit.data && (
           <div className={cn('flex items-center gap-2 rounded-lg px-3 py-2 text-sm', audit.data.valid
@@ -131,12 +131,12 @@ export default function History() {
       <Card title={`Change log${selected ? ` · ${selected}` : ''}`} action={
         <div className="flex items-center gap-2">
           <select value={action} onChange={(e) => { setAction(e.target.value); setPage(0) }} aria-label="Filter by action"
-            className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-900">
+            className="rounded-[9px] border border-slate-300 bg-white px-2.5 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-900">
             <option value="">All entries</option><option value="apply">Repairs</option><option value="undo">Undos</option>
             <option value="redo">Redos</option><option value="reject">Rejections</option>
           </select>
           <select value={column} onChange={(e) => { setColumn(e.target.value); setPage(0) }} aria-label="Filter by column"
-            className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-900">
+            className="rounded-[9px] border border-slate-300 bg-white px-2.5 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-900">
             <option value="">All columns</option><option value="__row__">Row merges</option>
             {s.columns.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
           </select>

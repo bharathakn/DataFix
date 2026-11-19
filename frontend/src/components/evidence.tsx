@@ -199,7 +199,7 @@ export function EvidenceCard({ sid, p, types, onDone }:
           {!merge && (
             <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (custom.trim()) act('choose', { custom_value: custom.trim() }) }}>
               <input value={custom} onChange={(e) => setCustom(e.target.value)} placeholder={p.candidates.length ? 'or type the correct value…' : 'Fix it manually: type the correct value…'}
-                className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-900" />
+                className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-900" />
               <Button type="submit" disabled={!custom.trim() || review.isPending}>Use value</Button>
             </form>
           )}

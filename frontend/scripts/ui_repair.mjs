@@ -68,9 +68,9 @@ if (await page.locator('[data-pid]').count()) {
 
 // Patterns: bulk accept the first group
 await page.getByRole('button', { name: /^Patterns/ }).click()
-await page.getByRole('button', { name: 'Accept all' }).first().waitFor()
+await page.getByRole('button', { name: 'Accept all', exact: true }).first().waitFor()
 await shot('13-patterns')
-await page.getByRole('button', { name: 'Accept all' }).first().click()
+await page.getByRole('button', { name: 'Accept all', exact: true }).first().click()
 await page.getByText(/^Accepted \d+/).waitFor({ timeout: 15000 })
 log('bulk accepted a pattern')
 

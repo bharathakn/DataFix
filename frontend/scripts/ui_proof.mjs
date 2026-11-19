@@ -48,7 +48,7 @@ await page.waitForTimeout(600)
 await shot('23-diagnosis-rows')
 await page.keyboard.press('Escape')
 await page.getByRole('button', { name: 'Summarise with AI' }).click()
-await page.getByText(/template|written by Gemini/).waitFor({ timeout: 30000 })
+await page.locator('main').getByText(/AI unavailable: template|written by (Gemini|Groq)/).waitFor({ timeout: 30000 })
 log('summary button works')
 
 console.log('console errors:', errors.length ? errors : 'none')

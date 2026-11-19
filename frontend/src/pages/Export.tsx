@@ -49,11 +49,11 @@ export default function Export() {
   const val = v.data
   const failed = val?.checks.filter((c) => !c.passed) ?? []
   return (
-    <div className="mx-auto max-w-6xl space-y-5 p-6">
+    <div className="mx-auto max-w-6xl space-y-5 px-6 pb-14 pt-5 lg:px-9">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Export</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Your original upload is never changed. Everything below is generated from the current checkpoint.</p>
+          <h1 className="font-display text-[34px] leading-[1.12] text-slate-900 dark:text-slate-50">Export</h1>
+          <p className="mt-2.5 max-w-3xl text-[14.5px] leading-relaxed text-slate-500 dark:text-slate-400">Your original upload is never changed. Everything below is generated from the current checkpoint.</p>
         </div>
         <div className="text-right">
           <Button variant="primary" loading={zipping} onClick={downloadZip}>

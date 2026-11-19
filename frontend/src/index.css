@@ -2,24 +2,91 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* One theme for the whole app: warm paper, deep teal, and earthy status colours.
+   Tailwind's slate / rose / amber / emerald scales are remapped, so every page picks the theme up. */
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: Newsreader, Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #dbe7ff;
-  --color-brand-500: #2f6bec;
-  --color-brand-600: #2457c5;
-  --color-brand-700: #1d469e;
+
+  --color-white: #fbfaf7; /* cards */
+
+  /* teal: primary actions, active nav, links */
+  --color-brand-50: #e4efec;
+  --color-brand-100: #cfe2dd;
+  --color-brand-200: #a9cbc3;
+  --color-brand-300: #7fafa5;
+  --color-brand-400: #4e8a80;
+  --color-brand-500: #2f6b67;
+  --color-brand-600: #1d4d4f;
+  --color-brand-700: #163b3d;
+  --color-brand-800: #102c2e;
+  --color-brand-900: #0b1f20;
+
+  /* warm neutrals (paper, lines, ink) */
+  --color-slate-50: #f4f1ea;
+  --color-slate-100: #ede9e0;
+  --color-slate-200: #e4dfd4;
+  --color-slate-300: #d9d2c3;
+  --color-slate-400: #a9a294;
+  --color-slate-500: #6b665c;
+  --color-slate-600: #57534b;
+  --color-slate-700: #403c35;
+  --color-slate-800: #34302a;
+  --color-slate-900: #26231e;
+  --color-slate-950: #1b1916;
+
+  /* clay: problems, errors */
+  --color-rose-50: #f7e6e1;
+  --color-rose-100: #f2d6ce;
+  --color-rose-200: #e8bbae;
+  --color-rose-300: #d9907d;
+  --color-rose-400: #c96a54;
+  --color-rose-500: #b4442f;
+  --color-rose-600: #9e3a28;
+  --color-rose-700: #7c2d1e;
+  --color-rose-800: #5e2216;
+  --color-rose-900: #3f170f;
+  --color-rose-950: #2a0f0a;
+
+  /* ochre: review, warnings */
+  --color-amber-50: #f6eedc;
+  --color-amber-100: #f1e3c4;
+  --color-amber-200: #e6cc97;
+  --color-amber-300: #d8b068;
+  --color-amber-400: #c99744;
+  --color-amber-500: #b7812b;
+  --color-amber-600: #9a6a20;
+  --color-amber-700: #8a5f17;
+  --color-amber-800: #6e4b12;
+  --color-amber-900: #4e350c;
+  --color-amber-950: #33230a;
+
+  /* sage: repaired, passed */
+  --color-emerald-50: #e5f0e8;
+  --color-emerald-100: #d2e6d9;
+  --color-emerald-200: #aecfb9;
+  --color-emerald-300: #86b496;
+  --color-emerald-400: #5f9775;
+  --color-emerald-500: #3e7b58;
+  --color-emerald-600: #33684a;
+  --color-emerald-700: #2a553d;
+  --color-emerald-800: #20412f;
+  --color-emerald-900: #173022;
+  --color-emerald-950: #0f2017;
 }
 
 html, body, #root { height: 100%; }
-body { @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100; }
+body { @apply bg-slate-50 font-sans text-[14px] text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100; }
 .tabular { font-variant-numeric: tabular-nums; }
+.font-display { font-weight: 400; letter-spacing: -0.01em; }
+kbd { @apply rounded border border-slate-300 bg-white px-1 font-mono text-[11px] dark:border-slate-700 dark:bg-slate-800; }
+::selection { background: var(--color-brand-100); }
 
 /* cell states, shared by grid, legend and heatmap tooltips */
-.cell-issue { @apply bg-rose-50 text-rose-900 dark:bg-rose-950/60 dark:text-rose-200; }
-.cell-repaired { @apply bg-emerald-50 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200; }
-.cell-review { @apply bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200; }
-.cell-flagged { @apply bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300; background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgb(148 163 184 / .18) 6px 8px); }
+.cell-issue { @apply bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-200; }
+.cell-repaired { @apply bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200; }
+.cell-review { @apply bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-200; }
+.cell-flagged { @apply bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300; background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgb(107 102 92 / .14) 6px 8px); }
 .cell-estimated { @apply bg-sky-50 text-sky-900 dark:bg-sky-950/60 dark:text-sky-200; }
 .cell-masked { @apply bg-violet-50 text-violet-900 dark:bg-violet-950/60 dark:text-violet-200; }

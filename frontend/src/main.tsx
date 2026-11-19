@@ -4,6 +4,9 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import { ToastProvider } from './components/toast'
+import '@fontsource-variable/inter'
+import '@fontsource/newsreader/400.css'
+import '@fontsource/newsreader/500.css'
 import './index.css'
 
 const qc = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1, staleTime: 5_000 } } })

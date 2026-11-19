@@ -313,11 +313,11 @@ export default function RepairStudio() {
   const bulkCount = tab === 'applied' ? 0 : tab === 'patterns' ? (pend.review ?? 0) : (list.data?.total ?? 0)
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4 p-6">
+    <div className="mx-auto max-w-7xl space-y-4 px-6 pb-14 pt-5 lg:px-9">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Repair Studio</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Every suggestion shows its evidence. Keys: <kbd>A</kbd> accept · <kbd>R</kbd> reject · <kbd>J</kbd>/<kbd>K</kbd> next/previous · <kbd>1–3</kbd> pick an option.</p>
+          <h1 className="font-display text-[34px] leading-[1.12] text-slate-900 dark:text-slate-50">Repair Studio</h1>
+          <p className="mt-2.5 max-w-3xl text-[14.5px] leading-relaxed text-slate-500 dark:text-slate-400">Every suggestion shows its evidence. Keys: <kbd>A</kbd> accept · <kbd>R</kbd> reject · <kbd>J</kbd>/<kbd>K</kbd> next/previous · <kbd>1–3</kbd> pick an option.</p>
         </div>
         <Button onClick={() => setView(view ? null : 'diff')}><Table2 className="size-4" />{view ? 'Hide data' : 'Show data'}</Button>
       </div>
@@ -344,13 +344,13 @@ export default function RepairStudio() {
         )}
         {tab === 'review' && (
           <button onClick={() => { setStrongFirst(!strongFirst); setSelected(null) }}
-            className={cn('mb-1 rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800', !bulkCount && 'ml-auto')}>
+            className={cn('mb-1 rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800', !bulkCount && 'ml-auto')}>
             {strongFirst ? 'Most confident first' : 'Least confident first'} ⇅
           </button>
         )}
         {tab !== 'patterns' && (
           <select value={column} onChange={(e) => { setColumn(e.target.value); setSelected(null) }} aria-label="Filter by column"
-            className={cn('mb-1 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900', tab !== 'review' && !bulkCount && 'ml-auto')}>
+            className={cn('mb-1 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900', tab !== 'review' && !bulkCount && 'ml-auto')}>
             <option value="">All columns</option>
             <option value={ROW}>Duplicate rows</option>
             {columns.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -386,7 +386,7 @@ export default function RepairStudio() {
 
       {view && (
         <Card title="Data" action={
-          <div className="flex rounded-md border border-slate-300 p-0.5 text-xs dark:border-slate-700">
+          <div className="flex rounded-lg border border-slate-300 p-0.5 text-xs dark:border-slate-700">
             {(['current', 'original', 'diff'] as const).map((v) => (
               <button key={v} onClick={() => setView(v)} className={cn('rounded px-2.5 py-1', view === v && 'bg-brand-600 text-white')}>
                 {v === 'diff' ? 'Changed rows' : v === 'current' ? 'Current' : 'Original'}

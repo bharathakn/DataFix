@@ -21,6 +21,26 @@ React 19 + Vite + TypeScript + Tailwind v4. TanStack Query for server state, luc
 - Placeholder values made of one repeated digit (9999999999) are not masked: they're not personal data and the reviewer needs to see them.
 - **Verification:** `frontend/scripts/ui_walkthrough.mjs` drives the installed Google Chrome headlessly (playwright-core, no browser download) through demo → setup → scan → plan → apply → drawer → dark mode → 1366×768 and fails on console errors. `frontend/scripts/ui_repair.mjs` prepares a session through the API, then checks the Repair Studio (A-key accept, row 1043 refusal, row 412 evidence, merge card, pattern bulk accept) and History (restore to original → row 412 PIN back to 40001 → Go back → 400001, per-entry undo, audit chain valid).
 
+## 0a. Visual design (2026-11-20 redesign)
+
+One fixed theme for every page, defined once in `src/index.css`:
+
+| Token | Value | Used for |
+|---|---|---|
+| paper / card | `#F4F1EA` / `#FBFAF7` | page background / cards (Tailwind `slate-50` / `white` are remapped) |
+| ink / muted / lines | `#26231E` / `#6B665C` / `#E4DFD4` | text, secondary text, borders (`slate-900/500/200`) |
+| teal (brand) | `#1D4D4F`, soft `#E4EFEC` | primary buttons, active nav, links, "good" numbers |
+| clay (rose) | `#B4442F`, soft `#F7E6E1` | problems, refused, high risk |
+| ochre (amber) | `#B7812B`, soft `#F6EEDC` | review, warnings, duplicates |
+| sage (emerald) | `#3E7B58`, soft `#E5F0E8` | repaired, passed |
+
+- Tailwind's `slate`, `rose`, `amber`, `emerald` and `brand` scales are remapped in `@theme`, so existing classes pick up the theme; dark mode uses the same scales (warm dark `slate-950`).
+- Type: **Newsreader** (serif, `font-display`) for page titles, KPI numbers and the donut total; **Inter** for everything else. Both are bundled with `@fontsource` (no Google Fonts request: the demo must work with Wi-Fi off; the rehearsal asserts no external requests).
+- Shell: 232 px sidebar (logo, nav with Column types, AI status, dark-mode toggle, New file); slim top bar with file, rows, quality score and Chat; on phones the nav becomes a horizontal strip.
+- Primitives (`components/ui.tsx`): `PageHeader` (serif title + lead + actions), `Card` (`title`, `subtitle`, 16 px radius, no shadow), `Kpi` (serif value), `Badge`, `Button` (10 px radius). Overview adds a clickable `Donut` (problems by type) in `components/viz.tsx`.
+- Overview reads as a sentence first: "84.7% of rows are clean." before repair, "Clean rows went from 84.7% to 96.1%." after; four KPI tiles (clean rows, missing, duplicates, invalid); the plan card explains the four outcome groups (auto-fix, review, flagged, refused) in plain words.
+- `frontend/scripts/ui_shots.mjs <outdir>` screenshots every page (light, dark, phone width) for visual review.
+
 ## 1. Layout
 
 ```

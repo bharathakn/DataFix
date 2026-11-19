@@ -69,7 +69,7 @@ function ColumnRow({ sid, g }: { sid: string; g: ColumnGroup }) {
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <select value={method} onChange={(e) => setMethod(e.target.value as MaskMethod)} aria-label={`Masking method for ${g.column}`}
-              className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900">
+              className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900">
               {METHODS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
             </select>
             <Button variant="primary" className="px-3 py-1 text-xs" loading={mask.isPending}
@@ -146,11 +146,11 @@ export default function Privacy() {
   const open = groups.filter((g) => !g.masked && !g.kept)
   const hidden = (pii.data ?? []).filter((f) => f.in_free_text).reduce((a, f) => a + f.rows, 0)
   return (
-    <div className="mx-auto max-w-7xl space-y-5 p-6">
+    <div className="mx-auto max-w-7xl space-y-5 px-6 pb-14 pt-5 lg:px-9">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Privacy shield</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <h1 className="font-display text-[34px] leading-[1.12] text-slate-900 dark:text-slate-50">Privacy shield</h1>
+          <p className="mt-2.5 max-w-3xl text-[14.5px] leading-relaxed text-slate-500 dark:text-slate-400">
             Personal data found with checksum validation (Aadhaar: Verhoeff, cards: Luhn, GSTIN: check character), including IDs hidden in free-text notes.
             Masking is a checkpoint like any repair, so it can be undone. Raw values are never sent to the AI.
           </p>

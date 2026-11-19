@@ -157,11 +157,11 @@ export default function Validation() {
   if (s.stage === 'loaded') return <Navigate to={`/s/${sid}/setup`} replace />
   const val = v.data
   return (
-    <div className="mx-auto max-w-7xl space-y-5 p-6">
+    <div className="mx-auto max-w-7xl space-y-5 px-6 pb-14 pt-5 lg:px-9">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Validation: prove it</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">DataFix re-scans the repaired data from scratch and checks that the repairs did no harm.</p>
+          <h1 className="font-display text-[34px] leading-[1.12] text-slate-900 dark:text-slate-50">Validation: prove it</h1>
+          <p className="mt-2.5 max-w-3xl text-[14.5px] leading-relaxed text-slate-500 dark:text-slate-400">DataFix re-scans the repaired data from scratch and checks that the repairs did no harm.</p>
         </div>
         {planned && <Button onClick={() => qc.invalidateQueries({ queryKey: keys.validation(sid) })} loading={v.isFetching}>
           <RefreshCw className="size-4" />Re-run checks</Button>}

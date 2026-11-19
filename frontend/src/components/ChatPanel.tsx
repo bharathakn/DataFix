@@ -17,7 +17,7 @@ const SUGGESTIONS = [
 function ToolCalls({ calls }: { calls: ChatReply['tool_calls'] }) {
   if (!calls.length) return null
   return (
-    <details className="mt-2 rounded-md bg-slate-100 px-2 py-1.5 text-xs dark:bg-slate-800">
+    <details className="mt-2 rounded-lg bg-slate-100 px-2 py-1.5 text-xs dark:bg-slate-800">
       <summary className="flex cursor-pointer list-none items-center gap-1 text-slate-600 dark:text-slate-300">
         <Terminal className="size-3.5" />Ran {calls.length} {calls.length === 1 ? 'query' : 'queries'} on your data <ChevronRight className="size-3" />
       </summary>
@@ -49,7 +49,7 @@ function AssistantTurn({ t, sid }: { t: Turn; sid: string }) {
   return (
     <div className="flex gap-2" data-testid="assistant-turn">
       <div className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-white"><Bot className="size-3.5" /></div>
-      <div className={cn('min-w-0 flex-1 rounded-lg px-3 py-2 text-sm', t.error ? 'bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200' : 'bg-white shadow-sm dark:bg-slate-800')}>
+      <div className={cn('min-w-0 flex-1 rounded-lg px-3 py-2 text-sm', t.error ? 'bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200' : 'bg-white dark:bg-slate-800')}>
         <div className="whitespace-pre-wrap">{t.text}</div>
         {r?.table && r.table.rows.length > 0 && (
           <div className="mt-2 max-h-48 overflow-auto rounded border border-slate-200 dark:border-slate-700">
@@ -60,7 +60,7 @@ function AssistantTurn({ t, sid }: { t: Turn; sid: string }) {
           </div>
         )}
         {r?.proposed_action && (
-          <div className="mt-2 flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 p-2 text-xs dark:border-amber-800 dark:bg-amber-950">
+          <div className="mt-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs dark:border-amber-800 dark:bg-amber-950">
             <span className="flex-1">{r.proposed_action.label}?</span>
             {done ? <Badge tone="green">done</Badge> : (
               <Button variant="primary" className="px-2 py-1 text-xs" loading={confirm.isPending} onClick={() => confirm.mutate()}>
@@ -95,15 +95,15 @@ export function ChatPanel({ sid, session, onClose }: { sid: string; session?: Se
   }
   return (
     <aside className="fixed inset-y-0 right-0 z-30 flex w-full max-w-md flex-col border-l border-slate-200 bg-slate-50 shadow-2xl dark:border-slate-800 dark:bg-slate-950">
-      <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900">
+      <header className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
         <div>
-          <div className="font-semibold">Ask about your data</div>
-          <div className="text-[11px] text-slate-500">Answers come from queries DataFix runs. Personal data stays masked.</div>
+          <div className="font-display text-xl">Ask about your data</div>
+          <div className="mt-0.5 text-xs text-slate-500">Answers come from queries DataFix runs. Personal data stays masked.</div>
         </div>
         <Button variant="ghost" onClick={onClose} aria-label="Close chat"><X className="size-4" /></Button>
       </header>
       <div className="min-h-0 flex-1 space-y-4 overflow-auto p-4">
-        {!ready && <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">Scan and plan repairs first; then ask anything about the data and the repairs.</div>}
+        {!ready && <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">Scan and plan repairs first; then ask anything about the data and the repairs.</div>}
         {turns.length === 0 && ready && (
           <div className="space-y-2">
             <div className="text-sm text-slate-600 dark:text-slate-400">Try one of these:</div>
@@ -123,7 +123,7 @@ export function ChatPanel({ sid, session, onClose }: { sid: string; session?: Se
       </div>
       <form className="flex gap-2 border-t border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900" onSubmit={(e) => { e.preventDefault(); send(text) }}>
         <input value={text} onChange={(e) => setText(e.target.value)} disabled={!ready} placeholder="e.g. How many customers are in Pune?" aria-label="Chat message"
-          className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
+          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800" />
         <Button type="submit" variant="primary" disabled={!ready || !text.trim()} loading={ask.isPending} aria-label="Send"><Send className="size-4" /></Button>
       </form>
     </aside>

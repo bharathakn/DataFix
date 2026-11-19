@@ -76,10 +76,10 @@ export default function Diagnosis() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-5 p-6">
+    <div className="mx-auto max-w-7xl space-y-5 px-6 pb-14 pt-5 lg:px-9">
       <div>
-        <h1 className="text-2xl font-semibold">Diagnosis: why the data is dirty</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <h1 className="font-display text-[34px] leading-[1.12] text-slate-900 dark:text-slate-50">Why the data is dirty</h1>
+        <p className="mt-2.5 max-w-3xl text-[14.5px] leading-relaxed text-slate-500 dark:text-slate-400">
           DataFix groups errors by where they came from (source, batch, month) and by the mechanism that made them, so you can fix the pipeline, not just the rows.
         </p>
       </div>
@@ -106,7 +106,7 @@ export default function Diagnosis() {
         <h2 className="flex items-center gap-2 font-semibold"><Lightbulb className="size-4" />How the errors were made ({patterns.length})</h2>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {patterns.map((c) => (
-            <button key={c.cause_id} onClick={() => show(c)} className="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-brand-500 dark:border-slate-800 dark:bg-slate-900">
+            <button key={c.cause_id} onClick={() => show(c)} className="rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-brand-500 dark:border-slate-800 dark:bg-slate-900">
               <div className="font-semibold">{c.title.split(':')[0]}</div>
               <div className="tabular text-xs text-slate-500">{c.title.split(':').slice(1).join(':')}</div>
               <div className="mt-2 text-sm text-slate-600 dark:text-slate-400">{c.explanation}</div>
