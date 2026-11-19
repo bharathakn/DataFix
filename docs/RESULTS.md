@@ -70,3 +70,7 @@ All 50 planted identifiers in free-text notes found: 25 Aadhaar (Verhoeff-confir
 | `datafix fix … --bench` end to end | 23.6 s |
 
 100k-row timings: to be measured in Phase 7.
+
+### API (in-process, demo session)
+
+scan 6–7 s · plan 0.8 s · apply-auto 1.8 s · validation 5.5 s · benchmark (1,000 rows) 4.5 s · export ZIP 2.7 s · rows / proposals / checkpoints / review / undo < 160 ms · chat offline < 20 ms, Gemini 4–9 s.

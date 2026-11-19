@@ -4,6 +4,30 @@ Base URL `http://localhost:8000/api`. JSON everywhere except uploads (multipart)
 
 Frontend types in `frontend/src/api/types.ts` mirror these shapes exactly. Change this doc first, then both sides.
 
+## As built (Phase 4) — read this first
+
+Implemented in `backend/api/routes.py`, verified by `scripts/smoke_api.py` (46 endpoint calls through the full demo flow). Differences from the original draft below:
+
+| Change | Detail |
+|---|---|
+| Flow is explicit | `POST /sessions` (or `/sessions/demo`) only loads the file and guesses column types (~0.3 s / 2.7 s). Then `POST /scan` (body `{overrides: {column: type}}`, also runs diagnosis + privacy scan), then `POST /repair/plan`. Calling a step too early returns **409** `INVALID_STATE` with a message saying which step to run first. |
+| New: `GET /sessions` | Recent sessions (from the pickle directory). |
+| New: `GET /sessions/{sid}/proposals/groups?tier=review&column=` | **Bulk review by pattern**: identical `(column, from → to)` suggestions grouped with `count`, `avg_confidence`, `proposal_ids`; accept them with `POST /review/bulk`. |
+| New: `GET /sessions/{sid}/proposals/{pid}/explain` | `{text, mode}`: plain-English evidence sentence (Gemini or template). |
+| New: `POST /sessions/{sid}/changes/undo` | Body `{change_ids: [...]}`; used to confirm the chatbot's "undo the city fixes". |
+| `GET /diagnosis?narrative=true` | Returns `{causes: RootCause[], narrative, mode}` (was a bare list). Narrative is Gemini or a template; can take 2–15 s, so the UI should request it separately and show the template first. |
+| `POST /scan` response | Adds `dimensions`, `rules`, `tables` (per-table score and counts). |
+| `GET /rows` | Extra filters `table`, `state` (cell state), `row_ids=1,2,3`. `cell_state` lists **only non-clean cells**; new `original` map gives before-values of repaired / estimated / masked cells. `view=diff` = rows with ≥ 1 applied change. |
+| `GET /row/{row_id}` | `{row_id, table, deleted, record_id, values, original, cell_state, issues, proposals, changes}`. |
+| `GET /proposals` | Extra filters `table`, `algorithm`, `sort=row|confidence`; items include `record_id` (the dataset's own ID). |
+| `POST /repair/plan` | Returns `{tiers, by_class, duration_ms}` plus `auto/review/flag/refused` at top level. Rejected (409) once repairs exist. |
+| `POST /privacy/mask` | Body `{column, method, table?, pii_type?}`; returns `{checkpoint, affected, findings}`. Unknown column → 409. |
+| `POST /benchmark` | Body `{sample_rows (100–20000), error_rate, seed}`; result shape in `types.ts` (`BenchmarkResult`). |
+| `GET /llm/status?ping=true` | `{provider, model, models, keys, ok, last_error, using_backup_key, cooling_down, recent_calls}`. |
+| Chat `proposed_action.kind` | `undo_checkpoint` (payload `checkpoint_id`) or `undo_changes` (payload `change_ids`). |
+| Errors | 404 `NOT_FOUND` (unknown session / proposal / change / checkpoint / export kind), 409 `INVALID_STATE` (wrong order, already applied, no PII in column), 422 `BAD_REQUEST` (body validation). |
+| Timings (demo, laptop) | scan 6–7 s · plan 0.8 s · apply-auto 1.8 s · validation 5.5 s · benchmark 4.5 s · export zip 2.7 s · everything else < 350 ms. |
+
 ## Sessions and data
 
 | Method | Path | Body / query | Returns |

@@ -64,6 +64,8 @@ class Session:
         self.validation: dict | None = None
         self.causes: list[dict] | None = None
         self.benchmark_result: dict | None = None
+        self.validation_version = -1
+        self.columns: dict[str, dict] = {}  # table -> {column: ColumnInfo}, inferred before scanning
 
     # ------------------------------------------------------------------ construction
     @classmethod
@@ -73,8 +75,29 @@ class Session:
         s.plan()
         return s
 
-    def scan(self) -> dict[str, ScanResult]:
-        self.scans = {n: scan_table(df, n) for n, df in self.originals.items()}
+    def profile(self) -> dict[str, dict]:
+        """Column types for every table, inferred once (the user may override before scanning)."""
+        from .coltypes import infer_columns
+        from .reference import pin_reference
+        for n, df in self.originals.items():
+            if n not in self.columns:
+                self.columns[n] = infer_columns(df, pin_reference())
+        return self.columns
+
+    def scan(self, overrides: dict[str, str] | None = None) -> dict[str, ScanResult]:
+        if self.changes:
+            raise ValueError("repairs have already been applied; start a new session to re-scan")
+        self.profile()
+        for col, t in (overrides or {}).items():
+            info = self.columns[self.main].get(col)
+            if info is None:
+                raise ValueError(f"unknown column {col!r}")
+            info.semantic_type, info.type_confidence, info.overridden = t, 1.0, True
+        self.scans = {n: scan_table(df, n, columns=self.columns[n]) for n, df in self.originals.items()}
+        self.checkpoints = []
+        self.proposals = {}
+        self.causes = None
+        self.privacy = []
         if not self.checkpoints:
             self.checkpoints.append(Checkpoint("K00", "Original", "original", [], _now(), self.score()))
         return self.scans
@@ -265,7 +288,10 @@ class Session:
             p.status = "applied" if all(s == "applied" for s in states) else "undone"
 
     def _by_id(self, change_id: str) -> Change:
-        return next(c for c in self.changes if c.change_id == change_id)
+        for c in self.changes:
+            if c.change_id == change_id:
+                return c
+        raise KeyError(change_id)
 
     def undo_change(self, change_id: str, actor: str = "user") -> Change:
         c = self._by_id(change_id)
@@ -287,6 +313,8 @@ class Session:
     def restore(self, checkpoint_id: str, actor: str = "user") -> None:
         """Make exactly the checkpoints up to and including `checkpoint_id` active (works backwards and forwards)."""
         order = [k.checkpoint_id for k in self.checkpoints]
+        if checkpoint_id not in order:
+            raise KeyError(checkpoint_id)
         cut = order.index(checkpoint_id)
         for i, k in enumerate(self.checkpoints):
             for cid in k.change_ids:
@@ -295,7 +323,10 @@ class Session:
                     self._set_status(c, i <= cut, actor)
 
     def _checkpoint(self, checkpoint_id: str) -> Checkpoint:
-        return next(k for k in self.checkpoints if k.checkpoint_id == checkpoint_id)
+        for k in self.checkpoints:
+            if k.checkpoint_id == checkpoint_id:
+                return k
+        raise KeyError(checkpoint_id)
 
     def checkpoint_states(self) -> list[dict]:
         out = []
@@ -312,7 +343,37 @@ class Session:
     def validate(self) -> dict:
         from .doharm import validate_session
         self.validation = validate_session(self)
+        self.validation_version = self._version
         return self.validation
+
+    def fresh_validation(self) -> dict:
+        return self.validation if self.validation and self.validation_version == self._version else self.validate()
+
+    def undo_changes(self, change_ids: list[str], actor: str = "user") -> int:
+        n = 0
+        for cid in change_ids:
+            c = self._by_id(cid)
+            if c.action == "apply" and c.status == "applied":
+                self.undo_change(cid, actor)
+                n += 1
+        return n
+
+    @property
+    def version(self) -> int:
+        return self._version
+
+    def stage(self) -> str:
+        if not self.scans:
+            return "loaded"
+        if not self.proposals:
+            return "scanned"
+        return "repairing" if self.changes else "planned"
+
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        state["_cache"] = {}
+        state.pop("_ui_cache", None)
+        return state
 
     def diagnose(self) -> list[dict]:
         from .diagnose import diagnose
@@ -412,7 +473,6 @@ class Session:
     def save(self, directory: str | Path) -> Path:
         path = Path(directory) / f"{self.session_id}.pkl"
         path.parent.mkdir(parents=True, exist_ok=True)
-        self._cache = {}
         with path.open("wb") as f:
             pickle.dump(self, f)
         return path

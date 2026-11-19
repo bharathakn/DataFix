@@ -13,7 +13,7 @@ Hackathon build (24–36 h, solo + Claude). Specs live in `docs/`; follow them, 
 3. Never change a cell that has no detected issue. Anomalies are flag-only.
 4. The LLM never produces cell values. Chat runs only whitelisted tools from `chat_tools.py`; no `eval`/`exec`/`df.query`/`df.eval` on model output.
 5. Raw rows and PII values never go to Gemini; payloads pass `llm.sanitize()`.
-6. Every LLM feature has an offline fallback; the app must work with no `GEMINI_API_KEY`.
+6. Every LLM feature has an offline fallback; the app must work with no `GEMINI_API_KEY`. Use `DATAFIX_OFFLINE=1` for tests and rehearsals: the free tier is only 20 requests/day on 2.5 Flash.
 7. Randomness is seeded (default 42).
 
 ## Commands
@@ -26,6 +26,7 @@ cd backend && uv run python -m datafix fix ../data/demo/customers_dirty.csv --li
 cd backend && uv run python -m datafix bench ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv
 cd backend && uv run python -m datafix check out/cleaned_data.csv --min clean_rows=95
 cd backend && uv run uvicorn api.main:app --reload --port 8000
+cd backend && uv run python ../scripts/smoke_api.py          # every endpoint; --live spends Gemini quota (20/day on 2.5 Flash)
 cd frontend && npm run dev
 cd frontend && npm run build   # type-check
 python3 scripts/build_pin_reference.py                     # stdlib only

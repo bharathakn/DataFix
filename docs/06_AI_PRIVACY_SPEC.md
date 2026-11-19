@@ -54,6 +54,16 @@ Implementation: `llm.py` exposes `explain(structured) -> str`, `chat(messages, t
 
 Config: `GEMINI_API_KEY`, `GEMINI_MODEL` (`gemini-2.5-flash`) from `.env`. Create the client with `http_options=types.HttpOptions(api_version="v1beta")`, because function calling fails on `v1` with this key. Failover order on 429/503/timeout: retry once after 1 s → `GEMINI_API_KEY_BACKUP` → offline templates. Timeout 8 s; on final error or timeout → fallback and the header badge shows "offline templates". Cache responses by payload hash (in-memory dict) so the demo is instant on repeats.
 
+### 2a. As built (Phase 4, `datafix/llm.py`) and the free-tier quota problem
+
+- **Measured limit:** the free tier allows only **20 requests per day per project for `gemini-2.5-flash`** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`). Our two keys share that limit, so the backup key does not add quota. One chat question costs 2–3 requests. Quota resets at midnight Pacific time (≈ 13:30 IST).
+- **Each model has its own quota**, so `GEMINI_MODEL` is a **fallback chain**: `gemini-2.5-flash,gemini-3.1-flash-lite,gemini-3.5-flash-lite`. Both lite models pick the right tool. `gemini-3.5-flash` / `3.8-flash` time out (overloaded) and are not used.
+- **Failover per call:** for each model in order, try each key. A 429 skips straight to the next key. If every key is rate-limited for a model, that model cools down: until the quota reset given in the error for daily quotas (capped at 6 h), else 60 s. Transient errors get one retry on the primary key. If all models fail → `LLMUnavailable` → offline templates.
+- **Thinking off:** 2.5 Flash thinks by default (≈ 6 s per call); `thinking_budget=0` gives ≈ 2 s. Gemini 3 models use `thinking_level="minimal"` (≈ 1.5 s). Measured: chat answers 4–9 s, evidence explanation ≈ 1.3 s, causes summary 3–15 s.
+- `sanitize()` masks anything PII-shaped in every string sent (prompts, history, tool results) as a last line of defence on top of per-tool masking.
+- `/llm/status` exposes the active model, cooldowns and the last 8 calls (model, key, ms, outcome) for debugging on stage.
+- **Recommendation before judging:** don't spend the 2.5 Flash quota on rehearsals (run rehearsals with `DATAFIX_OFFLINE=1` or let the chain use the lite models). For more headroom, enable billing with a budget cap on one Google Cloud project, or take the backup key from a *different* project.
+
 ## 3. Chatbot design (`chat_tools.py` + `/chat`)
 
 ### 3.1 Principle
@@ -82,6 +92,14 @@ Gemini chooses **which** operation to run and with **what arguments**. The backe
 1. System prompt: role, schema (names + types), dataset summary, rules ("answer only from tool results; if unsure say so; never invent numbers").
 2. Gemini returns function call(s) → validate args (pydantic) → run → feed results back → Gemini writes the final short answer.
 3. Max 3 tool rounds. Reply includes `tool_calls` so the UI shows "Ran: count_rows(city = Pune) → 412" under the answer — visible proof it didn't hallucinate.
+
+### 3.3a As built
+
+- Tools exactly as in §3.2 (plus `column_stats`, `issue_summary`, `root_causes`); `propose_undo` returns kind `undo_checkpoint` or `undo_changes` (all applied changes in a column).
+- Column names are resolved case-insensitively; unknown columns / ops raise a tool error that Gemini sees and can recover from. Filter `eq`/`neq` compare normalised, alias-aware values ("Bangalore" = "Bengaluru").
+- PII is masked inside every tool result (partial masks; free text via span masking) before it goes to Gemini or the UI.
+- Up to 3 tool rounds; automatic function calling is disabled so every call passes our validation.
+- Tested: code-like op/value strings are rejected or treated as plain text (`tests/test_api.py`).
 
 ### 3.4 Offline fallback (no key / no internet)
 

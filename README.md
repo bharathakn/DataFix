@@ -47,4 +47,6 @@ uv run python -m datafix fix  ../data/demo/customers_dirty.csv --linked ../data/
     #    change_log.csv, privacy_report.csv, cleaning_recipe.json (exit 2 if a do-no-harm check fails)
 uv run python -m datafix bench ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv   # self-test benchmark
 uv run python -m datafix check out/cleaned_data.csv --min clean_rows=95                           # quality gate (exit 1 = fail)
+# API smoke test (every endpoint, in-process): add --live to use Gemini
+uv run python ../scripts/smoke_api.py
 ```

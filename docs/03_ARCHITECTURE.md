@@ -50,6 +50,8 @@ DataFix/
 │   │   ├── knowledge.py           # placeholder tokens, city aliases, GST state codes
 │   │   ├── reference.py           # India Post PIN reference loader
 │   │   ├── scan.py                # orchestrates coltypes + detectors + score
+│   │   ├── insights.py            # UI read models: warnings, heatmap, rows page, row detail, proposal groups
+│   │   ├── doharm.py              # do-no-harm validation (re-scan + re-plan)
 │   │   ├── detect/                # missing, disguised, duplicates, formats, consistency, fd, crossfield, anomalies
 │   │   ├── repair/                # normalize, standardize, spelling, pin, phone, age, dedupe, fd_repair
 │   │   ├── confidence.py          # signal combination + tiering
@@ -66,9 +68,9 @@ DataFix/
 │   │   ├── recipe.py              # record / replay approved steps
 │   │   └── templates/report.html.j2
 │   ├── api/
-│   │   ├── main.py                # app, CORS, routers
-│   │   ├── registry.py            # session_id → Session (memory + pickle)
-│   │   └── routes/                # sessions, scan, repair, history, validation, privacy, chat, export
+│   │   ├── main.py                # app, CORS, JSON (numpy-safe) responses, error → {"error": {code, message}}
+│   │   ├── registry.py            # session_id → Session (memory + pickle per mutation), per-session lock
+│   │   └── routes.py              # all /api routes (thin; logic lives in datafix)
 │   └── tests/
 └── frontend/
     ├── src/

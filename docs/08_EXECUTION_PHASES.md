@@ -29,7 +29,7 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 | 1 Detection | 1 | Clear spec, everything testable from the command line | ✅ done |
 | 2 Repair | 2 | **2A:** confidence, tiers and all repairs; stop at row 412 and the row-1043 refusal. **2B:** change log, checkpoints and undo, CLI `fix` | ✅ done |
 | 3 Proof | 1 | Ends with benchmark numbers for you to check | ✅ done |
-| 4 API | 1 | Mechanical; a smoke test checks every endpoint | |
+| 4 API | 1 | Mechanical; a smoke test checks every endpoint | ✅ done |
 | 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | |
 | 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | |
 | 7 Freeze | 1–2 | Mostly you rehearsing; Claude fixes what breaks | |
@@ -98,11 +98,13 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 
 ## Phase 4 — API (H13.5–H15.5)
 
-- [ ] `api/main.py`, `registry.py` (memory + pickle), routes per [04_API_CONTRACT.md](04_API_CONTRACT.md).
-- [ ] CORS for `localhost:5173`.
-- [ ] `llm.py` Gemini wrapper + fallbacks; `chat_tools.py`; `/chat`.
-- [ ] `scripts/smoke_api.py` hits every endpoint on the demo session.
-- [ ] Generate `frontend/src/api/types.ts` from the contract.
+- [x] `api/main.py`, `registry.py` (memory + pickle), routes per [04_API_CONTRACT.md](04_API_CONTRACT.md).
+- [x] CORS for `localhost:5173`.
+- [x] `llm.py` Gemini wrapper + fallbacks; `chat_tools.py`; `/chat`.
+- [x] `scripts/smoke_api.py` hits every endpoint on the demo session.
+- [x] Generate `frontend/src/api/types.ts` from the contract.
+
+**Phase 4 result (2026-11-19):** 63 tests pass; `scripts/smoke_api.py` drives 46 endpoint calls through upload → scan → plan → auto → review → undo/restore → privacy → chat → validation → benchmark → export, offline and `--live`. Added beyond the contract: bulk review by pattern (`/proposals/groups`), evidence explanations, bulk undo, session list (see 04 "As built"). Live Gemini answers all 5 demo questions correctly from tool results. Found and handled the free-tier limit of 20 requests/day for 2.5 Flash (model fallback chain, quota-aware cooldown, thinking off). Real server + Vite proxy verified.
 
 ## Sleep (H15.5–H19.5)
 

@@ -83,7 +83,7 @@ def write_highlighted_xlsx(s, path: Path, table: str | None = None) -> Path:
 def _report_data(s) -> dict:
     main = s.main
     scan = s.scans[main]
-    val = s.validation or s.validate()
+    val = s.fresh_validation()
     causes = s.causes if s.causes is not None else s.diagnose()
     if not s.privacy:
         s.privacy_scan()

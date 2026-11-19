@@ -81,8 +81,10 @@ def validate_session(s) -> dict:
 
     # 7. idempotent: planning again on the repaired data proposes no further automatic fixes
     replan = plan_repairs({n: s.current(n) for n in s.originals}, rescans, s.thresholds)
-    # cells the user masked on purpose are not "fixable" errors
-    again = [p for p in replan if p.tier == "auto" and not (p.table == main and (p.row_id, p.column) in masked)]
+    # not counted: cells the user masked on purpose, and cells/rows whose repair the user rejected or undid
+    declined = {(p.table, p.row_id, p.column) for p in s.proposals.values() if p.status in ("rejected", "undone")}
+    again = [p for p in replan if p.tier == "auto" and not (p.table == main and (p.row_id, p.column) in masked)
+             and (p.table, p.row_id, p.column) not in declined]
     checks.append(_check("idempotent", not again, len(again),
                          "high-confidence fixes proposed when DataFix runs on its own output (target 0)"
                          + (f": {sorted({(p.column, p.algorithm) for p in again})[:5]}" if again else "")))
