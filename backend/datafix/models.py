@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from typing import Any
 
 # Severity weight per issue type, used by the quality score (docs/05_ENGINE_SPEC.md §4).
@@ -129,15 +129,20 @@ class Change:
     confidence: float
     algorithm: str
     actor: str  # auto | user | chat | system
-    action: str  # apply | undo | redo | reject
+    action: str  # apply | undo | redo | reject | reopen | keep | unkeep (the last four change no cell)
     target: str | None  # change_id that an undo/redo refers to
     timestamp: str
     prev_hash: str = ""
     hash: str = ""
     status: str = "applied"  # applied | undone (only meaningful for action=apply)
 
-    def to_dict(self) -> dict:
-        return asdict(self)
+    def to_dict(self) -> dict:  # shallow (asdict deep-copies; 5x slower on a 160k-entry log)
+        d = {k: getattr(self, k) for k in _CHANGE_FIELDS}
+        d["evidence"] = list(self.evidence)
+        return d
+
+
+_CHANGE_FIELDS = tuple(f.name for f in fields(Change))
 
 
 @dataclass

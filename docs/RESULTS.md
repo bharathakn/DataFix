@@ -75,3 +75,14 @@ Reproduce: `cd backend && uv run python ../scripts/make_demo_data.py --rows 1000
 ### API (in-process, demo session)
 
 scan 6–7 s · plan 0.8 s · apply-auto 1.8 s · validation 5.5 s · benchmark (1,000 rows) 4.5 s · export ZIP 2.7 s · rows / proposals / checkpoints / review / undo < 160 ms · chat offline < 20 ms, Gemini 4–9 s.
+
+## Unknown dataset (user upload, 30,558 rows × 20 columns, 161k log entries) — 2026-11-20
+
+| Operation | Before | After | Fix |
+|---|---|---|---|
+| History / checkpoints / undo / restore | minutes; blocked the session lock (other requests queued 750 s) | 0.2 s / 1 s | `_by_id` was a linear scan per lookup → direct index (ids are sequential) |
+| `cleaned_highlighted.xlsx` | 84 s | 6 s | openpyxl → xlsxwriter (constant memory); hover notes capped at 3,000 cells (open review items first), colours on every cell |
+| `change_log.csv` | 12 s | 4 s | ID column looked up once per table, not per entry; shallow `Change.to_dict` |
+| Export bundle (warm validation) | 110 s | 15 s | the above |
+| `GET /export/zip` from the UI | ~20 min (four clicks queued behind the lock) | 27 s cold (incl. a fresh validation), 0.03 s repeat | export files cached per session state; the button shows "Preparing ZIP…" and sends one request |
+| Report preview iframe | blank (request stuck in the queue) | instant | same; spinner until the iframe loads |

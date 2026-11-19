@@ -18,6 +18,8 @@ from .planner import plan_repairs
 from .scan import ScanResult, scan_table
 from .validate import quality_score
 
+DATA_NEUTRAL = {"reject", "reopen", "keep", "unkeep"}
+
 ROW = "__row__"
 DELETED = "__deleted__"
 
@@ -194,11 +196,12 @@ class Session:
             else:
                 df.at[change.row_id, change.column] = change.new_value
             bases[change.table] = (self._version, df, rows, cols)
+        neutral = change.action in DATA_NEUTRAL  # decisions that leave every cell as it is
         for t, bt in list(bases.items()):
-            if t != change.table and bt[0] == self._version - 1:
+            if (neutral or t != change.table) and bt[0] == self._version - 1:
                 bases[t] = (self._version, *bt[1:])  # other tables are unaffected
         for t, (ver, df) in list(self._cache.items()):
-            if t != change.table and ver == self._version - 1:
+            if (neutral or t != change.table) and ver == self._version - 1:
                 self._cache[t] = (self._version, df)
         return change
 
@@ -368,6 +371,34 @@ class Session:
         k.quality_score = self.score()
         return k, len(take), len(skip)
 
+    def reject_all(self, tier: str, column: str | None = None, actor: str = "user") -> list[str]:
+        """Decline every pending suggestion of a tier (optionally one column). No cell changes; reopen() reverts it."""
+        pids = [p.proposal_id for p in self.proposals.values() if p.tier == tier and p.status == "pending"
+                and (not column or p.column == column)]
+        k = self._review_checkpoint()
+        for pid in pids:
+            p = self.proposals[pid]
+            self._append(Change(f"C{len(self.changes) + 1:05d}", k.checkpoint_id, pid, p.table, p.row_id, p.column,
+                                p.original_value, p.original_value, f"reviewer declined all {tier} items in bulk", [],
+                                "reviewer", 0.0, p.algorithm, actor, "reject", None, _now(), status="rejected"))
+            p.status = "rejected"
+        return pids
+
+    def reopen(self, pids: list[str], actor: str = "user") -> int:
+        """Put rejected suggestions back in their queue (the undo of a reject)."""
+        k = self._review_checkpoint()
+        n = 0
+        for pid in pids:
+            p = self.proposals[pid]
+            if p.status != "rejected":
+                continue
+            self._append(Change(f"C{len(self.changes) + 1:05d}", k.checkpoint_id, pid, p.table, p.row_id, p.column,
+                                p.original_value, p.original_value, "rejection undone: back in the queue", [],
+                                "reviewer", 0.0, p.algorithm, actor, "reopen", None, _now(), status="reopened"))
+            p.status = "pending"
+            n += 1
+        return n
+
     # ------------------------------------------------------------------ undo / redo / time travel
     def _set_status(self, change: Change, applied: bool, actor: str) -> None:
         if (change.status == "applied") == applied:
@@ -388,7 +419,15 @@ class Session:
                 p.status = "pending" if p.tier == "review" and not any(s == "applied" for s in states) else "undone"
 
     def _by_id(self, change_id: str) -> Change:
-        for c in self.changes:
+        """O(1): ids are sequential (C00001 is entry 1). A linear scan here made History / undo quadratic
+        and locked a 160k-entry session for minutes."""
+        try:
+            c = self.changes[int(change_id[1:]) - 1]
+            if c.change_id == change_id:
+                return c
+        except (ValueError, IndexError):
+            pass
+        for c in self.changes:  # fallback for any non-standard id
             if c.change_id == change_id:
                 return c
         raise KeyError(change_id)
@@ -502,11 +541,35 @@ class Session:
                 active[(c.table, c.column)] = "drop"
             elif c.algorithm == "privacy_mask":
                 active.setdefault((c.table, c.column), c.reason.rsplit(" ", 1)[-1])
+        kept = self.privacy_kept()
         out = []
         for f in self.privacy:
             method = active.get((f["table"], f["column"]))
-            out.append({**f, "masked": method is not None, "method": method})
+            out.append({**f, "masked": method is not None, "method": method, "kept": (f["table"], f["column"]) in kept})
         return out
+
+    def privacy_kept(self) -> set[tuple[str, str]]:
+        """Columns the user chose to leave unmasked, derived from the log (keep / unkeep entries)."""
+        kept: set = set()
+        for c in self.changes:
+            if c.algorithm == "privacy_keep":
+                (kept.add if c.action == "keep" else kept.discard)((c.table, c.column))
+        return kept
+
+    def keep_unmasked(self, column: str, table: str | None = None, keep: bool = True) -> None:
+        """Record that personal data in a column is kept on purpose (or undo that). Changes no cell."""
+        table = table or self.main
+        if not self.privacy:
+            self.privacy_scan()
+        if not any(f["table"] == table and f["column"] == column for f in self.privacy):
+            raise ValueError(f"no personal data found in {table}.{column}")
+        if ((table, column) in self.privacy_kept()) == keep:
+            return
+        k = self.checkpoints[-1]
+        self._append(Change(f"C{len(self.changes) + 1:05d}", k.checkpoint_id, None, table, -1, column, "", "",
+                            f"privacy: {column} {'kept unmasked on purpose' if keep else 'no longer marked as kept'}", [],
+                            "privacy_shield", 1.0, "privacy_keep", "user", "keep" if keep else "unkeep", None, _now(),
+                            status="kept" if keep else "unkept"))
 
     def mask_column(self, column: str, method: str, table: str | None = None, pii_type: str | None = None) -> Checkpoint:
         """Mask PII in one column as an undoable checkpoint. method: partial | redact | hash | drop."""
@@ -575,12 +638,14 @@ class Session:
 
     def change_log(self) -> pd.DataFrame:
         rows = []
+        id_cols = {t: next((col for col, i in self.scans[t].columns.items()
+                            if i.semantic_type == "id" and i.distinct >= 0.95 * len(self.originals[t])), None)
+                   for t in self.originals}
         for c in self.changes:
             d = c.to_dict()
             d["evidence"] = " | ".join(c.evidence)
-            id_col = next((col for col, i in self.scans[c.table].columns.items()
-                           if i.semantic_type == "id" and i.distinct >= 0.95 * len(self.originals[c.table])), None)
-            d["record_id"] = self.originals[c.table].at[c.row_id, id_col] if id_col else c.row_id
+            id_col = id_cols.get(c.table)
+            d["record_id"] = self.originals[c.table].at[c.row_id, id_col] if id_col and c.row_id >= 0 else c.row_id
             rows.append(d)
         cols = ["change_id", "checkpoint_id", "action", "status", "table", "row_id", "record_id", "column",
                 "original_value", "new_value", "reason", "evidence", "source", "confidence", "algorithm", "actor",

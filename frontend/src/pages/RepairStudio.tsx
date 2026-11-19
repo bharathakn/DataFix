@@ -169,6 +169,83 @@ function AcceptAllDialog({ sid, column, onClose, onAccepted }: { sid: string; co
   )
 }
 
+const REJECT_TEXT: Record<'review' | 'refused' | 'flag', { what: string; points: string[]; ack: string }> = {
+  review: {
+    what: 'suggestions',
+    points: ['Every proposed fix is declined: the cells keep their current (dirty) values.',
+      'These issues stay in the data, so the quality score does not improve.'],
+    ack: 'cells will stay unfixed',
+  },
+  refused: {
+    what: 'refused items',
+    points: ['DataFix refused these because the evidence was too weak or contradictory to guess safely.',
+      'Rejecting them means you accept leaving these cells blank or invalid in the cleaned file. They still count as open issues in validation.',
+      'Safer: open a few and type the correct value under “Fix it manually”.'],
+    ack: 'cells will stay blank or invalid',
+  },
+  flag: {
+    what: 'flags',
+    points: ['Flags are unusual values (outliers, suspicious patterns) that DataFix never changes on its own.',
+      'Dismissing them means nobody looks at whether they are real data or mistakes.'],
+    ack: 'flags will be dismissed unseen',
+  },
+}
+
+/** "Reject all" for a queue: a warned decision that changes no cell, undoable from the toast. */
+function RejectAllDialog({ sid, tier, column, count, onClose, onDone }: {
+  sid: string; tier: 'review' | 'refused' | 'flag'; column: string; count: number; onClose: () => void; onDone: () => void
+}) {
+  const toast = useToast()
+  const [sure, setSure] = useState(false)
+  const reopen = useSessionMutation(sid, (ids: string[]) => api.reopen(sid, ids))
+  const reject = useSessionMutation(sid, () => api.rejectAll(sid, tier, column || undefined))
+  const busy = reject.isPending
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !busy) onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [busy, onClose])
+  const t = REJECT_TEXT[tier]
+  const scope = column === ROW ? 'duplicate-row ' : column ? `'${column}' ` : ''
+  const go = () => reject.mutate(undefined, {
+    onSuccess: (r) => {
+      onDone()
+      onClose()
+      toast({ text: `Rejected ${num(r.rejected)} ${scope}${t.what}; no cell was changed`,
+        action: r.proposal_ids.length ? { label: 'Undo all', run: () => reopen.mutate(r.proposal_ids) } : undefined })
+    },
+  })
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="reject-all-title">
+      <div className="absolute inset-0 bg-slate-900/50" onClick={() => !busy && onClose()} />
+      <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-amber-300 bg-white shadow-2xl dark:border-amber-800 dark:bg-slate-900">
+        <header className="flex items-start gap-3 border-b border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-900 dark:bg-amber-950/40">
+          <TriangleAlert className="mt-0.5 size-6 shrink-0 text-amber-600" />
+          <h2 id="reject-all-title" className="font-semibold text-amber-900 dark:text-amber-100">
+            Reject all {num(count)} {scope}{t.what} without looking at them?
+          </h2>
+        </header>
+        <div className="space-y-3 px-5 py-4 text-sm">
+          <ul className="list-disc space-y-1 pl-5 text-slate-700 dark:text-slate-300">
+            {t.points.map((x) => <li key={x}>{x}</li>)}
+            <li>They leave this queue. “Undo all” in the toast puts them back.</li>
+          </ul>
+          <label className="flex items-start gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+            <input type="checkbox" className="mt-0.5" checked={sure} disabled={busy} onChange={(e) => setSure(e.target.checked)} />
+            <span>I understand {num(count)} {t.ack}.</span>
+          </label>
+          <ErrorNote error={reject.error} />
+          {busy && <Spinner label="Recording the decisions…" />}
+        </div>
+        <footer className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-800">
+          <Button onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button variant="danger" disabled={!sure || !count} loading={busy} onClick={go}>Reject all {num(count)}</Button>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
 export default function RepairStudio() {
   const { sid = '' } = useParams()
   const { data: s } = useSession(sid)
@@ -178,6 +255,7 @@ export default function RepairStudio() {
   const [view, setView] = useState<'current' | 'original' | 'diff' | null>(null)
   const [strongFirst, setStrongFirst] = useState(true)
   const [acceptAll, setAcceptAll] = useState(false)
+  const [rejectAll, setRejectAll] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
   const types = useMemo(() => Object.fromEntries((s?.columns ?? []).map((c) => [c.name, c.semantic_type])), [s])
   const mask = useMasker(types)
@@ -229,6 +307,10 @@ export default function RepairStudio() {
   const pend = s.pending ?? {}
   const counts: Record<Tab, number | undefined> = { review: pend.review, flag: pend.flag, refused: pend.refused, applied: s.applied, patterns: undefined }
   const columns = [...new Set(s.columns.map((c) => c.name))]
+  // bulk buttons act on what the tab shows: the filtered queue, or the whole review queue on Patterns
+  const bulkTier = tab === 'patterns' ? 'review' : tab
+  const bulkColumn = tab === 'patterns' ? '' : column
+  const bulkCount = tab === 'applied' ? 0 : tab === 'patterns' ? (pend.review ?? 0) : (list.data?.total ?? 0)
 
   return (
     <div className="mx-auto max-w-7xl space-y-4 p-6">
@@ -248,20 +330,27 @@ export default function RepairStudio() {
             <Icon className="size-4" />{label}{counts[id] !== undefined && <span className="tabular rounded-full bg-slate-100 px-1.5 text-xs dark:bg-slate-800">{num(counts[id])}</span>}
           </button>
         ))}
-        {tab === 'review' && !!list.data?.total && (
-          <Button variant="danger" className="mb-1 ml-auto px-2.5 py-1 text-xs" onClick={() => setAcceptAll(true)}>
-            <CheckCheck className="size-3.5" />Accept all {num(list.data.total)}{column ? ` ${column === ROW ? 'duplicates' : column}` : ''}
-          </Button>
+        {bulkCount > 0 && (
+          <div className="mb-1 ml-auto flex gap-1.5">
+            {(tab === 'review' || tab === 'patterns') && (
+              <Button variant="danger" className="px-2.5 py-1 text-xs" onClick={() => setAcceptAll(true)}>
+                <CheckCheck className="size-3.5" />Accept all {num(bulkCount)}{bulkColumn ? ` ${bulkColumn === ROW ? 'duplicates' : bulkColumn}` : ''}
+              </Button>
+            )}
+            <Button className="px-2.5 py-1 text-xs" onClick={() => setRejectAll(true)}>
+              <Ban className="size-3.5" />Reject all {num(bulkCount)}
+            </Button>
+          </div>
         )}
         {tab === 'review' && (
           <button onClick={() => { setStrongFirst(!strongFirst); setSelected(null) }}
-            className={cn('mb-1 rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800', !list.data?.total && 'ml-auto')}>
+            className={cn('mb-1 rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800', !bulkCount && 'ml-auto')}>
             {strongFirst ? 'Most confident first' : 'Least confident first'} ⇅
           </button>
         )}
         {tab !== 'patterns' && (
           <select value={column} onChange={(e) => { setColumn(e.target.value); setSelected(null) }} aria-label="Filter by column"
-            className={cn('mb-1 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900', tab !== 'review' && 'ml-auto')}>
+            className={cn('mb-1 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900', tab !== 'review' && !bulkCount && 'ml-auto')}>
             <option value="">All columns</option>
             <option value={ROW}>Duplicate rows</option>
             {columns.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -291,7 +380,9 @@ export default function RepairStudio() {
         </div>
       )}
 
-      {acceptAll && <AcceptAllDialog sid={sid} column={column} onClose={() => setAcceptAll(false)} onAccepted={() => setSelected(null)} />}
+      {acceptAll && <AcceptAllDialog sid={sid} column={bulkColumn} onClose={() => setAcceptAll(false)} onAccepted={() => setSelected(null)} />}
+      {rejectAll && bulkTier !== 'applied' && <RejectAllDialog sid={sid} tier={bulkTier} column={bulkColumn} count={bulkCount}
+        onClose={() => setRejectAll(false)} onDone={() => setSelected(null)} />}
 
       {view && (
         <Card title="Data" action={

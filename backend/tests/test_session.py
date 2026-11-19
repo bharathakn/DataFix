@@ -148,3 +148,22 @@ def test_accept_all_review_is_one_undoable_checkpoint(fixed):
     assert fixed.current().equals(before) and fixed.verify_audit()["valid"]
     assert fixed.accept_all_preview("review")["count"] == n  # undone review items are back in the queue
     assert fixed.accept_all_preview("review", "city")["by_column"].keys() <= {"city"}
+
+
+def test_reject_all_and_reopen_change_no_cell(fixed):
+    before = fixed.current().copy()
+    score = fixed.score()
+    pids = fixed.reject_all("refused")
+    assert pids and all(fixed.proposals[p].status == "rejected" for p in pids)
+    assert fixed.current().equals(before) and fixed.score() == score  # declining does not pretend issues are fixed
+    assert fixed.reopen(pids) == len(pids)
+    assert all(fixed.proposals[p].status == "pending" for p in pids) and fixed.verify_audit()["valid"]
+
+
+def test_privacy_keep_is_logged_and_reversible(fixed):
+    col = next(f["column"] for f in fixed.privacy_status() if f["table"] == fixed.main)
+    fixed.keep_unmasked(col)
+    assert all(f["kept"] for f in fixed.privacy_status() if f["column"] == col and f["table"] == fixed.main)
+    fixed.keep_unmasked(col, keep=False)
+    assert not any(f["kept"] for f in fixed.privacy_status())
+    assert fixed.verify_audit()["valid"]

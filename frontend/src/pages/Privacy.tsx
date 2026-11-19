@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { Lock, ShieldAlert, ShieldCheck } from 'lucide-react'
-import { useState } from 'react'
+import { Eye, Lock, ShieldAlert, ShieldCheck, TriangleAlert } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useSession, useSessionMutation } from '../api/hooks'
@@ -19,14 +19,14 @@ const TYPE_LABEL: Record<string, string> = {
   aadhaar: 'Aadhaar', pan: 'PAN', gstin: 'GSTIN', phone: 'Phone', email: 'Email', ifsc: 'IFSC', card: 'Card number', bank_account: 'Bank account',
 }
 
-interface ColumnGroup { table: string; column: string; findings: PiiFinding[]; risk: 'high' | 'medium' | 'low'; freeText: boolean; masked: boolean; method: string | null }
+interface ColumnGroup { table: string; column: string; findings: PiiFinding[]; risk: 'high' | 'medium' | 'low'; freeText: boolean; masked: boolean; method: string | null; kept: boolean }
 
 function group(fs: PiiFinding[]): ColumnGroup[] {
   const m = new Map<string, ColumnGroup>()
   const rank = { high: 0, medium: 1, low: 2 }
   for (const f of fs) {
     const k = `${f.table}.${f.column}`
-    const g = m.get(k) ?? { table: f.table, column: f.column, findings: [], risk: f.risk, freeText: f.in_free_text, masked: f.masked, method: f.method }
+    const g = m.get(k) ?? { table: f.table, column: f.column, findings: [], risk: f.risk, freeText: f.in_free_text, masked: f.masked, method: f.method, kept: f.kept }
     g.findings.push(f)
     if (rank[f.risk] < rank[g.risk]) g.risk = f.risk
     m.set(k, g)
@@ -39,6 +39,7 @@ function ColumnRow({ sid, g }: { sid: string; g: ColumnGroup }) {
   const [method, setMethod] = useState<MaskMethod>(g.freeText ? 'redact' : 'partial')
   const undo = useSessionMutation(sid, (cid: string) => api.undoCheckpoint(sid, cid))
   const mask = useSessionMutation(sid, () => api.mask(sid, { column: g.column, method, table: g.table }))
+  const keep = useSessionMutation(sid, (k: boolean) => api.privacyKeep(sid, { column: g.column, table: g.table, keep: k }))
   return (
     <tr className="border-t border-slate-100 align-top dark:border-slate-800">
       <td className="py-3 pr-3">
@@ -60,6 +61,11 @@ function ColumnRow({ sid, g }: { sid: string; g: ColumnGroup }) {
       <td className="py-3">
         {g.masked ? (
           <div className="flex items-center gap-2"><Badge tone="green"><Lock className="size-3" />{g.method === 'drop' ? 'dropped' : `${g.method}`}</Badge></div>
+        ) : g.kept ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="slate"><Eye className="size-3" />kept unmasked</Badge>
+            <Button variant="ghost" className="px-2 py-1 text-xs" loading={keep.isPending} onClick={() => keep.mutate(false)}>Undo</Button>
+          </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             <select value={method} onChange={(e) => setMethod(e.target.value as MaskMethod)} aria-label={`Masking method for ${g.column}`}
@@ -71,11 +77,54 @@ function ColumnRow({ sid, g }: { sid: string; g: ColumnGroup }) {
                 text: `${g.column}: ${method === 'drop' ? 'column dropped' : `${num(r.affected)} cells ${method === 'partial' ? 'masked' : method === 'hash' ? 'hashed' : 'redacted'}`}`,
                 action: { label: 'Undo', run: () => undo.mutate(r.checkpoint.checkpoint_id) },
               }) })}>Apply</Button>
+            <Button className="px-3 py-1 text-xs" loading={keep.isPending} title="Leave the values as they are; recorded in the audit log"
+              onClick={() => keep.mutate(true, { onSuccess: () => toast({
+                text: `${g.column}: kept unmasked${g.risk === 'high' ? ' (high-risk IDs will be exported in plain text)' : ''}`,
+                action: { label: 'Undo', run: () => keep.mutate(false) },
+              }) })}>Keep as is</Button>
           </div>
         )}
-        <ErrorNote error={mask.error} />
+        <ErrorNote error={mask.error || keep.error} />
       </td>
     </tr>
+  )
+}
+
+function KeepAllDialog({ sid, groups, onClose }: { sid: string; groups: ColumnGroup[]; onClose: () => void }) {
+  const toast = useToast()
+  const keepAll = useSessionMutation(sid, async (k: boolean) => {
+    for (const g of groups) await api.privacyKeep(sid, { column: g.column, table: g.table, keep: k })
+  })
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !keepAll.isPending) onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [keepAll.isPending, onClose])
+  const high = groups.filter((g) => g.risk === 'high')
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="keep-all-title">
+      <div className="absolute inset-0 bg-slate-900/50" onClick={() => !keepAll.isPending && onClose()} />
+      <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-amber-300 bg-white shadow-2xl dark:border-amber-800 dark:bg-slate-900">
+        <header className="flex items-start gap-3 border-b border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-900 dark:bg-amber-950/40">
+          <TriangleAlert className="mt-0.5 size-6 shrink-0 text-amber-600" />
+          <h2 id="keep-all-title" className="font-semibold text-amber-900 dark:text-amber-100">Keep personal data in {groups.length} columns unmasked?</h2>
+        </header>
+        <div className="space-y-2 px-5 py-4 text-sm text-slate-700 dark:text-slate-300">
+          <p>Nothing is changed: the values stay exactly as uploaded and go into the cleaned file and exports in plain text.</p>
+          {high.length > 0 && <p className="rounded-lg bg-rose-50 p-2 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+            Includes high-risk identity numbers in {high.map((g) => g.column).join(', ')}. Sharing Aadhaar or PAN in plain text may breach the DPDP Act 2023.</p>}
+          <p>The decision is recorded in the audit log and can be undone per column. The AI still never sees raw values.</p>
+          <ErrorNote error={keepAll.error} />
+        </div>
+        <footer className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-800">
+          <Button onClick={onClose} disabled={keepAll.isPending}>Cancel</Button>
+          <Button variant="danger" loading={keepAll.isPending} onClick={() => keepAll.mutate(true, { onSuccess: () => {
+            onClose()
+            toast({ text: `Kept ${groups.length} columns unmasked`, action: { label: 'Undo', run: () => keepAll.mutate(false) } })
+          } })}>Keep all unmasked</Button>
+        </footer>
+      </div>
+    </div>
   )
 }
 
@@ -83,6 +132,7 @@ export default function Privacy() {
   const { sid = '' } = useParams()
   const toast = useToast()
   const { data: s } = useSession(sid)
+  const [keepAll, setKeepAll] = useState(false)
   const pii = useQuery({ queryKey: [sid, 'privacy'], queryFn: () => api.privacy(sid), enabled: !!s && s.stage !== 'loaded' })
   const maskAll = useSessionMutation(sid, async (gs: ColumnGroup[]) => {
     let n = 0
@@ -92,7 +142,8 @@ export default function Privacy() {
   if (!s) return <div className="p-6"><Skeleton className="h-96" /></div>
   if (s.stage === 'loaded') return <Navigate to={`/s/${sid}/setup`} replace />
   const groups = group(pii.data ?? [])
-  const highOpen = groups.filter((g) => g.risk === 'high' && !g.masked)
+  const highOpen = groups.filter((g) => g.risk === 'high' && !g.masked && !g.kept)
+  const open = groups.filter((g) => !g.masked && !g.kept)
   const hidden = (pii.data ?? []).filter((f) => f.in_free_text).reduce((a, f) => a + f.rows, 0)
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
@@ -104,10 +155,13 @@ export default function Privacy() {
             Masking is a checkpoint like any repair, so it can be undone. Raw values are never sent to the AI.
           </p>
         </div>
+        <div className="flex flex-wrap gap-2">
         <Button variant="primary" disabled={!highOpen.length} loading={maskAll.isPending}
           onClick={() => maskAll.mutate(highOpen, { onSuccess: (n) => toast({ text: `Masked ${num(n)} high-risk values in ${highOpen.length} columns` }) })}>
           <ShieldCheck className="size-4" />Mask all high-risk ({highOpen.length})
         </Button>
+        <Button disabled={!open.length} onClick={() => setKeepAll(true)}><Eye className="size-4" />Keep all unmasked ({open.length})</Button>
+        </div>
       </div>
 
       {hidden > 0 && (
@@ -127,6 +181,8 @@ export default function Privacy() {
           </table>
         )}
       </Card>
+
+      {keepAll && <KeepAllDialog sid={sid} groups={open} onClose={() => setKeepAll(false)} />}
 
       <Card title="Masking methods">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

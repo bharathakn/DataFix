@@ -362,6 +362,39 @@ def accept_all(sid: str, body: AcceptAllBody):
         return {"applied": n, "skipped": skipped, "checkpoint": k.to_dict() if k else None, "score_now": s.score()}
 
 
+class RejectAllBody(BaseModel):
+    tier: Literal["review", "refused", "flag"]
+    column: str | None = None
+
+
+@router.post("/sessions/{sid}/review/reject-all")
+@locked
+def reject_all(sid: str, body: RejectAllBody):
+    s = _session(sid)
+    _require_plan(s)
+    with registry.lock(sid):
+        pids = s.reject_all(body.tier, body.column or None)
+        if pids:
+            registry.save(s)
+        return {"rejected": len(pids), "proposal_ids": pids, "score_now": s.score()}
+
+
+class ReopenBody(BaseModel):
+    proposal_ids: list[str]
+
+
+@router.post("/sessions/{sid}/review/reopen")
+@locked
+def reopen(sid: str, body: ReopenBody):
+    s = _session(sid)
+    _require_plan(s)
+    with registry.lock(sid):
+        n = s.reopen(body.proposal_ids)
+        if n:
+            registry.save(s)
+        return {"reopened": n}
+
+
 class ReviewBody(BaseModel):
     action: Literal["accept", "reject", "choose"]
     candidate_index: int = 0
@@ -514,6 +547,24 @@ def mask(sid: str, body: MaskBody):
         return {"checkpoint": k.to_dict(), "affected": len(k.change_ids), "findings": s.privacy_status()}
 
 
+class KeepBody(BaseModel):
+    column: str
+    table: str | None = None
+    keep: bool = True
+
+
+@router.post("/sessions/{sid}/privacy/keep")
+@locked
+def privacy_keep(sid: str, body: KeepBody):
+    """Leave a PII column unmasked on purpose (keep=false undoes it). No cell changes; logged in the audit trail."""
+    s = _session(sid)
+    _require_scan(s)
+    with registry.lock(sid):
+        s.keep_unmasked(body.column, body.table, body.keep)
+        registry.save(s)
+        return {"findings": s.privacy_status()}
+
+
 # ---------------------------------------------------------------- chat & LLM
 class ChatTurn(BaseModel):
     role: Literal["user", "assistant"]
@@ -557,6 +608,22 @@ EXPORT_KINDS = {
 }
 
 
+_EXPORT_CACHE: dict[str, dict[str, tuple]] = {}  # sid -> kind -> (state key, path): repeat downloads are instant
+
+
+def _export_key(s) -> tuple:
+    return (s._version, len(s.changes), id(s.benchmark_result), id(s.causes))
+
+
+def _cached(sid: str, kind: str, s) -> Path | None:
+    hit = _EXPORT_CACHE.get(sid, {}).get(kind)
+    return hit[1] if hit and hit[0] == _export_key(s) and hit[1].exists() else None
+
+
+def _remember(sid: str, kind: str, s, path: Path) -> None:
+    _EXPORT_CACHE.setdefault(sid, {})[kind] = (_export_key(s), path)
+
+
 def _export_dir(sid: str) -> Path:
     d = Path(tempfile.gettempdir()) / "datafix_exports" / sid
     d.mkdir(parents=True, exist_ok=True)
@@ -569,8 +636,15 @@ def export_zip(sid: str):
     s = _session(sid)
     _require_plan(s)
     with registry.lock(sid):
-        files = export_bundle(s, _export_dir(sid))
-    return FileResponse(files["zip"], media_type="application/zip", filename="datafix_output.zip")
+        zpath = _cached(sid, "zip", s)
+        if zpath is None:
+            files = export_bundle(s, _export_dir(sid))
+            zpath = files["zip"]
+            _remember(sid, "zip", s, zpath)
+            for kind, (name, _) in EXPORT_KINDS.items():  # the bundle wrote every single file too
+                if name in files:
+                    _remember(sid, kind, s, files[name])
+    return FileResponse(zpath, media_type="application/zip", filename="datafix_output.zip")
 
 
 @router.get("/sessions/{sid}/export/{kind}")
@@ -583,7 +657,9 @@ def export_one(sid: str, kind: str, inline: bool = False):
     name, media = EXPORT_KINDS[kind]
     path = _export_dir(sid) / name
     with registry.lock(sid):
-        if kind == "cleaned_csv":
+        if _cached(sid, kind, s):
+            pass
+        elif kind == "cleaned_csv":
             s.cleaned(s.main).to_csv(path, index=False)
         elif kind == "highlighted_xlsx":
             write_highlighted_xlsx(s, path)
@@ -596,5 +672,6 @@ def export_one(sid: str, kind: str, inline: bool = False):
         else:
             import json
             path.write_text(json.dumps(build_recipe(s), indent=1, ensure_ascii=False))
+        _remember(sid, kind, s, path)
     # inline=1 lets the UI show the report in an iframe instead of downloading it
     return FileResponse(path, media_type=media, filename=name, content_disposition_type="inline" if inline else "attachment")

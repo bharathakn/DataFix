@@ -142,6 +142,7 @@ export interface PiiFinding {
   table: string; column: string; pii_type: 'aadhaar' | 'pan' | 'gstin' | 'phone' | 'email' | 'ifsc' | 'card' | 'bank_account'
   rows: number; in_free_text: boolean; risk: 'high' | 'medium' | 'low'; validated_by: string
   sample_masked: string; masked: boolean; method: MaskMethod | null
+  kept: boolean  // the user chose to leave this column unmasked
 }
 export type MaskMethod = 'partial' | 'redact' | 'hash' | 'drop'
 

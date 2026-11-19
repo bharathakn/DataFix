@@ -7,16 +7,10 @@ from pathlib import Path
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from openpyxl import Workbook
-from openpyxl.cell import WriteOnlyCell
-from openpyxl.comments import Comment
-from openpyxl.styles import Font, PatternFill
 
 from .recipe import build_recipe
 
 ROW = "__row__"
-FILLS = {"repaired": PatternFill("solid", fgColor="C6EFCE"), "estimated": PatternFill("solid", fgColor="BDD7EE"),
-         "review": PatternFill("solid", fgColor="FFEB9C"), "masked": PatternFill("solid", fgColor="E4DFEC")}
 TEMPLATES = Path(__file__).parent / "templates"
 
 
@@ -41,42 +35,51 @@ def _cell_marks(s, table: str) -> dict[tuple[int, str], tuple[str, str]]:
     return marks
 
 
+MAX_COMMENTS = 3000  # hover notes are VML shapes; beyond a few thousand they dominate the file and the write time
+COLOURS = {"repaired": "#C6EFCE", "estimated": "#BDD7EE", "review": "#FFEB9C", "masked": "#E4DFEC"}
+
+
 def write_highlighted_xlsx(s, path: Path, table: str | None = None) -> Path:
+    """Coloured copy of the cleaned table. xlsxwriter in constant-memory mode: ~10x faster than openpyxl on 30k rows."""
+    import xlsxwriter
+
     table = table or s.main
     df = s.cleaned(table)
     marks = _cell_marks(s, table)
-    wb = Workbook(write_only=True)
-    ws = wb.create_sheet("Cleaned data")
-    bold = Font(bold=True)
-    header = []
-    for name in df.columns:
-        cell = WriteOnlyCell(ws, value=name)
-        cell.font = bold
-        header.append(cell)
-    ws.append(header)
+    # comments go to the most useful cells first: open review items, then repairs, in row order
+    priority = {"review": 0, "estimated": 1, "repaired": 2, "masked": 3}
+    commented = set(sorted(marks, key=lambda k: (priority[marks[k][0]], k[0]))[:MAX_COMMENTS])
+    wb = xlsxwriter.Workbook(str(path), {"constant_memory": True, "strings_to_numbers": False,
+                                         "strings_to_formulas": False, "strings_to_urls": False})
+    ws = wb.add_worksheet("Cleaned data")
+    bold = wb.add_format({"bold": True})
+    fmts = {k: wb.add_format({"bg_color": v}) for k, v in COLOURS.items()}
     cols = list(df.columns)
-    for row_id, values in zip(df.index, df.itertuples(index=False, name=None)):
-        out = []
-        for col, val in zip(cols, values):
+    ws.write_row(0, 0, cols, bold)
+    ws.freeze_panes(1, 0)
+    pos = {c: j for j, c in enumerate(cols)}
+    for i, (row_id, values) in enumerate(zip(df.index, df.itertuples(index=False, name=None)), start=1):
+        ws.write_row(i, 0, values)
+        for col in cols:
             mark = marks.get((row_id, col))
-            if mark is None:
-                out.append(val)
-                continue
-            cell = WriteOnlyCell(ws, value=val)
-            cell.fill = FILLS[mark[0]]
-            cell.comment = Comment(mark[1][:1000], "DataFix")
-            out.append(cell)
-        ws.append(out)
-    legend = wb.create_sheet("Legend")
-    legend.append(["Colour", "Meaning"])
-    for style, text in [("repaired", "Repaired by DataFix (hover for before value, reason, confidence)"),
-                        ("estimated", "Estimated value (group median) – treat as an estimate"),
-                        ("review", "Needs human review (suggestion or reason in the comment)"),
-                        ("masked", "Masked by the privacy shield")]:
-        c = WriteOnlyCell(legend, value=style)
-        c.fill = FILLS[style]
-        legend.append([c, text])
-    wb.save(path)
+            if mark is not None:
+                j = pos[col]
+                ws.write(i, j, values[j], fmts[mark[0]])
+                if (row_id, col) in commented:
+                    ws.write_comment(i, j, mark[1][:1000], {"author": "DataFix", "x_scale": 2, "y_scale": 1.5})
+    legend = wb.add_worksheet("Legend")
+    legend.write_row(0, 0, ["Colour", "Meaning"], bold)
+    rows = [("repaired", "Repaired by DataFix (hover for before value, reason, confidence)"),
+            ("estimated", "Estimated value (group median) – treat as an estimate"),
+            ("review", "Needs human review (suggestion or reason in the comment)"),
+            ("masked", "Masked by the privacy shield")]
+    for i, (style, text) in enumerate(rows, start=1):
+        legend.write(i, 0, style, fmts[style])
+        legend.write(i, 1, text)
+    if len(marks) > len(commented):
+        legend.write(len(rows) + 2, 1, f"Hover notes on the first {len(commented):,} of {len(marks):,} coloured cells "
+                                       "(open review items first); change_log.csv has every change.")
+    wb.close()
     return path
 
 
@@ -140,7 +143,7 @@ def write_report(s, path: Path) -> Path:
 
 def privacy_report(s) -> pd.DataFrame:
     cols = ["table", "column", "pii_type", "rows", "in_free_text", "risk", "validated_by", "sample_masked",
-            "masked", "method"]
+            "masked", "method", "kept"]  # kept = the user chose to leave it unmasked
     return pd.DataFrame(s.privacy_status(), columns=cols)
 
 

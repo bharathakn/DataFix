@@ -33,7 +33,7 @@ cd frontend && node scripts/ui_walkthrough.mjs <outdir>   # headless Chrome clic
 cd frontend && node scripts/ui_repair.mjs <outdir>         # Repair Studio + History check
 cd frontend && node scripts/ui_proof.mjs <outdir>          # Validation + Diagnosis check
 cd frontend && node scripts/ui_finish.mjs <outdir>         # Chat + Privacy + Export check
-cd frontend && node scripts/ui_accept_all.mjs <outdir>     # review-queue Accept all: warning, one checkpoint, Undo all
+cd frontend && node scripts/ui_accept_all.mjs <outdir>     # bulk Accept/Reject all + Privacy keep-unmasked checks
 scripts/start_demo.sh --offline                            # production: UI + API on :8000
 cd frontend && node scripts/rehearse.mjs ../out http://localhost:8000   # full demo rehearsal + backup video (PAUSE=3500 for viewing pace)
 curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now

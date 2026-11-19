@@ -85,6 +85,10 @@ export const api = {
   acceptAll: (sid: string, column?: string) =>
     req<{ applied: number; skipped: number; checkpoint: Checkpoint | null; score_now: number }>('POST', `${S(sid)}/review/accept-all`, { tier: 'review', column: column || null }),
 
+  rejectAll: (sid: string, tier: 'review' | 'refused' | 'flag', column?: string) =>
+    req<{ rejected: number; proposal_ids: string[]; score_now: number }>('POST', `${S(sid)}/review/reject-all`, { tier, column: column || null }),
+  reopen: (sid: string, ids: string[]) => req<{ reopened: number }>('POST', `${S(sid)}/review/reopen`, { proposal_ids: ids }),
+
   checkpoints: (sid: string) => req<Checkpoint[]>('GET', `${S(sid)}/checkpoints`),
   restore: (sid: string, cid: string) => req<Checkpoint[]>('POST', `${S(sid)}/checkpoints/${cid}/restore`),
   undoCheckpoint: (sid: string, cid: string) => req<Checkpoint[]>('POST', `${S(sid)}/checkpoints/${cid}/undo`),
@@ -97,6 +101,8 @@ export const api = {
   lastBenchmark: (sid: string) => req<BenchmarkResult | null>('GET', `${S(sid)}/benchmark`),
   benchmark: (sid: string, body: { sample_rows?: number; seed?: number } = {}) => req<BenchmarkResult>('POST', `${S(sid)}/benchmark`, body),
   privacy: (sid: string) => req<PiiFinding[]>('GET', `${S(sid)}/privacy`),
+  privacyKeep: (sid: string, body: { column: string; table?: string; keep: boolean }) =>
+    req<{ findings: PiiFinding[] }>('POST', `${S(sid)}/privacy/keep`, body),
   mask: (sid: string, body: { column: string; method: MaskMethod; table?: string; pii_type?: string }) =>
     req<{ checkpoint: Checkpoint; affected: number; findings: PiiFinding[] }>('POST', `${S(sid)}/privacy/mask`, body),
   chat: (sid: string, message: string, history: { role: 'user' | 'assistant'; text: string }[]) =>
