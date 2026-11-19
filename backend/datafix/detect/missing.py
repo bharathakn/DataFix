@@ -20,7 +20,8 @@ def detect_missing(ctx: ScanContext) -> None:
         ctx.blank[col] = blank
         ctx.unusable[col] = blank | disguised
 
-        if blank.mean() >= SPARSE_RATIO:
+        # free text (notes, comments) is optional by nature; otherwise a mostly-empty column is optional by design
+        if blank.mean() >= SPARSE_RATIO or (info.semantic_type == "text" and blank.any()):
             ctx.sparse.add(col)
             ctx.add(None, col, "sparse_column", "missing",
                     f"{col} is empty in {blank.mean():.0%} of rows; treated as optional", blank_rows=int(blank.sum()))

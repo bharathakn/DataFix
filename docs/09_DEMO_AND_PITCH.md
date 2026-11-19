@@ -72,7 +72,7 @@ Practise to time. Speak to the problem, not the tech.
 |---|---|---|---|
 | 0:00 | Hook | "Every team cleans data. Nobody can prove their cleaning didn't break something. DataFix does." | Title slide → app |
 | 0:20 | 1. Load demo | "10,000 customers + 25,000 orders, with errors injected the way real pipelines create them." | Click demo; column types auto-detected (point at `col_7` → PIN if you rename one) |
-| 0:40 | 2. Scan | "Score 97.6, which sounds fine, until you see 1,678 errors hiding in 10,200 rows. Here's what's wrong and where." (Use the real numbers; dimension scores from Phase 3 show the drops.) | Overview: KPIs, warnings, heatmap stripe at batch B07 |
+| 0:40 | 2. Scan | "Only 84.7% of rows are fully clean: 1,678 errors hiding in 10,200 rows. Here's what's wrong and where." | Overview: KPIs, warnings, heatmap stripe at batch B07 |
 | 1:00 | 3. Root cause | "Not just *what* — *why*. 71 of 73 blank cities came from one mobile-app batch. Branch uploads went through Excel and destroyed phone numbers." | Diagnosis page; learned rules table: "nobody wrote PIN→City, DataFix learned it" |
 | 1:40 | 4. Auto-fix | "Only fixes it can prove — 95%+ confidence." | Plan → Apply; timeline fills with checkpoints; score jumps |
 | 2:00 | 5. Row 412 | "PIN 40001 has 5 digits. 29 real PINs are one digit away, 19 of them in Mumbai — city alone can't decide. Only one serves this row's locality, Stock Exchange." | Evidence card with signals narrowing 29 → 19 → 1 |
@@ -80,7 +80,7 @@ Practise to time. Speak to the problem, not the tech.
 | 3:00 | 7. Undo | "Change of mind? Jump back to any checkpoint. The original file is never touched." | Restore → forward |
 | 3:15 | 8. Chat | "Ask in English. Answers come from executed queries — here's the query it ran." | "How many customers are in Pune?", "Why did row 52 change?" |
 | 3:45 | 9. Privacy | "25 Aadhaar numbers hidden in free-text notes, confirmed by the Verhoeff checksum. One click to mask." | Privacy page → mask |
-| 4:05 | 10. Proof | "Zero valid cells changed. And here's our own benchmark, run live." | Validation: checks green → Run benchmark → precision/recall/false repair rate |
+| 4:05 | 10. Proof | "Clean rows 84.7% → 96.1%. Eight safety checks, all green: zero valid cells changed, and running DataFix again finds nothing more to auto-fix. And here's our own benchmark, run live: 160 planted errors, F1 0.99, zero false repairs." | Validation: checks green → Run benchmark (≈ 4 s) |
 | 4:35 | 11. Export | "Cleaned data, Excel with every change highlighted and explained, report, tamper-evident change log, and a recipe to re-run next month." | Download ZIP, open XLSX |
 | 4:50 | Close | "DataFix: find it, explain it, fix it safely, prove it." | |
 
@@ -91,7 +91,7 @@ Practise to time. Speak to the problem, not the tech.
 3. Approach: Detect → Diagnose → Repair → Validate → Explain → Track, with the confidence gate.
 4. What's different: comparison table (trimmed from the report: rules-only tools, HoloClean, Cleanlab, OpenRefine vs DataFix).
 5. Live demo.
-6. Results: **measured** benchmark numbers + 10k/100k timings (from `docs/RESULTS.md`).
+6. Results: **measured** benchmark numbers + 10k/100k timings (from [RESULTS.md](RESULTS.md)): F1 0.99, repair precision 100%, false repair rate 0%, clean rows 84.7% → 96.1%.
 7. Architecture (one diagram) + "LLM never sets values; works offline".
 8. Impact & roadmap: banking KYC, healthcare, e-commerce, government; drift monitoring, DB connectors, quality-gate in CI.
 
@@ -100,7 +100,7 @@ Practise to time. Speak to the problem, not the tech.
 | Likely question | Answer |
 |---|---|
 | Isn't this just pandas cleaning? | Pandas has no idea *what's right*. We learn rules from the data (PIN→City), combine independent evidence, refuse when evidence conflicts, and prove zero valid cells changed. |
-| Where do the confidence numbers come from? | Noisy-OR over independent signals, each with a reliability weight; thresholds are tuned on the benchmark, and the calibration chart shows predicted vs. actual accuracy. |
+| Where do the confidence numbers come from? | Noisy-OR over independent signals, each with a reliability weight. The benchmark's calibration table shows every bucket from 0.70 up was 100% correct, so the scores are conservative; we keep auto at ≥ 0.95 on purpose. |
 | What if the LLM hallucinates? | It can't change data. It only picks from whitelisted operations; the numbers come from executed code. It works fully offline. |
 | How do you know repairs are correct? | Self-test benchmark: plant known errors into clean rows, measure precision, recall and false repair rate. Live, on any dataset. |
 | Does it scale? | 10k rows in X s, 100k in Y s on a laptop (show measured). Vectorised pandas, blocking for fuzzy matching; chunking and Polars on the roadmap. |

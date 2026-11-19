@@ -22,6 +22,7 @@ Read in order. Everything we build follows these docs.
 | 08 | [docs/08_EXECUTION_PHASES.md](docs/08_EXECUTION_PHASES.md) | Hour-by-hour build phases with checklists and exit criteria |
 | 09 | [docs/09_DEMO_AND_PITCH.md](docs/09_DEMO_AND_PITCH.md) | Demo dataset, 5-minute demo script, pitch, judge Q&A |
 | 10 | [docs/10_REQUIREMENTS.md](docs/10_REQUIREMENTS.md) | APIs, datasets and software, with install status |
+| — | [docs/RESULTS.md](docs/RESULTS.md) | Measured benchmark, validation and timing numbers (use these on slides) |
 
 [CLAUDE.md](CLAUDE.md) holds the rules Claude Code follows while building.
 
@@ -41,5 +42,9 @@ cd frontend && npm install && npm run dev                                     # 
 cd backend
 uv run python -m datafix scan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv   # detect
 uv run python -m datafix plan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --rows 412,1043  # proposals + evidence
-uv run python -m datafix fix  ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --out out/      # cleaned CSVs + change log
+uv run python -m datafix fix  ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --out out/ --mask notes:partial --bench
+    # -> out/datafix_output.zip: cleaned_data.csv, cleaned_highlighted.xlsx, quality_report.html,
+    #    change_log.csv, privacy_report.csv, cleaning_recipe.json (exit 2 if a do-no-harm check fails)
+uv run python -m datafix bench ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv   # self-test benchmark
+uv run python -m datafix check out/cleaned_data.csv --min clean_rows=95                           # quality gate (exit 1 = fail)
 ```

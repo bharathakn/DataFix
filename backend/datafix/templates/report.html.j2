@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DataFix Quality Report</title>
+<style>
+  :root { --ink:#1b1f24; --muted:#5b6470; --line:#e3e6ea; --bg:#ffffff; --soft:#f6f7f9;
+          --good:#1a7f37; --bad:#c62828; --warn:#9a6700; --accent:#2457c5; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 36px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; }
+  .tiles { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-top: 16px; }
+  .tile { background: var(--soft); border-radius: 8px; padding: 12px 14px; }
+  .tile .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .tile .v { font-size: 22px; font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; margin-top: 6px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; background: var(--accent); border-radius: 4px; min-width: 2px; }
+  .pass { color: var(--good); font-weight: 600; } .fail { color: var(--bad); font-weight: 600; }
+  .pill { display:inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; background: var(--soft); }
+  .pill.high, .pill.refused { background:#fde7e7; color: var(--bad); }
+  .pill.medium, .pill.review { background:#fff4d6; color: var(--warn); }
+  .pill.flag { background:#eef0f3; }
+  .cause { background: var(--soft); border-radius: 8px; padding: 10px 14px; margin: 8px 0; }
+  .cause b { display:block; }
+  .up { color: var(--good); }
+  @media print { main { padding: 0; } h2 { break-after: avoid; } .cause, tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>DataFix Quality Report</h1>
+  <div class="muted">{{ file.filename }} · generated {{ generated }}</div>
+  <div class="muted mono">input SHA-256 {{ file.sha256 }}</div>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Clean rows</div><div class="v">{{ "%.1f"|format(val.dimensions_before.clean_rows) }}% → <span class="up">{{ "%.1f"|format(val.dimensions_after.clean_rows) }}%</span></div></div>
+    <div class="tile"><div class="k">Quality score</div><div class="v">{{ val.score_before }} → <span class="up">{{ val.score_after }}</span></div></div>
+    <div class="tile"><div class="k">Rows</div><div class="v">{{ "{:,}".format(rows_before) }} → {{ "{:,}".format(rows_after) }}</div></div>
+    <div class="tile"><div class="k">Repairs applied</div><div class="v">{{ "{:,}".format(applied) }}</div></div>
+    <div class="tile"><div class="k">Needs review</div><div class="v">{{ "{:,}".format(n_unresolved) }}</div></div>
+    <div class="tile"><div class="k">Do-no-harm</div><div class="v {{ 'pass' if val.passed else 'fail' }}">{{ val.checks|selectattr('passed')|list|length }}/{{ val.checks|length }} passed</div></div>
+  </div>
+
+  <h2>1. Quality dimensions</h2>
+  <p class="muted">Share of rows free of each kind of problem, before and after repair.</p>
+  <table>
+    <tr><th>Dimension</th><th class="n">Before</th><th class="n">After</th><th class="n">Change</th></tr>
+    {% for d in dims %}
+    <tr><td>{{ d.replace('_', ' ')|capitalize }}</td><td class="n">{{ "%.2f"|format(val.dimensions_before[d]) }}%</td>
+        <td class="n">{{ "%.2f"|format(val.dimensions_after[d]) }}%</td>
+        <td class="n up">+{{ "%.2f"|format(val.dimensions_after[d] - val.dimensions_before[d]) }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>2. Issues found</h2>
+  <table>
+    <tr><th>Type</th><th class="n">Cells / rows</th><th style="width:45%"></th></tr>
+    {% for t, n in by_type %}
+    <tr><td>{{ t.replace('_', ' ') }}</td><td class="n">{{ "{:,}".format(n) }}</td>
+        <td><div class="bar" style="width: {{ (100 * n / max_type)|round(1) }}%"></div></td></tr>
+    {% endfor %}
+  </table>
+  <table style="margin-top:14px">
+    <tr><th>Column</th><th class="n">Issues</th><th>Breakdown</th></tr>
+    {% for c, n, parts in by_col %}
+    <tr><td>{{ c }}</td><td class="n">{{ n }}</td><td class="muted">{% for k, v in parts.items() %}{{ k.replace('_',' ') }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>3. Why the data was dirty</h2>
+  {% for c in causes %}
+  <div class="cause"><b>{{ c.title }}</b>{{ c.explanation }}<div class="muted">Fix at the source: {{ c.suggested_fix }}</div></div>
+  {% else %}<p class="muted">No concentrated source of errors found.</p>{% endfor %}
+
+  <h3>Rules DataFix learned from this data</h3>
+  <table>
+    <tr><th>Rule</th><th class="n">Rows supporting</th><th class="n">Holds in</th><th class="n">Violations</th></tr>
+    {% for r in rules %}
+    <tr><td>{{ r.description }}</td><td class="n">{{ "{:,}".format(r.support) }}</td><td class="n">{{ "%.1f"|format(100 * r.confidence) }}%</td><td class="n">{{ r.violations }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>4. Repairs made</h2>
+  <table>
+    <tr><th>Repair</th><th>Method</th><th class="n">Applied</th><th class="n">Automatic</th><th class="n">Avg confidence</th><th>Evidence source</th></tr>
+    {% for r in repairs %}
+    <tr><td>{{ r.class.replace('_',' ') }}</td><td>{{ r.algorithm.replace('_',' ') }}</td><td class="n">{{ r.count }}</td>
+        <td class="n">{{ r.auto }}</td><td class="n">{{ "%.0f"|format(100 * r.avg_conf) }}%</td><td class="muted">{{ r.source }}</td></tr>
+    {% endfor %}
+  </table>
+  <h3>Checkpoints</h3>
+  <table>
+    <tr><th>Checkpoint</th><th>Label</th><th class="n">Changes</th><th class="n">Score</th><th>Active</th></tr>
+    {% for k in checkpoints %}
+    <tr><td>{{ k.checkpoint_id }}</td><td>{{ k.label }}</td><td class="n">{{ k.changes }}</td><td class="n">{{ k.quality_score }}</td><td>{{ 'yes' if k.active else 'undone' }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>5. Do-no-harm validation</h2>
+  <table>
+    <tr><th>Check</th><th>Result</th><th class="n">Value</th><th>Detail</th></tr>
+    {% for c in val.checks %}
+    <tr><td>{{ c.name.replace('_',' ') }}</td><td class="{{ 'pass' if c.passed else 'fail' }}">{{ 'PASS' if c.passed else 'FAIL' }}</td>
+        <td class="n">{{ c.value }}</td><td class="muted">{{ c.detail }}</td></tr>
+    {% endfor %}
+  </table>
+
+  {% if bench %}
+  <h2>6. Self-test benchmark</h2>
+  <p class="muted">{{ bench.injected }} known errors planted into {{ "{:,}".format(bench.sample_rows) }} rows that had no problems (seed {{ bench.seed }}), then repaired as if a reviewer accepted every suggestion.</p>
+  <div class="tiles">
+    <div class="tile"><div class="k">Detection precision</div><div class="v">{{ "%.1f"|format(100 * bench.detection.precision) }}%</div></div>
+    <div class="tile"><div class="k">Detection recall</div><div class="v">{{ "%.1f"|format(100 * bench.detection.recall) }}%</div></div>
+    <div class="tile"><div class="k">Repair precision</div><div class="v">{{ "%.1f"|format(100 * bench.repair.precision) }}%</div></div>
+    <div class="tile"><div class="k">Coverage</div><div class="v">{{ "%.1f"|format(100 * bench.repair.coverage) }}%</div></div>
+    <div class="tile"><div class="k">False repair rate</div><div class="v">{{ "%.3f"|format(100 * bench.repair.false_repair_rate) }}%</div></div>
+  </div>
+  <table style="margin-top:12px">
+    <tr><th>Error type</th><th class="n">Planted</th><th class="n">Detected</th><th class="n">Repaired correctly</th></tr>
+    {% for t in bench.by_error_type %}
+    <tr><td>{{ t.type.replace('_',' ') }}</td><td class="n">{{ t.injected }}</td><td class="n">{{ t.detected }}</td><td class="n">{{ t.repaired_correctly }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <h2>{{ 7 if bench else 6 }}. Privacy findings</h2>
+  <table>
+    <tr><th>Column</th><th>Type</th><th class="n">Rows</th><th>Risk</th><th>Confirmed by</th><th>Action</th></tr>
+    {% for f in privacy %}
+    <tr><td>{{ f.column }}{% if f.in_free_text %} <span class="muted">(free text)</span>{% endif %}</td><td>{{ f.pii_type }}</td>
+        <td class="n">{{ f.rows }}</td><td><span class="pill {{ f.risk }}">{{ f.risk }}</span></td><td class="muted">{{ f.validated_by }}</td>
+        <td>{{ f.method + ' masked' if f.masked else 'not masked' }}</td></tr>
+    {% else %}<tr><td colspan="6" class="muted">No personal data detected.</td></tr>{% endfor %}
+  </table>
+
+  <h2>{{ 8 if bench else 7 }}. Needs human review ({{ "{:,}".format(n_unresolved) }})</h2>
+  <p class="muted">DataFix did not change these cells. Showing up to 200; the full list is in change_log.csv and the highlighted workbook.</p>
+  <table>
+    <tr><th>Record</th><th>Column</th><th>Value</th><th>Status</th><th>Why</th></tr>
+    {% for u in unresolved %}
+    <tr><td>{{ u.row }}</td><td>{{ u.column if u.column != '__row__' else '(whole row)' }}</td><td class="mono">{{ u.value }}</td>
+        <td><span class="pill {{ u.tier }}">{{ u.tier }}</span></td><td class="muted">{{ u.why }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Audit trail</h2>
+  <p>{{ "{:,}".format(audit.entries) }} log entries, hash chain <span class="{{ 'pass' if audit.valid else 'fail' }}">{{ 'verified' if audit.valid else 'BROKEN at ' ~ audit.broken_at }}</span>.
+     Head hash <span class="mono">{{ audit.head_hash }}</span>. The chain starts from the input file's SHA-256, so editing any logged change or the source file is detectable.</p>
+</main>
+</body>
+</html>

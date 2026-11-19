@@ -49,12 +49,13 @@ type ScanResult = {
 type Warning = { warning_id: string; title: string; explanation: string; affected_rows: number;
                  sample_row_ids: number[]; suggested_action: string; severity: "high"|"medium"|"low";
                  issue_type: IssueType; column: string | null };
-type RootCause = { cause_id: string; title: string;          // "71 of 73 blank cities come from mobile_app batch B07"
+type RootCause = { cause_id: string; title: string;          // "71 of 73 blank city values come from source = mobile_app and import_batch = B07"
                    kind: "source_lift"|"pattern";
-                   issue_type: IssueType; column: string | null;
-                   group: { column: string; value: string } | null;
-                   share_of_issues: number; lift: number;
-                   explanation: string; suggested_fix: string; issue_count: number };
+                   issue_type: string; issue_kind: string | null; column: string | null;
+                   group: { columns: string[]; value: string } | null;   // value "mobile_app · B07" for pairs
+                   share_of_issues: number | null; lift: number | null;
+                   explanation: string; suggested_fix: string; issue_count: number;
+                   rate_by_group: { value: string; rows: number; issues: number; rate: number }[] };
 type Heatmap = { columns: string[]; block_size: number;
                  cells: number[][] /* [block][column] error density 0..1 */ };
 type LearnedRule = { rule_id: string; kind: "fd"|"crossfield"|"user";
@@ -97,14 +98,19 @@ type PlanSummary = { auto: number; review: number; flag: number; refused: number
 
 ```ts
 type Check = { name: string; passed: boolean; value: string; detail: string };
-type Validation = { score_before: number; score_after: number; checks: Check[];
-                    unresolved: { review: number; flag: number; refused: number } };
+type Dimensions = { completeness: number; validity: number; consistency: number; uniqueness: number; clean_rows: number };
+type Validation = { score_before: number; score_after: number; checks: Check[]; passed: boolean;
+                    dimensions_before: Dimensions; dimensions_after: Dimensions;
+                    unresolved: { review: number; flag: number; refused: number };
+                    remaining_errors: number; still_failing_after_repair: number; surfaced: number; duration_ms: number };
 // checks: valid_cells_changed, schema_unchanged, row_count_explained, distribution_stable,
 //         no_new_errors, referential_integrity, idempotent, audit_chain_valid
 type BenchmarkResult = {
   injected: number;
   detection: { precision: number; recall: number; f1: number };
-  repair: { precision: number; coverage: number; false_repair_rate: number };
+  repair: { precision: number; auto_precision: number; coverage: number; false_repair_rate: number;
+            correct: number; wrong: number; estimates: number; estimate_mean_abs_error: number | null; false_repairs: number };
+  sample_rows: number; error_rate: number; dup_rate: number;
   by_error_type: { type: string; injected: number; detected: number; repaired_correctly: number }[];
   calibration: { bucket: string; predicted: number; actual: number; n: number }[];
   duration_ms: number; seed: number;
@@ -119,7 +125,7 @@ type BenchmarkResult = {
 | POST | `/sessions/{sid}/privacy/mask` | `{column: string, pii_type?: string, method: "partial"\|"redact"\|"hash"\|"drop"}` | `{checkpoint: Checkpoint, affected: number}` |
 
 ```ts
-type PiiFinding = { column: string; pii_type: "aadhaar"|"pan"|"gstin"|"phone"|"email"|"ifsc"|"card"|"bank_account";
+type PiiFinding = { table: string; column: string; pii_type: "aadhaar"|"pan"|"gstin"|"phone"|"email"|"ifsc"|"card"|"bank_account";
                     rows: number; in_free_text: boolean; risk: "high"|"medium"|"low";
                     validated_by: string;           // "Verhoeff checksum", "Luhn", "regex"
                     sample_masked: string; masked: boolean; method?: string };

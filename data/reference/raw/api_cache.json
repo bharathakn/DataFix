@@ -1,0 +1,1991 @@
+{
+ "400001": [
+  {
+   "office": "Bazargate",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Elephanta Caves Po",
+   "district": "Raigarh(MH)",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "M.P.T.",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mumbai ",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Stock Exchange",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Tajmahal",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Town Hall (Mumbai)",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400050": [
+  {
+   "office": "Bandra West",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400053": [
+  {
+   "office": "Andheri",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Azad Nagar (Mumbai)",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400076": [
+  {
+   "office": "Powai Iit",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400097": [
+  {
+   "office": "Malad East",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Rani Sati Marg",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "411001": [
+  {
+   "office": "C D A (O)",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Dr.B.A. Chowk",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Ghorpuri Bazar",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "N.W. College",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Pune",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Pune Cantt East",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Pune New Bazar",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Sachapir Street",
+   "district": "Pune",
+   "state": "Maharashtra"
+  }
+ ],
+ "411004": [
+  {
+   "office": "A.R. Shala",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Deccan Gymkhana",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Film Institute",
+   "district": "Pune",
+   "state": "Maharashtra"
+  }
+ ],
+ "411038": [
+  {
+   "office": "Bhusari Colony",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Ex. Serviceman Colony",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Kothrud",
+   "district": "Pune",
+   "state": "Maharashtra"
+  }
+ ],
+ "411057": [
+  {
+   "office": "Infotech  Park (Hinjawadi)",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Marunji",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Wakad",
+   "district": "Pune",
+   "state": "Maharashtra"
+  }
+ ],
+ "411014": [
+  {
+   "office": "9 DRD",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Dukirkline",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Vadgaon Sheri",
+   "district": "Pune",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Viman nagar",
+   "district": "Pune",
+   "state": "Maharashtra"
+  }
+ ],
+ "560001": [
+  {
+   "office": "Bangalore ",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Bangalore Bazaar",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "CMM Court Complex",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Dr. Ambedkar Veedhi",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "HighCourt",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Legislators Home",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Mahatma Gandhi Road",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Rajbhavan (Bangalore)",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Vasanthanagar",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Vidhana Soudha",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  }
+ ],
+ "560034": [
+  {
+   "office": "Agara",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Koramangala",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Koramangala I Block",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "St. John's Medical College",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  }
+ ],
+ "560066": [
+  {
+   "office": "EPIP",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Whitefield",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  }
+ ],
+ "560095": [
+  {
+   "office": "Koramangala VI Bk",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  }
+ ],
+ "560076": [
+  {
+   "office": "Bannerghatta Road",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Hulimavu",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Hulimavu",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "JP Nagar VIII phase",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Mico Layout",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  },
+  {
+   "office": "Mount St Joseph",
+   "district": "Bangalore",
+   "state": "Karnataka"
+  }
+ ],
+ "600001": [
+  {
+   "office": "Chennai ",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Flower Bazaar",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Govt Stanley Hospital",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Mannady (Chennai)",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Mint Building",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "MPT AO",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Sowcarpet",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  }
+ ],
+ "600017": [
+  {
+   "office": "Hindi Prachar Sabha",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Thygarayanagar",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Thygarayanagar North ND",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  },
+  {
+   "office": "Thygarayanagar South",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  }
+ ],
+ "600040": [
+  {
+   "office": "Anna Nagar (Chennai)",
+   "district": "Chennai",
+   "state": "Tamil Nadu"
+  }
+ ],
+ "600096": [
+  {
+   "office": "Perungudi",
+   "district": "Kanchipuram",
+   "state": "Tamil Nadu"
+  }
+ ],
+ "700001": [
+  {
+   "office": "Council House Street",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Customs House",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Khengrapatti",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Kolkatta ",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Lalbazar (Kolkata)",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "New Secretariat Bldg.",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Pollock Street",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "R.N. Mukherjee Road",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Radha Bazar",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Reserve Bank Building",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Telephone Bhawan",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Treasury Building",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "W.B.Assembly House",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Writer's Building",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  }
+ ],
+ "700019": [
+  {
+   "office": "Ballygunge",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Ballygunge RS",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Ballygunge Sc College",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Garcha Road",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Gariahat Market",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Golpark",
+   "district": "Kolkata",
+   "state": "West Bengal"
+  }
+ ],
+ "700064": [
+  {
+   "office": "Bidhan Nagar",
+   "district": "North 24 Parganas",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Bidhan Nagar AE Market",
+   "district": "North 24 Parganas",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Bidhannagr CC Block",
+   "district": "North 24 Parganas",
+   "state": "West Bengal"
+  },
+  {
+   "office": "Labony Estate",
+   "district": "North 24 Parganas",
+   "state": "West Bengal"
+  }
+ ],
+ "110001": [
+  {
+   "office": "Baroda House",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Bengali Market",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Bhagat Singh Market",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Connaught Place",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Constitution House",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Election Commission",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Janpath",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Krishi Bhawan",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Lady Harding Medical College",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "New Delhi ",
+   "district": "New Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "North Avenue",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Parliament House",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Patiala House",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Pragati Maidan",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Pragati Maidan Camp",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Rail Bhawan",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Sansad Marg",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Sansadiya Soudh",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Secretariat North",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Shastri Bhawan",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Supreme Court",
+   "district": "Central Delhi",
+   "state": "Delhi"
+  }
+ ],
+ "110017": [
+  {
+   "office": "Distt. Court Complex, Saket",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Malviya Nagar (South Delhi)",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "MMTC/STC Colony",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Panchsheel Enclave",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Pushp Vihar",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Saket (South Delhi)",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Sarvodya Enclave",
+   "district": "South Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "South Malviya Nagar",
+   "district": "South Delhi",
+   "state": "Delhi"
+  }
+ ],
+ "110085": [
+  {
+   "office": "Avantika",
+   "district": "North Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Naharpur",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Prashant Vihar",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Rithala",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Rohini Courts",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Rohini sec-11",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Rohini Sector 5",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  },
+  {
+   "office": "Rohini Sector-7",
+   "district": "North West Delhi",
+   "state": "Delhi"
+  }
+ ],
+ "500001": [
+  {
+   "office": "Gandhi Bhawan (Hyderabad)",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  },
+  {
+   "office": "Hyderabad ",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  },
+  {
+   "office": "Moazzampura",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  },
+  {
+   "office": "Seetharampet",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  },
+  {
+   "office": "State Bank Of Hyderabad",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  }
+ ],
+ "500032": [
+  {
+   "office": "Gachibowli",
+   "district": "K.V.Rangareddy",
+   "state": "Telangana"
+  },
+  {
+   "office": "Manuu",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  }
+ ],
+ "500081": [
+  {
+   "office": "Cyberabad",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  },
+  {
+   "office": "Madhapur",
+   "district": "Hyderabad",
+   "state": "Telangana"
+  }
+ ],
+ "380001": [
+  {
+   "office": "Ahmedabad ",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Dariapur (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "District Court (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Gandhi Road (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Gheekanta Road",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Jamalpur (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Kalupur Chakla",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Khadia",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Khanpur (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Lal Darwaja",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Manek Chowk",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Municipal Corporation",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Raikhad",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Raipur (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  }
+ ],
+ "380009": [
+  {
+   "office": "Ashram Road",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Darpan Society",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Gujarat University",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Navrangpura",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  }
+ ],
+ "380015": [
+  {
+   "office": "Azad Society",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "I I M",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Jodhpur Char Rasta",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Manekbag",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "Polytechnic (Ahmedabad)",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  },
+  {
+   "office": "S A C",
+   "district": "Ahmedabad",
+   "state": "Gujarat"
+  }
+ ],
+ "302001": [
+  {
+   "office": "Ashok Nagar (Jaipur)",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Bhura Tiba",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "C.P.M.G",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Chandpole Bazar",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Indra Bazar",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Jaipur ",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "M.I.Road",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Purani Basti (Jaipur)",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Rajasthan State Hotel",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  }
+ ],
+ "302017": [
+  {
+   "office": "Jagatpura",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Malviya Nagar (Jaipur)",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Malviya Nagar Sector 11,12",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Mrec Jaipur",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  },
+  {
+   "office": "Saraswati Nagar",
+   "district": "Jaipur",
+   "state": "Rajasthan"
+  }
+ ],
+ "226001": [
+  {
+   "office": "A P Sabha",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Canal Colony",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "CPMG Campus",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Darul Safa",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Gokhley Marg",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "H C Bench",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Jawahar Bhawan",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Lalbagh (Lucknow)",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Lucknow ",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Secretariat (Lucknow)",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  }
+ ],
+ "226010": [
+  {
+   "office": "Gomtinagar",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Gomtinagar Vistar",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Laulai",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Malesemau",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Vineet Khand",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  },
+  {
+   "office": "Vishwas Khand",
+   "district": "Lucknow",
+   "state": "Uttar Pradesh"
+  }
+ ],
+ "682001": [
+  {
+   "office": "Kochi",
+   "district": "Ernakulam",
+   "state": "Kerala"
+  }
+ ],
+ "682024": [
+  {
+   "office": "Edapally",
+   "district": "Ernakulam",
+   "state": "Kerala"
+  },
+  {
+   "office": "Edapally North",
+   "district": "Ernakulam",
+   "state": "Kerala"
+  }
+ ],
+ "160017": [
+  {
+   "office": "Chandigarh ",
+   "district": "Chandigarh",
+   "state": "Chandigarh"
+  }
+ ],
+ "160022": [
+  {
+   "office": "Sector 21 (Chandigarh)",
+   "district": "Chandigarh",
+   "state": "Chandigarh"
+  },
+  {
+   "office": "Sector 22 (Chandigarh)",
+   "district": "Chandigarh",
+   "state": "Chandigarh"
+  },
+  {
+   "office": "Sector 34(Chandigarh)",
+   "district": "Chandigarh",
+   "state": "Chandigarh"
+  },
+  {
+   "office": "Sector 35 (Chandigarh)",
+   "district": "Chandigarh",
+   "state": "Chandigarh"
+  },
+  {
+   "office": "Sector-43, Chandigarh",
+   "district": "Chandigarh",
+   "state": "Chandigarh"
+  }
+ ],
+ "140001": [
+  {
+   "office": "Minisectt Ropar",
+   "district": "Rupnagar",
+   "state": "Punjab"
+  },
+  {
+   "office": "Ropar",
+   "district": "Rupnagar",
+   "state": "Punjab"
+  },
+  {
+   "office": "Thermal Plant Colony Ropar",
+   "district": "Rupnagar",
+   "state": "Punjab"
+  }
+ ],
+ "240001": [],
+ "340001": [],
+ "400010": [
+  {
+   "office": "Dockyard Road",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mazgaon",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mazgaon Dock",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mazgaon Road",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "V K Bhavan",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400011": [
+  {
+   "office": "Agripada",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "BPC  Jacob Circle",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Chinchpokli",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Haines Road",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Jacob Circle",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400012": [
+  {
+   "office": "BEST STaff Quarters",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Chamarbaug",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Haffkin Institute",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Lal Baug",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Parel",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Parel Naka",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Parel Rly Work Shop",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400013": [
+  {
+   "office": "Delisle Road",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400014": [
+  {
+   "office": "Dadar",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Dadar Colony",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Naigaon (Mumbai)",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400015": [
+  {
+   "office": "Sewri",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400016": [
+  {
+   "office": "Kapad Bazar",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mahim",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mahim Bazar",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mahim East",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mori Road",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400017": [
+  {
+   "office": "Dharavi",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Dharavi Road",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400018": [
+  {
+   "office": "Worli",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Worli Naka",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400019": [
+  {
+   "office": "Matunga",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400021": [
+  {
+   "office": "Nariman Point",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "New Yogakshema",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400031": [
+  {
+   "office": "Kidwai Nagar (Mumbai)",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Wadala",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Wadala Rs",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400041": [],
+ "400051": [
+  {
+   "office": "Audit Bhavan",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "B.N. Bhavan",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Bandra(East)",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Government Colony",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Kherwadi",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400061": [
+  {
+   "office": "Madh",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Vesava",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400071": [
+  {
+   "office": "Chembur",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Sindhi Society",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400081": [
+  {
+   "office": "Mhada Colony",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mulund East",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400091": [
+  {
+   "office": "Borivali",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400101": [
+  {
+   "office": "Kandivali East",
+   "district": "Mumbai",
+   "state": "Maharashtra"
+  }
+ ],
+ "400201": [],
+ "400301": [],
+ "400401": [],
+ "400501": [],
+ "400601": [
+  {
+   "office": "Thane",
+   "district": "Thane",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Thane Bazar",
+   "district": "Thane",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Thane R.S.",
+   "district": "Thane",
+   "state": "Maharashtra"
+  }
+ ],
+ "400701": [
+  {
+   "office": "Ghansoli",
+   "district": "Thane",
+   "state": "Maharashtra"
+  }
+ ],
+ "400801": [],
+ "400901": [],
+ "401001": [],
+ "402001": [],
+ "403001": [
+  {
+   "office": "C.C.Altinho",
+   "district": "North Goa",
+   "state": "Goa"
+  },
+  {
+   "office": "Miramar",
+   "district": "North Goa",
+   "state": "Goa"
+  },
+  {
+   "office": "Panaji",
+   "district": "North Goa",
+   "state": "Goa"
+  },
+  {
+   "office": "St Inez",
+   "district": "North Goa",
+   "state": "Goa"
+  }
+ ],
+ "404001": [],
+ "405001": [],
+ "406001": [],
+ "407001": [],
+ "408001": [],
+ "409001": [],
+ "410001": [],
+ "420001": [],
+ "430001": [],
+ "440001": [
+  {
+   "office": "Bureau Of Mines",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Coal Estate",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Kasturchand Park",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Mohan Nagar (Nagpur)",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Nagpur GPO",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Ravi Nagar",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  },
+  {
+   "office": "Sadar Bazar (Nagpur)",
+   "district": "Nagpur",
+   "state": "Maharashtra"
+  }
+ ],
+ "450001": [
+  {
+   "office": "Ahmedpur Khaigaon",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Amulla",
+   "district": "Burhanpur",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Anand Nagar (East Nimar)",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Badgaon Gujar",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Badgaon Mali",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bagmar",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bhamgarh",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Borgaon Khurd",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Deola",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Dharampuri",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Dongargaon",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Ganesh Talai Khandwa",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Ghaspura Khandwa",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Khandwa",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Khandwa Ratagarh",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Khedi",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Kohdar",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Padlya",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Piplya Tahar",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Rajur",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sihada",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Taklikalan",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Temi Kalan",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Temi Khurd",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Vidhya Nagar Khandwa",
+   "district": "East Nimar",
+   "state": "Madhya Pradesh"
+  }
+ ],
+ "460001": [
+  {
+   "office": "Badora",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Betul",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Betul Ganj",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bhadus",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bharat Bharti",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bhogiteda",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Borgaon",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Chandbaheda",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Chikhali",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Garha",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Jeen",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Jogli",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Khandara",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Kolgaon",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Kothi Bazaar",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Mandai Bujurg",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Mathani",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Nimpani Padhar",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Rondha",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sakadehi",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sehra",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sillot",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Temni",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Vikasnagar Betul",
+   "district": "Betul",
+   "state": "Madhya Pradesh"
+  }
+ ],
+ "470001": [
+  {
+   "office": "Baheriya Sahani",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bararu",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Baroda Sagar",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Purbautori",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Rajuya",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sagar B I Bazar",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sagar Cantt",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sagar Cavlari Hill",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sagar Collectrate",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sagar Gopalganj",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sagar Tilli",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Shyampura",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sothiya",
+   "district": "Sagar",
+   "state": "Madhya Pradesh"
+  }
+ ],
+ "480001": [
+  {
+   "office": "Bankanaganpur",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bisapur",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Bohnakheri",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Boria",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Chhindwara",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Chitanvisganj",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Gangiwara",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Gualbra Chhindwara",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Gurriya",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Imlikheda",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Jhilmili",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Khazari",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Kundalikalan",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Linga",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Machagora",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Mankadehi",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Markahandi",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Mothar",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Nonia Karbal",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Paladone",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Partala",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Pindraikalan",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Rohna",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Sonakhar",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "TB Senetorium",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  },
+  {
+   "office": "Umaria Isra",
+   "district": "Chhindwara",
+   "state": "Madhya Pradesh"
+  }
+ ],
+ "490001": [
+  {
+   "office": "A O Bhilai",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  },
+  {
+   "office": "Bhilai 1",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  },
+  {
+   "office": "Bhilai Boria",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  },
+  {
+   "office": "Ibsb Bhilai",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  },
+  {
+   "office": "Jawahar Market Bhilai",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  },
+  {
+   "office": "Sector 2 Bhilai",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  },
+  {
+   "office": "Sector 3 Bhilai",
+   "district": "Durg",
+   "state": "Chattisgarh"
+  }
+ ],
+ "540001": [],
+ "640001": [],
+ "740001": [],
+ "840001": [],
+ "940001": []
+}

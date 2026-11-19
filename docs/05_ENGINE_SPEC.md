@@ -56,6 +56,7 @@ Severity weights feed the quality score. A cell's weight is the **max** over its
 
 ### 4.0 Implementation notes (Phase 1)
 
+- **Free-text columns** (`text` type: notes, comments) never get per-cell missing issues: blank free text is optional by nature. (Found by the benchmark: notes was 30.5% blank in the full file but 29% in a sample, flipping 611 cells into false 'missing' flags.)
 - **Sparse columns:** a column ≥ 30% empty is treated as optional by design (`sparse_column`, weight 0, one column-level issue) instead of flagging every blank cell (e.g. `pan`, `notes`).
 - **Age** is valid in 1–120 (0 is flagged); make configurable when user rules land.
 - **Aliases** are flagged only when both forms occur in the column; a column that consistently says "Bangalore" (India Post's district name) is not an error.
@@ -174,6 +175,13 @@ lift   = rate_v / overall rate
 
 Report a cause if `share ≥ 0.5` and `lift ≥ 3`. Sentence template: "**{issues_in_group} of {total}** {issue label} in **{column}** come from **{C} = {v}** ({rate_v:.0%} of its rows vs {overall:.0%} elsewhere). Likely cause: the {v} pipeline does not populate {column}." Suggested fix template by issue type.
 
+### 6.1a As built (Phase 3, `datafix/diagnose.py`)
+
+- Context columns: category columns (2–30 values) whose name suggests provenance (`source`, `batch`, `channel`, `import`, `branch`, `partner`, …), plus a month bucket of `created_at`-like dates. Other categories (gender, occupation) are used **only** if no provenance column exists; otherwise they pair up by chance and produce noise like "partner_api and gender = M".
+- Issues are grouped by (type, column, kind). Single columns and pairs of context columns are tried. The best single = highest share of the issues, then lift. A **pair wins only if it explains ≥ 90% as many issues and is ≥ 2× more concentrated** (that is how "mobile_app + B07" beats "mobile_app" alone).
+- Explanations quote the rate in the group vs elsewhere ("34% of rows … against 0.02% elsewhere (1722× more likely)"), with a suggested fix at the source.
+- Pattern causes attach to a source cause only when the (issue type, kind) matches, so "untrimmed spaces" is not blamed on the blank-city batch.
+
 ### 6.2 Pattern causes
 
 | Pattern | Detection | Explanation shown |
@@ -197,6 +205,10 @@ Q = 100 × (1 − Σ_cells max_weight(cell) / N_cells)
 ```
 Row-level issues (duplicates) count every cell of the row once. Reported before, after each checkpoint, and final.
 
+### 7.1a Quality dimensions (as built)
+
+Row-based, because cell-based ratios dilute ~1,700 errors over ~200k cells into 99.x%: **completeness** (no missing/placeholder), **validity** (no invalid format), **consistency** (no inconsistent / rule / cross-field issue), **uniqueness** (not a duplicate), and **clean rows** (none of these). Demo: clean rows 84.7% → 96.1%. `datafix check FILE --min clean_rows=95` gates on any of them.
+
 ### 7.2 Do-no-harm checks (all must be green before export; export still allowed with a warning)
 
 | Check | Pass condition |
@@ -204,10 +216,10 @@ Row-level issues (duplicates) count every cell of the row once. Reported before,
 | `valid_cells_changed` | cells changed that had no issue = **0** |
 | `schema_unchanged` | same columns, same order (added `_datafix_status` is separate) |
 | `row_count_explained` | rows removed = applied dedupe merges |
-| `distribution_stable` | numeric: |median change| < 5% and KS statistic < 0.1 (scipy-free implementation fine); categorical: no new categories except canonical forms, top-5 unchanged |
-| `no_new_errors` | re-scan current data: zero issues on cells that were clean originally |
+| `distribution_stable` | numeric: |median change| < 5% and KS statistic < 0.1 (numpy implementation); categorical: no new categories, and total variation distance of category shares < 5% (top-5 ranking was too brittle: 12 near-equal import batches swapped order after 120 merges) |
+| `no_new_errors` | re-scan current data with the original column types: zero repaired cells that now fail a check. Problems that surface on untouched cells once neighbouring errors are fixed are reported separately, not counted. Privacy-masked cells are excluded |
 | `referential_integrity` | every `orders.customer_id` exists in customers |
-| `idempotent` | planning on current data yields 0 `auto` proposals |
+| `idempotent` | planning on current data yields 0 `auto` proposals (masked cells excluded: phone recovery would otherwise 'un-mask' them) |
 | `audit_chain_valid` | hash chain verifies |
 
 ## 8. Self-test benchmark (`benchmark.py`)
@@ -223,6 +235,8 @@ Row-level issues (duplicates) count every cell of the row once. Reported before,
    - per error type table
    - calibration: buckets 0.7–0.8, 0.8–0.9, 0.9–0.95, 0.95–1.0 → predicted mean vs. actual accuracy
 5. Report the numbers that come out. Never hard-code targets.
+
+**As built (`datafix/benchmark.py`):** ground truth = rows with no detected issue in the original scan (sample ≤ 2,000, seeded). `error_rate` (default 5%) of rows get exactly one planted error, chosen at random from the injectors that fit that row: missing, placeholder, typo (one edit), alias (Mumbai→Bombay), rule violation (city swapped), case/space, US date, invalid age, truncated phone, Excel-notation phone, PIN digit dropped, email typo, Indian money format. `dup_rate` (3%) duplicate rows are appended (half exact, half near). The engine runs scan → plan → auto → accept every review item. Imputations are counted as estimates (mean absolute error reported), not as correct/wrong. Results: [RESULTS.md](RESULTS.md).
 
 Also: `scripts/make_demo_data.py` writes `truth.json`, so `python -m datafix bench --truth data/demo/truth.json` scores against the real demo injections.
 

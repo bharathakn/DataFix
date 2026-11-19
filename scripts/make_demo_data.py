@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "demo"
-REF = ROOT / "data" / "reference" / "pincodes.csv"
+API_CACHE = ROOT / "data" / "reference" / "raw" / "api_cache.json"
 SEED = 42
 N = 10_000
 rng = random.Random(SEED)
@@ -58,7 +58,7 @@ _D = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5], [2, 3, 4, 
 _P = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4], [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
       [8, 9, 1, 6, 0, 4, 3, 5, 2, 7], [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
       [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]]
-_INV = [0, 4, 3, 2, 1, 5, 9, 8, 7, 6]
+_INV = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9]
 
 
 def verhoeff_check_digit(num: str) -> str:
@@ -103,11 +103,25 @@ def lakh_crore(v: int) -> str:
 
 # ---------------------------------------------------------------- reference
 def load_reference() -> dict:
+    """Demo cities come from the cached India Post API answers for the seed PINs, not from pincodes.csv,
+    so the demo stays byte-identical when the reference is rebuilt (e.g. with the full directory)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bpr", Path(__file__).with_name("build_pin_reference.py"))
+    bpr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bpr)
+    cache = json.loads(API_CACHE.read_text(encoding="utf-8"))
+    rows, seen = [], set()
+    for city, pins in bpr.SEED_PINS.items():
+        for pin in pins:
+            for po in cache.get(pin, []):
+                if (pin, po["office"].lower()) not in seen:
+                    seen.add((pin, po["office"].lower()))
+                    rows.append({"pin": pin, "office": po["office"].strip(), "district": po["district"].strip(),
+                                 "state": po["state"].strip(), "city": city})
+    rows.sort(key=lambda r: (r["pin"], r["office"]))
     by_city: dict[str, list[dict]] = {}
-    with REF.open(encoding="utf-8") as f:
-        for r in csv.DictReader(f):
-            if r["city"]:
-                by_city.setdefault(r["city"], []).append({k: v.strip() for k, v in r.items()})
+    for r in rows:
+        by_city.setdefault(r["city"], []).append(r)
     return by_city
 
 

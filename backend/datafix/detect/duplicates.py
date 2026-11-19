@@ -60,7 +60,10 @@ def detect_duplicates(ctx: ScanContext) -> None:
         return
     # exact
     key = df[cols].agg("\x1f".join, axis=1)
-    first = key.groupby(key).transform(lambda s: s.index[0])
+    first_of: dict[str, int] = {}
+    for r, k in key.items():
+        first_of.setdefault(k, r)
+    first = key.map(first_of)
     exact = key.duplicated(keep="first")
     for rid in exact[exact].index:
         ctx.add(rid, None, "duplicate", "duplicates:exact", f"row is an exact copy of row {first[rid]}",
@@ -70,7 +73,7 @@ def detect_duplicates(ctx: ScanContext) -> None:
     # near: block on email / phone / name+pin
     types = {c: ctx.columns[c].semantic_type for c in cols}
     normed = {c: df[c].map(lambda x, t=types[c]: _norm(t, x)) for c in cols}
-    nl = {c: normed[c].tolist() for c in cols}
+    nl = {c: normed[c].to_dict() for c in cols}  # by row label: repaired tables have gaps in the index
     blocks: list[pd.Series] = []
     for c in cols:
         if types[c] in ("email", "phone"):

@@ -30,9 +30,16 @@ Checksums drastically cut false positives (a random 12-digit number passes Verho
 
 Masking changes are `Change` records with `algorithm="privacy_mask"`. They are excluded from the `valid_cells_changed` check (they're a user-requested transformation, shown separately in the report).
 
+### 1.2a As built (Phase 3, `datafix/privacy.py`)
+
+- Free-text spans are matched most specific first (Aadhaar → card → PAN → GSTIN → email → phone), each confirmed by its validator, and overlapping matches are skipped. Any PII found in free text is rated high risk.
+- `hash` uses HMAC-SHA256 with a random per-session salt over the normalised value, so `98765 43210` and `+91 9876543210` hash the same.
+- Masking is a checkpoint (`kind=mask`), undoable like any repair. `drop` is a single logged entry (`algorithm=privacy_drop`) that removes the column from the current view and the export; undo brings it back. The original file is never touched.
+- Demo: all 50 planted identifiers in notes found (25 Aadhaar via Verhoeff, 15 PAN, 10 phone).
+
 ### 1.3 Privacy report (`privacy_report.csv`)
 
-`column, pii_type, rows_found, in_free_text, risk, validated_by, action, method`.
+`table, column, pii_type, rows, in_free_text, risk, validated_by, sample_masked, masked, method`.
 
 ## 2. What may be sent to Gemini
 

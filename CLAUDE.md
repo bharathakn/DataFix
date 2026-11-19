@@ -22,7 +22,9 @@ Hackathon build (24–36 h, solo + Claude). Specs live in `docs/`; follow them, 
 cd backend && uv run pytest -q
 cd backend && uv run python -m datafix scan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv
 cd backend && uv run python -m datafix plan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --rows 412
-cd backend && uv run python -m datafix fix ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --out out/
+cd backend && uv run python -m datafix fix ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --out out/ --bench
+cd backend && uv run python -m datafix bench ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv
+cd backend && uv run python -m datafix check out/cleaned_data.csv --min clean_rows=95
 cd backend && uv run uvicorn api.main:app --reload --port 8000
 cd frontend && npm run dev
 cd frontend && npm run build   # type-check
@@ -35,5 +37,5 @@ cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin 
 - Python 3.12 via uv. pandas is 3.x: string columns use the `str` dtype and copy-on-write is on, so never rely on chained assignment. Type hints, small modules, pytest for every detector/validator/repair.
 - Prefer finishing a feature end to end over starting a new one.
 - Commit after each checklist block in docs/08_EXECUTION_PHASES.md.
-- Update the affected docs in the same commit as the code (spec deviations, results, commands, phase status).
+- Update the affected docs in the same commit as the code (spec deviations, results, commands, phase status). Measured numbers go in docs/RESULTS.md.
 - Secrets only in `.env` (gitignored).

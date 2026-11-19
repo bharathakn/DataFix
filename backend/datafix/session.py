@@ -59,6 +59,11 @@ class Session:
         self.genesis = audit.genesis_hash({n: f["sha256"] for n, f in self.files.items()})
         self._cache: dict[str, tuple[int, pd.DataFrame]] = {}
         self._version = 0
+        self.salt = uuid.uuid4().hex  # per-session key for privacy hashing
+        self.privacy: list[dict] = []
+        self.validation: dict | None = None
+        self.causes: list[dict] | None = None
+        self.benchmark_result: dict | None = None
 
     # ------------------------------------------------------------------ construction
     @classmethod
@@ -88,15 +93,23 @@ class Session:
         df = self.originals[table].copy()
         dropped = set()
         for c in self.changes:
-            if c.action != "apply" or c.status != "applied" or c.table != table:
+            if c.action != "apply" or c.status != "applied" or c.table != table or c.algorithm == "privacy_drop":
                 continue
             if c.column == ROW:
                 dropped.add(c.row_id)
             else:
                 df.at[c.row_id, c.column] = c.new_value
         df = df.drop(index=sorted(dropped))
+        drop_cols = [c for c in self.dropped_columns(table) if c in df.columns]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
         self._cache[table] = (self._version, df)
         return df
+
+    def dropped_columns(self, table: str | None = None) -> list[str]:
+        table = table or self.main
+        return [c.column for c in self.changes if c.action == "apply" and c.status == "applied"
+                and c.table == table and c.algorithm == "privacy_drop"]
 
     def applied_changes(self, table: str | None = None) -> list[Change]:
         return [c for c in self.changes if c.action == "apply" and c.status == "applied"
@@ -122,7 +135,9 @@ class Session:
         self._version += 1
         if change.action == "apply" and cached and cached[0] == self._version - 1:
             df = cached[1]  # apply in place instead of replaying the whole log
-            if change.column == ROW:
+            if change.algorithm == "privacy_drop":
+                df = df.drop(columns=[change.column], errors="ignore")
+            elif change.column == ROW:
                 df = df.drop(index=change.row_id, errors="ignore")
             elif change.row_id in df.index:
                 df.at[change.row_id, change.column] = change.new_value
@@ -143,6 +158,8 @@ class Session:
 
     def _cell(self, table: str, row: int, col: str) -> str:
         df = self.current(table)
+        if col not in df.columns:
+            return ""
         return df.at[row, col] if row in df.index else self.originals[table].at[row, col]
 
     def _record(self, k: Checkpoint, p: RepairProposal | None, table: str, row: int, col: str, new: str,
@@ -290,6 +307,66 @@ class Session:
 
     def verify_audit(self) -> dict:
         return audit.verify(self.changes, self.genesis)
+
+    # ------------------------------------------------------------------ proof, diagnosis, privacy
+    def validate(self) -> dict:
+        from .doharm import validate_session
+        self.validation = validate_session(self)
+        return self.validation
+
+    def diagnose(self) -> list[dict]:
+        from .diagnose import diagnose
+        self.causes = diagnose(self.originals[self.main], self.scans[self.main])
+        return self.causes
+
+    def run_benchmark(self, **kwargs) -> dict:
+        from .benchmark import run_benchmark
+        self.benchmark_result = run_benchmark(self, **kwargs)
+        return self.benchmark_result
+
+    def privacy_scan(self) -> list[dict]:
+        from .privacy import scan_pii
+        self.privacy = [dict(f, table=t) for t in self.originals for f in scan_pii(self.originals[t], self.scans[t].columns)]
+        return self.privacy
+
+    def mask_column(self, column: str, method: str, table: str | None = None, pii_type: str | None = None) -> Checkpoint:
+        """Mask PII in one column as an undoable checkpoint. method: partial | redact | hash | drop."""
+        from .privacy import find_spans, mask_text, mask_value
+        table = table or self.main
+        if not self.privacy:
+            self.privacy_scan()
+        found = [f for f in self.privacy if f["table"] == table and f["column"] == column
+                 and (pii_type is None or f["pii_type"] == pii_type)]
+        if not found:
+            raise ValueError(f"no personal data found in {table}.{column}")
+        k = self._new_checkpoint(f"Privacy: {column} {'dropped' if method == 'drop' else method + ' masked'}", "mask")
+        kinds = {f["pii_type"] for f in found}
+        if method == "drop":
+            c = Change(f"C{len(self.changes) + 1:05d}", k.checkpoint_id, None, table, -1, column, "", "__column_dropped__",
+                       f"privacy: column {column} removed ({', '.join(sorted(kinds))})", [], "privacy_shield", 1.0,
+                       "privacy_drop", "user", "apply", None, _now())
+            self._append(c)
+            k.change_ids.append(c.change_id)
+        else:
+            df = self.current(table)
+            free_text = any(f["in_free_text"] for f in found)
+            kind = next(iter(kinds))
+            for row, x in df[column].items():
+                if not x.strip():
+                    continue
+                if free_text:
+                    if not find_spans(x):
+                        continue
+                    new = mask_text(x, method, self.salt, kinds)
+                else:
+                    new = mask_value(x, kind, method, self.salt)
+                if new != x:
+                    self._record(k, None, table, row, column, new, f"privacy: {', '.join(sorted(kinds))} {method}",
+                                 [], "privacy_shield", 1.0, "privacy_mask", "user")
+        for f in found:
+            f["masked"], f["method"] = True, method
+        k.quality_score = self.score()
+        return k
 
     # ------------------------------------------------------------------ outputs
     def row_status(self, table: str | None = None) -> pd.Series:

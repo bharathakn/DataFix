@@ -28,7 +28,7 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 | 0 Setup | 1 | Tools, repo, demo data, PIN reference | ✅ done |
 | 1 Detection | 1 | Clear spec, everything testable from the command line | ✅ done |
 | 2 Repair | 2 | **2A:** confidence, tiers and all repairs; stop at row 412 and the row-1043 refusal. **2B:** change log, checkpoints and undo, CLI `fix` | ✅ done |
-| 3 Proof | 1 | Ends with benchmark numbers for you to check | |
+| 3 Proof | 1 | Ends with benchmark numbers for you to check | ✅ done |
 | 4 API | 1 | Mechanical; a smoke test checks every endpoint | |
 | 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | |
 | 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | |
@@ -82,15 +82,17 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 
 ## Phase 3 — Prove (H10.5–H13.5)
 
-- [ ] `validate.py` do-no-harm checks (all 8).
-- [ ] Quality **dimension** scores (completeness, validity, consistency, uniqueness) next to the overall score. The overall score only moves 97.6 → 99.1 on the demo because errors are diluted over 194k cells; dimension scores show the change clearly.
-- [ ] `benchmark.py` inject → run → score; CLI `bench`. **Tune thresholds** so false repair rate < 0.5%; write the numbers into `docs/RESULTS.md`.
-- [ ] `diagnose.py` lift analysis + pattern causes.
-- [ ] `privacy.py` scan + mask.
-- [ ] `export.py`: cleaned CSV with `_datafix_status`, highlighted XLSX with comments, change_log.csv, privacy_report.csv, recipe.json, report.html (Jinja).
-- [ ] CLI `check` (quality gate) — 15 minutes, do it.
+- [x] `validate.py` do-no-harm checks (all 8).
+- [x] Quality **dimension** scores (completeness, validity, consistency, uniqueness) next to the overall score. The overall score only moves 97.6 → 99.1 on the demo because errors are diluted over 194k cells; dimension scores show the change clearly.
+- [x] `benchmark.py` inject → run → score; CLI `bench`. **Tune thresholds** so false repair rate < 0.5%; write the numbers into `docs/RESULTS.md`.
+- [x] `diagnose.py` lift analysis + pattern causes.
+- [x] `privacy.py` scan + mask.
+- [x] `export.py`: cleaned CSV with `_datafix_status`, highlighted XLSX with comments, change_log.csv, privacy_report.csv, recipe.json, report.html (Jinja).
+- [x] CLI `check` (quality gate) — 15 minutes, do it.
 
-24h cut: calibration chart data, recipe replay (`apply`).
+24h cut taken: recipe replay (`apply`) only. Calibration data was cheap and is included.
+
+**Phase 3 result (2026-11-19):** 58 tests pass. Benchmark on 3 seeds: detection F1 0.991–0.997, repair precision 100%, false repair rate 0.000%, coverage 78–85%. Do-no-harm 8/8 after auto-fix and after masking. Clean rows 84.7% → 96.1%. Root cause finds the B07, branch_upload and partner_api stories. Privacy finds all 50 planted identifiers. Export: 7 files + ZIP in 3.3 s. `datafix check` exits 1 on the dirty file and 0 on the cleaned one. Bugs fixed on the way: free-text blanks flagged as missing (benchmark precision 20% → 100%), brittle top-5 distribution check, noise columns in root cause, the demo generator's wrong Verhoeff inverse table (13 of 25 planted Aadhaar numbers were invalid; generator now reads cached API data so the regenerated demo differs only in those 13 lines). Numbers: [RESULTS.md](RESULTS.md).
 
 **Checkpoint H13.5: the whole product works from the CLI.** If the UI later breaks, a CLI + HTML report demo is still possible.
 
