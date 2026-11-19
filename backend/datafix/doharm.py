@@ -49,7 +49,7 @@ def validate_session(s) -> dict:
                          f"{merges} duplicate merges explain {removed} removed rows"))
 
     # 4. distributions
-    ok, problems = check_distributions(orig, cur, scan0.columns)
+    ok, problems = check_distributions(orig, cur, scan0.columns, scan0.canonical)
     checks.append(_check("distribution_stable", ok, "stable" if ok else f"{len(problems)} shifts",
                          "numeric medians within 5% and KS < 0.1; no new categories; category shares move < 5% (TVD)"
                          + (f": {problems[:3]}" if problems else "")))

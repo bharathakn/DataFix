@@ -31,6 +31,7 @@ AUTO_BATCHES = [
     ("Spelling & learned-rule fixes", lambda p: p.repair_class == "correct"),
     ("PIN / address recovered", lambda p: p.repair_class == "recover" and p.algorithm in ("pin_recovery", "fill_from_rules")),
     ("Contacts recovered", lambda p: p.repair_class == "recover" and p.algorithm in ("phone_recovery", "email_recovery")),
+    ("Ages computed from date of birth", lambda p: p.repair_class == "recover" and p.algorithm == "age_from_dob"),
 ]
 
 SOURCE_OF_SIGNAL = {

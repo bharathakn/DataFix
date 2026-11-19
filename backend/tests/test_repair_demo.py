@@ -32,6 +32,8 @@ def evaluate(tables, props, truth, tiers):
     df = tables["customers"]
     truth_cells = {(t["dirty_row"], t["column"]): t for t in truth["customers_cell_errors"]}
     dup_ids = {d["customer_id"] for d in truth["customers_duplicates"]}
+    dup_of = {d["customer_id"]: d["duplicate_of"] for d in truth["customers_duplicates"]}
+    row_of = dict(zip(df["customer_id"], df.index))
     applied = [p for p in props if p.table == "customers" and p.tier in tiers and p.candidates]
     correct, wrong, estimates, false_repairs = Counter(), Counter(), 0, []
     for p in applied:
@@ -41,6 +43,11 @@ def evaluate(tables, props, truth, tiers):
             continue
         t = truth_cells.get((p.row_id, p.column))
         if t is None:
+            # a near-duplicate made by re-formatting the source's e-mail/phone: writing it back in the source's
+            # form is a correct normalisation, not a false repair
+            src = row_of.get(dup_of.get(df.at[p.row_id, "customer_id"], ""))
+            if src is not None and p.candidates[0].value == df.at[src, p.column]:
+                continue
             false_repairs.append((p.row_id, p.column, p.original_value, p.candidates[0].value))
             continue
         if p.repair_class == "impute":

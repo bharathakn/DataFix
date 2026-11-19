@@ -86,3 +86,21 @@ scan 6–7 s · plan 0.8 s · apply-auto 1.8 s · validation 5.5 s · benchmark 
 | Export bundle (warm validation) | 110 s | 15 s | the above |
 | `GET /export/zip` from the UI | ~20 min (four clicks queued behind the lock) | 27 s cold (incl. a fresh validation), 0.03 s repeat | export files cached per session state; the button shows "Preparing ZIP…" and sends one request |
 | Report preview iframe | blank (request stuck in the queue) | instant | same; spinner until the iframe loads |
+
+## Answer-key test set (customers 30,558 + orders 81,526, `datafix_test_input`) — 2026-11-20
+
+Scored with the cells listed in the answer pack's `score_details.csv` (33,961 cells that the first submission missed, got wrong or flagged; cells it already fixed are not listed). Both runs are `datafix fix` (auto tier only, offline). "Before" is the code at commit 34f1442; the first submission also bulk-accepted the review queue, which added the age "66" median guesses.
+
+| Error type (cells) | Before: correct / wrong | After: correct / wrong |
+|---|---|---|
+| boolean_variant (12,036) | 0 / **3,940** (`YES` → `yes`) | **12,036** / 0 |
+| gender_variant (3,655) | 0 / **1,738** (`F` → `f`) | **3,655** / 0 |
+| phone_format (3,610) | 0 / 0 | **3,610** / 0 |
+| state_abbreviation (2,759) | 0 / **158** (`U.P.` → `UP`) | **2,721** / 0 |
+| email_case_space (1,879) | 625 / 0 | **1,879** / 0 |
+| missing / invalid age, DOB known (736) | 0 / 0 (review: median 66, 120 wrong when accepted) | **736** / 0 |
+| age_conflicts_dob (150) | 0 / 0 | 129 / 0 (21 left for review) |
+| pan_lowercase (300), occupation_variant (191), name_case (180), age words (30), PIN `.0` (24) | 0 / 0 | all correct / 0 |
+| **All listed cells** | **1,488 / 5,836** | **26,495 / 0** |
+
+Still open (by design or out of scope for this change): ambiguous dd/mm vs mm/dd dates (6,552) and other date formats, 5-digit PINs with no unique candidate (32), placeholder phones with no linked record (25), ages with no DOB (12). Do-no-harm 8/8 (distribution check now compares meanings; it failed before on `gender`/`is_active` respelling). Demo unchanged: benchmark F1 0.991, repair precision 100%, false repairs 0, clean rows 84.7% → 96.08%.

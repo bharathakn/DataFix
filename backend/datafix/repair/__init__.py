@@ -55,6 +55,18 @@ class RepairContext:
         x = self.df.at[row, col].strip()
         return x or None
 
+    def join_value(self, row: int, col: str) -> str | None:
+        """Like trusted(), but a cell whose only problem is its written form ('A.B@GMAIL.COM') still
+        joins on its canonical form."""
+        x = self.trusted(row, col)
+        if x is not None:
+            return x
+        issues = self.cells.get((row, col), [])
+        canon = [i.meta["suggestion"] for i in issues if i.meta.get("kind") in ("canonical", "whitespace")]
+        if canon and all(i.type == "inconsistent" for i in issues):
+            return canon[0].strip() or None
+        return None
+
     def key(self, col: str, raw: str) -> str:
         canon = self.scan.canonical.get(col, {})
         return v.norm_key(canon.get(raw, raw))
@@ -88,7 +100,7 @@ class RepairContext:
             if not tcols:
                 continue
             for main_col, link_col in lk.joins:
-                key = self.trusted(row, main_col)
+                key = self.join_value(row, main_col)
                 if key is None:
                     continue
                 if link_col not in lk.index:

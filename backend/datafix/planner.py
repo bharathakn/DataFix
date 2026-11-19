@@ -4,14 +4,14 @@ from collections import Counter
 
 import pandas as pd
 
-from .confidence import CAPS, DEFAULT_CAP, rank, tier_for
+from .confidence import CAPS, DEFAULT_CAP, rank, signal, tier_for
 from .detect import CATEGORY_LIKE
 from .models import Issue, RepairProposal
 from .reference import pin_reference
 from .repair import ERROR_TYPES, Linked, RepairContext, find_joins
+from .repair.age import repair_age
 from .repair.category import repair_category
 from .repair.contact import repair_email, repair_phone
-from .repair.impute import impute_numeric
 from .repair.outcome import Outcome, refuse
 from .repair.pin import repair_pin
 from .repair.rows import fix_total, merge_duplicate
@@ -28,6 +28,10 @@ def _dispatch(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Ou
             return Outcome("none", "flag_only", refusal="unusual but possible value: flagged for a human, never "
                                                         "changed automatically", meta={"flag_only": True})
         return None
+    canon = next((i.meta["suggestion"] for i in issues if i.meta.get("kind") == "canonical"), None)
+    if canon is not None and not types & {"missing", "disguised_missing", "fd_violation", "crossfield"}:
+        return Outcome("normalize", "canonical_format", {canon: [signal(
+            "deterministic_transform", 1.0, f"same value in the form most of {col} uses ({issues[0].message.split(' as ')[-1]})")]})
     if "encoding" in kinds:
         return fix_encoding(ctx, row, col, issues)
     if t == "pin":
@@ -37,7 +41,7 @@ def _dispatch(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Ou
     if t == "email":
         return repair_email(ctx, row, col, issues)
     if t == "age":
-        return impute_numeric(ctx, row, col, issues)
+        return repair_age(ctx, row, col, issues)
     if t in CATEGORY_LIKE:
         return repair_category(ctx, row, col, issues)
     if "date_format" in kinds:

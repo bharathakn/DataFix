@@ -67,7 +67,11 @@ def _numbers(s: pd.Series, col_type: str) -> np.ndarray:
     return np.array([x for x in vals if x is not None], dtype=float)
 
 
-def check_distributions(orig: pd.DataFrame, cur: pd.DataFrame, columns: dict) -> tuple[bool, list[str]]:
+def check_distributions(orig: pd.DataFrame, cur: pd.DataFrame, columns: dict,
+                        canonical: dict[str, dict[str, str]] | None = None) -> tuple[bool, list[str]]:
+    """Category shares are compared by meaning: original values go through the scan's canonical map first,
+    so 'YES'/'y'/'1' -> 'true' or 'Bombay' -> 'Mumbai' is not a shift; a filled blank or a changed meaning is."""
+    canonical = canonical or {}
     problems = []
     for col, info in columns.items():
         if col not in cur.columns:
@@ -88,8 +92,10 @@ def check_distributions(orig: pd.DataFrame, cur: pd.DataFrame, columns: dict) ->
             if new_values:
                 problems.append(f"{col}: new categories {sorted(new_values)[:5]}")
             # total variation distance between category shares; robust to near-equal groups swapping rank
-            pa = orig[col].str.strip().value_counts(normalize=True)
-            pb = cur[col].str.strip().value_counts(normalize=True)
+            cmap = canonical.get(col, {})
+            key = lambda x: v.norm_key(cmap.get(x, x))
+            pa = orig[col].map(key).value_counts(normalize=True)
+            pb = cur[col].map(key).value_counts(normalize=True)
             tvd = 0.5 * pa.subtract(pb, fill_value=0).abs().sum()
             if tvd > 0.05:
                 problems.append(f"{col}: category shares moved by {tvd:.1%} (TVD)")

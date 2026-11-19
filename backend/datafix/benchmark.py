@@ -161,13 +161,17 @@ def inject(df: pd.DataFrame, types: dict[str, str], error_rate: float, dup_rate:
         if id_col:
             row[id_col] = f"BENCH-{k + 1:05d}"
         near = k % 2 == 1
+        altered = None
         if near and email_col and row[email_col]:
             row[email_col] = row[email_col].upper()
+            altered = email_col
         elif near and name_col and len(row[name_col]) > 4:
             j = rng.randrange(1, len(row[name_col]) - 1)
             row[name_col] = row[name_col][:j] + row[name_col][j + 1:]
+            altered = name_col
         extra.append(row)
-        dups.append({"row": n + k, "duplicate_of": src, "type": "near_duplicate" if near else "duplicate"})
+        dups.append({"row": n + k, "duplicate_of": src, "type": "near_duplicate" if near else "duplicate",
+                     "altered": altered})
     if extra:
         df = pd.concat([df, pd.DataFrame(extra)], ignore_index=True)
     return df, truth, dups
@@ -211,8 +215,11 @@ def run_benchmark(session, sample_rows: int = 2000, error_rate: float = 0.05, du
     flagged_dups = {i.row_id for i in s0.issues if i.type in ("duplicate", "near_duplicate")}
     truth_cells = {(t["row"], t["column"]): t for t in truth}
     truth_dups = {d["row"]: d for d in dups}
+    # the cell altered to make a near-duplicate (upper-cased e-mail) is dirty too: flagging it is correct,
+    # but it is neither required (recall) nor counted against precision
+    altered = {(d["row"], d["altered"]) for d in dups if d.get("altered")}
     tp = len(flagged & set(truth_cells)) + len(flagged_dups & set(truth_dups))
-    n_flags = len(flagged) + len(flagged_dups)
+    n_flags = len(flagged - altered) + len(flagged_dups)
     n_true = len(truth_cells) + len(truth_dups)
     precision = tp / n_flags if n_flags else 1.0
     recall = tp / n_true if n_true else 1.0
@@ -241,6 +248,8 @@ def run_benchmark(session, sample_rows: int = 2000, error_rate: float = 0.05, du
             continue
         t = truth_cells.get((c.row_id, c.column))
         if t is None:
+            if (c.row_id, c.column) in altered:
+                continue  # normalising the deliberately altered near-duplicate cell is not a false repair
             if c.original_value.strip() and not c.reason.startswith("filled from duplicate"):
                 false_repairs += 1
             continue

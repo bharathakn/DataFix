@@ -63,6 +63,8 @@ def repair_phone(ctx: RepairContext, row: int, col: str, issues: list[Issue]) ->
 def repair_email(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Outcome:
     raw = ctx.value(row, col).strip()
     cands: dict[str, list[Signal]] = {}
+    if raw != ctx.value(row, col) and v.is_email(raw):
+        cands[raw] = [signal("deterministic_transform", 1.0, "removed stray spaces; no characters changed")]
     domains = _column_domains(ctx, col)
     for fixed, how in _email_fixes(raw, domains):
         cands.setdefault(fixed, []).append(signal("pattern_fix", 1.0, f"common typo: {how}"))

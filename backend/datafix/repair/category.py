@@ -14,6 +14,7 @@ KIND_SIGNAL = {
     "whitespace": ("format_variant", "same value with stray spaces removed"),
     "variant": ("format_variant", "same value written with different case/punctuation; most common form chosen"),
     "alias": ("alias_dictionary", "known alternate / old name"),
+    "synonym": ("format_variant", "same meaning written in another style; the column's most common form chosen"),
 }
 
 

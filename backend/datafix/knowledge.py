@@ -27,3 +27,31 @@ GST_STATE_CODES = {
     "34": "Puducherry", "35": "Andaman And Nicobar Islands", "36": "Telangana", "37": "Andhra Pradesh",
     "38": "Ladakh",
 }
+
+# common job-title synonyms (normalised -> canonical); applied only when the canonical form is already in the column
+TERM_ALIASES = {
+    "housewife": "Homemaker", "house wife": "Homemaker", "businessman": "Business Owner",
+    "business man": "Business Owner", "businesswoman": "Business Owner", "bank employee": "Banker",
+    "civil engg": "Civil Engineer", "advocate": "Lawyer", "dr": "Doctor", "sales exec": "Sales Executive",
+    "sw engineer": "Software Engineer", "software engg": "Software Engineer", "ca": "Chartered Accountant",
+}
+
+# Value families: each style is a tuple of normalised keys, one per meaning (same order in every style).
+# A column is standardised only when nearly all its values belong to one family and it mixes styles.
+VALUE_FAMILIES = {
+    "boolean": [("true", "false"), ("yes", "no"), ("y", "n"), ("1", "0"), ("active", "inactive"), ("t", "f")],
+    "gender": [("male", "female", "other"), ("m", "f", "o")],
+}
+
+# Indian state / UT codes (ISO 3166-2:IN and vehicle-registration forms), normalised -> official name.
+# Used for state columns only, and only when the full name is already in the column.
+STATE_CODES = {
+    "ap": "Andhra Pradesh", "ar": "Arunachal Pradesh", "as": "Assam", "br": "Bihar", "cg": "Chhattisgarh",
+    "ct": "Chhattisgarh", "ga": "Goa", "gj": "Gujarat", "hr": "Haryana", "hp": "Himachal Pradesh",
+    "jh": "Jharkhand", "ka": "Karnataka", "kl": "Kerala", "mp": "Madhya Pradesh", "mh": "Maharashtra",
+    "mn": "Manipur", "ml": "Meghalaya", "mz": "Mizoram", "nl": "Nagaland", "od": "Odisha", "or": "Odisha",
+    "pb": "Punjab", "rj": "Rajasthan", "sk": "Sikkim", "tn": "Tamil Nadu", "ts": "Telangana", "tg": "Telangana",
+    "tr": "Tripura", "up": "Uttar Pradesh", "uk": "Uttarakhand", "ut": "Uttarakhand", "wb": "West Bengal",
+    "dl": "Delhi", "nct": "Delhi", "jk": "Jammu And Kashmir", "la": "Ladakh", "py": "Puducherry",
+    "ch": "Chandigarh", "an": "Andaman And Nicobar Islands", "ld": "Lakshadweep",
+}

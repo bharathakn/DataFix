@@ -10,6 +10,8 @@ def merge_duplicate(ctx: RepairContext, issue: Issue) -> Outcome:
     near = issue.type == "near_duplicate"
     fills = {}
     for c in ctx.df.columns:
+        if ctx.col_type(c) == "text":  # free-text notes belong to their own record; never copied across
+            continue
         if ctx.df.at[root, c].strip() == "" and ctx.df.at[dup, c].strip() and not ctx.is_error(dup, c):
             fills[c] = ctx.df.at[dup, c]
     remaps = []

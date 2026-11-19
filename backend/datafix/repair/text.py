@@ -31,7 +31,7 @@ def fix_text(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Out
         sigs.append(signal("deterministic_transform", 1.0, "removed stray spaces; no characters changed"))
     if "case" in kinds:
         fixed = fixed.title()
-        sigs.append(signal("format_variant", 0.98, "converted ALL CAPS to the title case used by the rest of the column"))
+        sigs.append(signal("format_variant", 0.98, "converted to the Title Case used by the rest of the column"))
     if fixed == raw:
         return refuse("normalize", "text_normalize", "no safe normalisation found")
     return Outcome("normalize", "text_normalize", {fixed: sigs})
