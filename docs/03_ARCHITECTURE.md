@@ -46,7 +46,10 @@ DataFix/
 │   │   ├── ingest.py              # load csv/xlsx/json as strings, encoding sniff
 │   │   ├── coltypes.py            # semantic column type detection
 │   │   ├── profile.py             # per-column stats
-│   │   ├── validators/            # email, phone, pin, pan, gstin, aadhaar, ifsc, luhn, dates, money
+│   │   ├── validators.py          # email, phone, pin, pan, gstin, aadhaar, ifsc, luhn, dates, money
+│   │   ├── knowledge.py           # placeholder tokens, city aliases, GST state codes
+│   │   ├── reference.py           # India Post PIN reference loader
+│   │   ├── scan.py                # orchestrates coltypes + detectors + score
 │   │   ├── detect/                # missing, disguised, duplicates, formats, consistency, fd, crossfield, anomalies
 │   │   ├── repair/                # normalize, standardize, spelling, pin, phone, age, dedupe, fd_repair
 │   │   ├── confidence.py          # signal combination + tiering

@@ -33,16 +33,18 @@ If the window is only 24 hours, apply the **24h cut** noted in each phase.
 
 ## Phase 1 — Detect (H1.5–H5.5)
 
-- [ ] `models.py` (dataclasses from 03 §4).
-- [ ] `ingest.py` (strings only, `_rid`, encoding sniff, xlsx, json).
-- [ ] `validators/` with unit tests: Verhoeff, Luhn, GSTIN checksum, PAN, PIN, phone, email, dates, money parsing.
-- [ ] `coltypes.py` + test that a renamed `col_7` PIN column is detected.
-- [ ] `detect/`: missing, disguised, duplicates (exact + blocked fuzzy), formats, consistency (aliases, case, mixed formats), FD discovery, crossfield, anomalies.
-- [ ] `validate.quality_score()`.
-- [ ] CLI `scan`.
-- [ ] Test: counts per type on demo data roughly match `truth.json`.
+- [x] `models.py` (dataclasses from 03 §4).
+- [x] `ingest.py` (strings only, `_rid`, encoding sniff, xlsx, json).
+- [x] `validators/` with unit tests: Verhoeff, Luhn, GSTIN checksum, PAN, PIN, phone, email, dates, money parsing.
+- [x] `coltypes.py` + test that a renamed `col_7` PIN column is detected.
+- [x] `detect/`: missing, disguised, duplicates (exact + blocked fuzzy), formats, consistency (aliases, case, mixed formats), FD discovery, crossfield, anomalies.
+- [x] `validate.quality_score()`.
+- [x] CLI `scan`.
+- [x] Test: counts per type on demo data roughly match `truth.json`.
 
-24h cut: skip multivariate IsolationForest (keep robust z), skip column-shift.
+24h cut taken: multivariate IsolationForest and column-shift skipped (robust z only).
+
+**Result (2026-11-19):** 33 tests pass. Demo detection vs truth.json: precision 1.000, recall 0.990 (every error type ≥ 0.9 except US dates with day ≤ 12, 0.66, undetectable per cell). Clean file: 0 false flags, score 100. Scan time: customers 10.2k rows 4.9 s, orders 23k rows 4.1 s. Scores are on our own synthetic data, so expect lower on real files.
 
 ## Phase 2 — Repair (H5.5–H10.5)
 

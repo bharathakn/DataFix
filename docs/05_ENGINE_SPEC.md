@@ -54,6 +54,18 @@ Severity weights feed the quality score. A cell's weight is the **max** over its
 | `anomaly` | 0.2 | anomalies | numeric: robust z = 0.6745·(x − median)/MAD > 3.5; multivariate (≥ 3 numeric cols): IsolationForest contamination 0.01. **Flag only.** |
 | `pii` | 0 (separate) | privacy | see [06_AI_PRIVACY_SPEC.md](06_AI_PRIVACY_SPEC.md) |
 
+### 4.0 Implementation notes (Phase 1)
+
+- **Sparse columns:** a column ≥ 30% empty is treated as optional by design (`sparse_column`, weight 0, one column-level issue) instead of flagging every blank cell (e.g. `pan`, `notes`).
+- **Age** is valid in 1–120 (0 is flagged); make configurable when user rules land.
+- **Aliases** are flagged only when both forms occur in the column; a column that consistently says "Bangalore" (India Post's district name) is not an error.
+- **Spelling** compares rare values against frequent values (≥ 20× more common) and against known aliases, using OSA edit distance ≤ 1 for ≤ 6 chars, ≤ 2 (+ ratio ≥ 80) for ≤ 12 chars, else ratio ≥ 85. `Banglore` → `Bangalore` (alias) → `Bengaluru`.
+- **Internal double spaces** are flagged only when the single-spaced form also occurs (official names like "Infotech  Park (Hinjawadi)" exist).
+- **Mojibake** covers cp1252 (`â€™`, `Ã©`), latin-1 C1 control characters and U+FFFD.
+- **Near duplicates:** a pair qualifies only if all strict fields (date, number, money, age, pin, phone, id, PAN, GSTIN, Aadhaar, IFSC) are equal after normalisation and at most 2 text fields differ, each with similarity ≥ 85. Mean similarity ≥ 92. Blocks larger than 50 rows (placeholders) are skipped. This removed 812 false "near duplicates" between different orders of the same customer.
+- **FD violations are suppressed** when (a) the row's X cell is itself suspect, or (b) a rule Z→Y with confidence ≥ this rule's agrees with the row's Y value. Example: PIN 400001 spans Mumbai and Raigarh districts, but locality→district (100%) explains it.
+- Anomalies: robust z on log scale for skewed positive columns; IsolationForest not implemented (24h cut).
+
 ### 4.1 Functional dependency discovery (the "learned rules" feature)
 
 For every ordered pair of columns (X, Y) where X and Y are `category`, `pin`, `name`-like-city, or `id` types and X is not unique:
