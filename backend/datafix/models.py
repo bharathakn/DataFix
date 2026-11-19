@@ -61,3 +61,51 @@ class LearnedRule:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+@dataclass
+class Signal:
+    name: str
+    score: float  # 0..1 strength of this evidence
+    reliability: float  # 0..1 prior trust in this kind of evidence
+    detail: str  # human sentence
+    conflicting: bool = False
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class Candidate:
+    value: str
+    confidence: float
+    signals: list[Signal] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class RepairProposal:
+    proposal_id: str
+    table: str
+    issue_ids: list[str]
+    row_id: int
+    column: str  # "__row__" for duplicate merges
+    original_value: str
+    candidates: list[Candidate]
+    tier: str  # auto | review | flag | refused
+    repair_class: str  # normalize | standardize | correct | recover | impute | dedupe_merge | none
+    algorithm: str
+    refusal_reason: str | None = None
+    status: str = "pending"  # pending | applied | rejected | undone
+    meta: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def confidence(self) -> float:
+        return self.candidates[0].confidence if self.candidates else 0.0
+
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        d["confidence"] = self.confidence
+        return d

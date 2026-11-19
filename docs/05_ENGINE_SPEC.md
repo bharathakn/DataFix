@@ -108,6 +108,17 @@ Caps: `impute` 0.85 (never auto), `dedupe_merge` near-duplicate 0.94 (never auto
 
 Tiers (defaults, adjustable, tuned with benchmark): `auto ≥ 0.95`, `review 0.70–0.95`, `flag < 0.70`. `refused` = no candidate could be generated, or a hard guard tripped; carries `refusal_reason`.
 
+### 5.1a Implementation notes (Phase 2A)
+
+- Candidates are **ranked on uncapped confidence**, then capped. Otherwise extra evidence can't break a tie between candidates that all hit the 0.99 cap.
+- **Ambiguity:** if the runner-up is within 0.05 of the top candidate, the top one is capped at 0.85 (review) with a conflicting "ambiguous" signal naming the runner-up.
+- **Learned rules vote:** every learned rule X→Y whose X cell in the row is trusted votes for its group majority (`fd_majority`). A suggestion the rules disagree with gets a conflicting signal.
+- **Locality matching** is fuzzy on letters and exact on numbers ("Sector 12" ≠ "Sector 21"), after stripping India Post suffixes (SO, B.O, H.O, GPO, PO).
+- **Age imputation:** `group_statistic` reliability 0.85, score `1 − 0.15·IQR/15`, so a valid estimate always lands in review (≈0.72–0.85), never auto. Groups need n ≥ 5 and IQR ≤ 15; the grouping column is the category column with the tightest weighted IQR, and only if it beats the overall IQR by 20%.
+- **Near-duplicate merges** use a `record_match` signal (0.95): the pair already matched on every strict field. Capped at 0.94, so always review.
+- **Linked-table recovery:** joins are same-named ID columns, then email columns. Exactly one distinct valid value → candidate (`linked_table_match`, plus `records_agree` if ≥ 2 records, plus `prefix_match` if the broken value's digits appear in it). Two or more distinct values → refused with the masked values listed.
+- Cross-field totals: candidate = quantity × price, `crossfield_rule` weighted by how often the rule holds; review tier, since quantity or price could be the wrong field.
+
 ### 5.2 Repair catalogue
 
 | Repair class | Handles | Candidate generation | Refuses when |

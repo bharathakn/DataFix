@@ -24,6 +24,14 @@ def norm_key(v: str) -> str:
     return " ".join(v.split())
 
 
+_OFFICE_SUFFIX = re.compile(r"\s+(?:s\.?\s?o|b\.?\s?o|h\.?\s?o|g\.?\s?p\.?\s?o|e\.?\s?d\.?\s?o|po)\.?$", re.I)
+
+
+def office_key(name: str) -> str:
+    """'Stock Exchange SO' (India Post directory) == 'Stock Exchange' (API / user data)."""
+    return norm_key(_OFFICE_SUFFIX.sub("", name.strip()))
+
+
 def has_mojibake(v: str) -> bool:
     return bool(MOJIBAKE_RE.search(v))
 
@@ -197,6 +205,13 @@ def date_families(v: str) -> frozenset[str]:
         if 1900 <= d.year <= 2100:
             fams.add(fam)
     return frozenset(fams)
+
+
+def parse_date_exact(v: str, fmt: str) -> datetime | None:
+    try:
+        return datetime.strptime(v.strip(), fmt)
+    except ValueError:
+        return None
 
 
 def parse_date(v: str, prefer: str | None = None) -> datetime | None:

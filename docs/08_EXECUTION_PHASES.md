@@ -48,17 +48,19 @@ If the window is only 24 hours, apply the **24h cut** noted in each phase.
 
 ## Phase 2 — Repair (H5.5–H10.5)
 
-- [ ] `confidence.py` noisy-OR + tiers.
-- [ ] `repair/normalize.py` (phone, dates, money, whitespace, sci-notation, encoding).
-- [ ] `repair/standardize.py`, `repair/spelling.py` (top-3 with RapidFuzz).
-- [ ] `repair/fd_repair.py`.
-- [ ] `repair/pin.py` (reference lookup, digit recovery §5.5), `repair/phone.py` (linked table), `repair/age.py` (group median), `repair/dedupe.py` (survivorship + FK remap).
-- [ ] `planner.py` → proposals with refusals.
+- [x] `confidence.py` noisy-OR + tiers.
+- [x] `repair/normalize.py` (phone, dates, money, whitespace, sci-notation, encoding).
+- [x] `repair/standardize.py`, `repair/spelling.py` (top-3 with RapidFuzz).
+- [x] `repair/fd_repair.py`.
+- [x] `repair/pin.py` (reference lookup, digit recovery §5.5), `repair/phone.py` (linked table), `repair/age.py` (group median), `repair/dedupe.py` (survivorship + FK remap).
+- [x] `planner.py` → proposals with refusals.
 - [ ] `audit.py` hash chain + verify; `session.py` replay, undo cell/batch, restore checkpoint.
 - [ ] CLI `fix`.
-- [ ] Tests: row 412 → `400001` in review/auto; conflicting-phone customer refused; never changes a clean cell (property test on `customers_clean.csv` → 0 proposals).
+- [x] Tests: row 412 → `400001` in review/auto; conflicting-phone customer refused; never changes a clean cell (property test on `customers_clean.csv` → 0 proposals).
 
-24h cut: email recovery, PIN-from-address.
+24h cut: PIN-from-address only via learned rules (email recovery was built).
+
+**Phase 2A result (2026-11-19):** 38 tests pass. Demo: 1,700 proposals (auto 1,260 · review 281 · refused 149 · flag 10). Auto tier: 1,259 correct, 0 wrong, 0 valid cells touched, 75% of injected errors fixed. Auto + review: 1,461 correct, 0 wrong, 51 age estimates, 90% coverage. Every refusal is justified (age groups too spread out, no linked record, conflicting phones). Planning 0.8 s after scan. Code lives in `repair/` as text, category, pin, contact, impute, rows (not the file names listed above). Remaining for 2B: audit hash chain, session replay / undo / checkpoints, CLI `fix`.
 
 ## Phase 3 — Prove (H10.5–H13.5)
 

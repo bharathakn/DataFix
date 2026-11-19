@@ -1,4 +1,4 @@
-"""DataFix CLI. Phase 1 ships `scan`; fix / check / bench / apply arrive in later phases."""
+"""DataFix CLI: scan, plan. fix / check / bench / apply arrive in later phases."""
 import argparse
 import json
 import sys
@@ -49,6 +49,38 @@ def cmd_scan(args) -> int:
     return 0
 
 
+def cmd_plan(args) -> int:
+    from .planner import plan_tables, summarize
+    paths = {Path(args.file).stem: args.file}
+    if args.linked:
+        paths[Path(args.linked).stem] = args.linked
+    tables, scans, props, timings = plan_tables(paths)
+    summ = summarize(props)
+    print(f"{len(props)} proposals  {timings}")
+    print("tiers:", summ["tiers"])
+    for k, n in summ["by_class"].items():
+        print(f"  {k:<28} {n:>5}")
+    reasons = Counter((p.refusal_reason or "").split(":")[0].split(" for ")[0][:70]
+                      for p in props if p.tier in ("refused", "flag") and p.refusal_reason)
+    print("why refused / flagged:")
+    for r, n in reasons.most_common(12):
+        print(f"  {n:>5}  {r}")
+    for spec in filter(None, (args.rows or "").split(",")):
+        row = int(spec)
+        for p in (p for p in props if p.row_id == row and p.table == Path(args.file).stem):
+            print(f"\nrow {row} · {p.column}: '{p.original_value}'  [{p.tier}] {p.repair_class}/{p.algorithm}")
+            if p.refusal_reason:
+                print(f"   refused/flagged: {p.refusal_reason}")
+            for c in p.candidates:
+                print(f"   → {c.value!r}  {c.confidence:.0%}")
+                for sgn in c.signals:
+                    print(f"       {'✗' if sgn.conflicting else '✓'} {sgn.detail}")
+    if args.json:
+        Path(args.json).write_text(json.dumps([p.to_dict() for p in props], indent=1, ensure_ascii=False))
+        print(f"\nwrote {args.json}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="datafix")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -58,6 +90,12 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--json", help="write full results to this JSON file")
     s.add_argument("--top", type=int, default=10)
     s.set_defaults(fn=cmd_scan)
+    pl = sub.add_parser("plan", help="propose repairs with confidence tiers")
+    pl.add_argument("file")
+    pl.add_argument("--linked")
+    pl.add_argument("--rows", help="comma-separated row numbers to explain, e.g. 412,1043")
+    pl.add_argument("--json")
+    pl.set_defaults(fn=cmd_plan)
     args = p.parse_args(argv)
     return args.fn(args)
 

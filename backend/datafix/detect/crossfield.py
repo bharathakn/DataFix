@@ -35,7 +35,7 @@ def _product_rule(ctx: ScanContext) -> None:
             continue
         checked += 1
         expected = qv * pv
-        if abs(tv - expected) > max(0.01 * abs(expected), 0.5):
+        if abs(tv - expected) > max(1e-4 * abs(expected), 0.01):
             bad += 1
             ctx.add(rid, t, "crossfield", f"crossfield:{t}={q}x{p}",
                     f"{t} {ctx.df.at[rid, t]} ≠ {q} {ctx.df.at[rid, q]} × {p} {ctx.df.at[rid, p]} = {expected:g}",

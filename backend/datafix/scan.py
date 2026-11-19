@@ -31,6 +31,7 @@ class ScanResult:
     rules: list[LearnedRule]
     quality_score: float
     canonical: dict[str, dict[str, str]] = field(default_factory=dict)
+    fd_maps: dict[str, dict] = field(default_factory=dict)
     timings_ms: dict[str, int] = field(default_factory=dict)
 
     @property
@@ -62,4 +63,4 @@ def scan_table(df: pd.DataFrame, table: str = "table", columns: dict[str, Column
         issue.issue_id = f"I{n:05d}"
     score = quality_score(ctx.issues, len(df), len(df.columns))
     timings["total"] = int((time.perf_counter() - t0) * 1000)
-    return ScanResult(table, len(df), cols, ctx.issues, ctx.rules, score, ctx.canonical, timings)
+    return ScanResult(table, len(df), cols, ctx.issues, ctx.rules, score, ctx.canonical, ctx.fd_maps, timings)

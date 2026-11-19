@@ -21,6 +21,8 @@ class ScanContext:
     sparse: set[str] = field(default_factory=set)
     issues: list[Issue] = field(default_factory=list)
     rules: list[LearnedRule] = field(default_factory=list)
+    # rule_id -> {lhs, rhs, confidence, groups: {lhs_key: {value, key, share, size}}}
+    fd_maps: dict[str, dict] = field(default_factory=dict)
     _seen: set = field(default_factory=set)
 
     def add(self, row: int | None, col: str | None, type_: str, detector: str, message: str,

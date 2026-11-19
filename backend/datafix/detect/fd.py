@@ -59,6 +59,10 @@ def detect_fd(ctx: ScanContext) -> None:
             sub = pair[pair["x"].isin(decided)]
             bad = sub[sub["y"] != sub["x"].map(majority)]
             maj_raw = _majority_raw(ctx, x, y, m)
+            ctx.fd_maps[rule_id] = {
+                "lhs": x, "rhs": y, "confidence": float(conf),
+                "groups": {k: {"value": maj_raw.get(k, majority[k]), "key": majority[k],
+                               "share": float(share[k]), "size": int(size[k])} for k in supported}}
             for rid, row in bad.iterrows():
                 violations.append((rid, x, y, rule_id, {
                     "rule": rule_id, "lhs_value": ctx.df.at[rid, x], "expected": maj_raw.get(row["x"], row["x"]),
