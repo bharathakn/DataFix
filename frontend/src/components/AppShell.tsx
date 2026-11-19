@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink, useParams } from 'react-router-dom'
 import { useLlmStatus, useSession } from '../api/hooks'
 import { cn, num } from '../lib/format'
+import { ChatPanel } from './ChatPanel'
 
 const NAV = [
   { to: '', label: 'Overview', icon: LayoutDashboard, end: true },
@@ -55,6 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { sid = '' } = useParams()
   const { data: s } = useSession(sid)
   const [dark, setDark] = useTheme()
+  const [chat, setChat] = useState(false)
   const before = s?.quality_score
   const now = s?.score_now
   return (
@@ -78,8 +80,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <LlmPill />
           <button className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => setDark(!dark)}
             aria-label="Toggle dark mode">{dark ? <Sun className="size-4" /> : <Moon className="size-4" />}</button>
-          <button className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-400 dark:border-slate-700"
-            disabled title="Chat arrives in Phase 6B"><MessageSquare className="size-4" />Chat</button>
+          <button onClick={() => setChat(!chat)} aria-pressed={chat}
+            className={cn('inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm', chat
+              ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800')}>
+            <MessageSquare className="size-4" />Chat</button>
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
@@ -93,8 +97,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </nav>
-        <main className="min-w-0 flex-1 overflow-auto">{children}</main>
+        <main className={cn('min-w-0 flex-1 overflow-auto', chat && 'lg:mr-[28rem]')}>{children}</main>
       </div>
+      {chat && sid && <ChatPanel sid={sid} session={s} onClose={() => setChat(false)} />}
     </div>
   )
 }

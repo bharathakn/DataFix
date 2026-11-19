@@ -32,6 +32,7 @@ cd frontend && npm run build   # type-check
 cd frontend && node scripts/ui_walkthrough.mjs <outdir>   # headless Chrome click-through + screenshots (needs both servers)
 cd frontend && node scripts/ui_repair.mjs <outdir>         # Repair Studio + History check
 cd frontend && node scripts/ui_proof.mjs <outdir>          # Validation + Diagnosis check
+cd frontend && node scripts/ui_finish.mjs <outdir>         # Chat + Privacy + Export check
 curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now
 python3 scripts/build_pin_reference.py                     # stdlib only
 cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv

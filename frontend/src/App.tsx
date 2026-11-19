@@ -1,9 +1,10 @@
 import { Outlet, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
-import ComingSoon from './pages/ComingSoon'
 import Diagnosis from './pages/Diagnosis'
+import Export from './pages/Export'
 import History from './pages/History'
 import Overview from './pages/Overview'
+import Privacy from './pages/Privacy'
 import RepairStudio from './pages/RepairStudio'
 import Setup from './pages/Setup'
 import Upload from './pages/Upload'
@@ -24,8 +25,8 @@ export default function App() {
         <Route path="history" element={<History />} />
         <Route path="diagnosis" element={<Diagnosis />} />
         <Route path="validation" element={<Validation />} />
-        <Route path="privacy" element={<ComingSoon name="Privacy" phase="6B" />} />
-        <Route path="export" element={<ComingSoon name="Export" phase="6B" />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="export" element={<Export />} />
       </Route>
       <Route path="*" element={<Upload />} />
     </Routes>

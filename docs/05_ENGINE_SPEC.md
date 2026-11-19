@@ -209,6 +209,8 @@ Row-level issues (duplicates) count every cell of the row once. Reported before,
 
 Row-based, because cell-based ratios dilute ~1,700 errors over ~200k cells into 99.x%: **completeness** (no missing/placeholder), **validity** (no invalid format), **consistency** (no inconsistent / rule / cross-field issue), **uniqueness** (not a duplicate), and **clean rows** (none of these). Demo: clean rows 84.7% → 96.1%. `datafix check FILE --min clean_rows=95` gates on any of them.
 
+Masked cells are removed from the re-scan before computing dimensions, score and remaining errors: a masked value fails its validator by design.
+
 ### 7.2 Do-no-harm checks (all must be green before export; export still allowed with a warning)
 
 | Check | Pass condition |
@@ -219,7 +221,7 @@ Row-based, because cell-based ratios dilute ~1,700 errors over ~200k cells into 
 | `distribution_stable` | numeric: |median change| < 5% and KS statistic < 0.1 (numpy implementation); categorical: no new categories, and total variation distance of category shares < 5% (top-5 ranking was too brittle: 12 near-equal import batches swapped order after 120 merges) |
 | `no_new_errors` | re-scan current data with the original column types: zero repaired cells that now fail a check. Problems that surface on untouched cells once neighbouring errors are fixed are reported separately, not counted. Privacy-masked cells are excluded |
 | `referential_integrity` | every `orders.customer_id` exists in customers |
-| `idempotent` | planning on current data yields 0 `auto` proposals (masked cells excluded: phone recovery would otherwise 'un-mask' them) |
+| `idempotent` | planning on current data yields 0 `auto` proposals, ignoring masked cells (phone recovery would 'un-mask' them), cells the user rejected or undid, and items still open in the review queue (hashing phones turns pending near-duplicates into exact ones) |
 | `audit_chain_valid` | hash chain verifies |
 
 ## 8. Self-test benchmark (`benchmark.py`)

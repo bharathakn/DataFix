@@ -23,9 +23,11 @@ Implemented in `backend/api/routes.py`, verified by `scripts/smoke_api.py` (46 e
 | `GET /proposals` | Extra filters `table`, `algorithm`, `sort=row|confidence|-confidence`; items include `record_id` (the dataset's own ID). |
 | `POST /review/bulk` | Returns `{applied, change_ids, checkpoint, score_now}`; `change_ids` lets the UI undo exactly that bulk action. |
 | `POST /repair/plan` | Returns `{tiers, by_class, duration_ms}` plus `auto/review/flag/refused` at top level. Rejected (409) once repairs exist. |
-| `POST /privacy/mask` | Body `{column, method, table?, pii_type?}`; returns `{checkpoint, affected, findings}`. Unknown column → 409. |
+| `POST /privacy/mask` | Body `{column, method, table?, pii_type?}`; returns `{checkpoint, affected, findings}`. Unknown column → 409. `GET /privacy` derives `masked` / `method` from the live change log (undo un-masks). |
+| Concurrency | Every `/sessions/{sid}/…` route holds that session's re-entrant lock for the whole request, so reads never interleave with a repair (the current-table cache is updated in place; pandas is not thread-safe). |
 | `POST /benchmark` | Body `{sample_rows (100–20000), error_rate, seed}`; result shape in `types.ts` (`BenchmarkResult`). `GET /benchmark` returns the last result or `null`. |
 | `RootCause.rate_by_group` | Up to 8 groups, most issues first (the culprit group always shows). `times_elsewhere` = rate in the group ÷ rate everywhere else (null = only in this group). |
+| `GET /export/{kind}?inline=1` | Serve with `Content-Disposition: inline` (used to preview the HTML report in an iframe). |
 | `GET /api/debug/inflight` | Requests currently running with elapsed seconds; requests slower than 5 s are also logged. Use it if the UI seems stuck. |
 | `GET /llm/status?ping=true` | `{provider, model, models, keys, ok, last_error, using_backup_key, cooling_down, recent_calls}`. |
 | Chat `proposed_action.kind` | `undo_checkpoint` (payload `checkpoint_id`) or `undo_changes` (payload `change_ids`). |

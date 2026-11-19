@@ -1,5 +1,5 @@
 import type {
-  BenchmarkResult, Change, ChatReply, Checkpoint, Diagnosis, Heatmap, LearnedRule, LlmStatus, PiiFinding, PlanSummary,
+  BenchmarkResult, Change, ChatReply, Checkpoint, Diagnosis, Heatmap, LearnedRule, LlmStatus, MaskMethod, PiiFinding, PlanSummary,
   ProposalGroup, RepairProposal, RowDetail, RowsPage, ScanResult, SessionSummary, Validation, Warning,
 } from './types'
 
@@ -92,6 +92,8 @@ export const api = {
   lastBenchmark: (sid: string) => req<BenchmarkResult | null>('GET', `${S(sid)}/benchmark`),
   benchmark: (sid: string, body: { sample_rows?: number; seed?: number } = {}) => req<BenchmarkResult>('POST', `${S(sid)}/benchmark`, body),
   privacy: (sid: string) => req<PiiFinding[]>('GET', `${S(sid)}/privacy`),
+  mask: (sid: string, body: { column: string; method: MaskMethod; table?: string; pii_type?: string }) =>
+    req<{ checkpoint: Checkpoint; affected: number; findings: PiiFinding[] }>('POST', `${S(sid)}/privacy/mask`, body),
   chat: (sid: string, message: string, history: { role: 'user' | 'assistant'; text: string }[]) =>
     req<ChatReply>('POST', `${S(sid)}/chat`, { message, history }),
   exportUrl: (sid: string, kind: string) => `/api${S(sid)}/export/${kind}`,

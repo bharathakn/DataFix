@@ -398,6 +398,22 @@ class Session:
         self.privacy = [dict(f, table=t) for t in self.originals for f in scan_pii(self.originals[t], self.scans[t].columns)]
         return self.privacy
 
+    def privacy_status(self) -> list[dict]:
+        """Findings with masked/method derived from the live change log, so undoing a mask un-marks it."""
+        if not self.privacy:
+            self.privacy_scan()
+        active: dict[tuple[str, str], str] = {}
+        for c in self.applied_changes():
+            if c.algorithm == "privacy_drop":
+                active[(c.table, c.column)] = "drop"
+            elif c.algorithm == "privacy_mask":
+                active.setdefault((c.table, c.column), c.reason.rsplit(" ", 1)[-1])
+        out = []
+        for f in self.privacy:
+            method = active.get((f["table"], f["column"]))
+            out.append({**f, "masked": method is not None, "method": method})
+        return out
+
     def mask_column(self, column: str, method: str, table: str | None = None, pii_type: str | None = None) -> Checkpoint:
         """Mask PII in one column as an undoable checkpoint. method: partial | redact | hash | drop."""
         from .privacy import find_spans, mask_text, mask_value

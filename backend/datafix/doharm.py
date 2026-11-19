@@ -57,7 +57,9 @@ def validate_session(s) -> dict:
     # 5. no new errors on cells DataFix changed; errors surfacing on untouched cells are reported separately
     before_cells = error_cells(scan0.issues)
     masked = {(c.row_id, c.column) for c in applied if c.table == main and c.algorithm in PRIVACY_ALGOS}
-    after_cells = {cell for cell in error_cells(scan1.issues) if cell not in masked}
+    # masked values (98XXXXXX45, ABCPX****Q) fail their validators by design: not a quality problem
+    issues1 = [i for i in scan1.issues if (i.row_id, i.column) not in masked]
+    after_cells = error_cells(issues1)
     changed = {(c.row_id, c.column) for c in cell_changes if c.table == main}
     introduced = sorted((after_cells - before_cells) & changed)
     surfaced = sorted((after_cells - before_cells) - changed)
@@ -82,7 +84,9 @@ def validate_session(s) -> dict:
     # 7. idempotent: planning again on the repaired data proposes no further automatic fixes
     replan = plan_repairs({n: s.current(n) for n in s.originals}, rescans, s.thresholds)
     # not counted: cells the user masked on purpose, and cells/rows whose repair the user rejected or undid
-    declined = {(p.table, p.row_id, p.column) for p in s.proposals.values() if p.status in ("rejected", "undone")}
+    # (and items still open in the review queue: e.g. hashing phones turns pending near-duplicates into exact ones)
+    declined = {(p.table, p.row_id, p.column) for p in s.proposals.values()
+                if p.status in ("rejected", "undone") or (p.status == "pending" and p.tier != "auto")}
     again = [p for p in replan if p.tier == "auto" and not (p.table == main and (p.row_id, p.column) in masked)
              and (p.table, p.row_id, p.column) not in declined]
     checks.append(_check("idempotent", not again, len(again),
@@ -98,13 +102,13 @@ def validate_session(s) -> dict:
              for t in ("review", "flag", "refused")}
     return {
         "score_before": quality_score(scan0.issues, len(orig), len(orig.columns)),
-        "score_after": quality_score(scan1.issues, len(cur), len(orig.columns)),
+        "score_after": quality_score(issues1, len(cur), len(orig.columns)),
         "dimensions_before": dimensions(scan0.issues, len(orig)),
-        "dimensions_after": dimensions(scan1.issues, len(cur)),
+        "dimensions_after": dimensions(issues1, len(cur)),
         "checks": checks,
         "passed": all(c["passed"] for c in checks),
         "unresolved": tiers,
-        "remaining_errors": len(after_cells) + sum(1 for i in scan1.issues if i.type in DIMENSIONS["uniqueness"]),
+        "remaining_errors": len(after_cells) + sum(1 for i in issues1 if i.type in DIMENSIONS["uniqueness"]),
         "still_failing_after_repair": len(still),
         "surfaced": len(surfaced),
         "duration_ms": int((time.perf_counter() - t0) * 1000),

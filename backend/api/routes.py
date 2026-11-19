@@ -1,4 +1,5 @@
 """REST routes (docs/04_API_CONTRACT.md). Thin: every rule lives in the datafix engine."""
+import functools
 import re
 import tempfile
 from pathlib import Path
@@ -25,6 +26,16 @@ MAX_UPLOAD = 200 * 1024 * 1024
 
 
 # ---------------------------------------------------------------- helpers
+def locked(fn):
+    """Hold the session's (re-entrant) lock for the whole request. Reads must not interleave with a repair:
+    the current-table cache is updated in place and pandas is not thread-safe."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        with registry.lock(kwargs["sid"]):
+            return fn(*args, **kwargs)
+    return wrapper
+
+
 def _table_name(filename: str, fallback: str) -> str:
     stem = re.sub(r"[^A-Za-z0-9_]+", "_", Path(filename or "").stem).strip("_").lower()
     return stem or fallback
@@ -121,11 +132,13 @@ def create_demo():
 
 
 @router.get("/sessions/{sid}")
+@locked
 def get_session(sid: str):
     return _summary(_session(sid))
 
 
 @router.get("/sessions/{sid}/rows")
+@locked
 def get_rows(sid: str, offset: int = 0, limit: int = Query(100, le=500),
              view: Literal["current", "original", "diff"] = "current", table: str | None = None,
              issue_type: str | None = None, column: str | None = None, state: str | None = None,
@@ -137,6 +150,7 @@ def get_rows(sid: str, offset: int = 0, limit: int = Query(100, le=500),
 
 
 @router.get("/sessions/{sid}/row/{row_id}")
+@locked
 def get_row(sid: str, row_id: int, table: str | None = None):
     s = _session(sid)
     _require_scan(s)
@@ -152,6 +166,7 @@ class ScanBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/scan")
+@locked
 def scan(sid: str, body: ScanBody | None = None):
     s = _session(sid)
     with registry.lock(sid):
@@ -171,6 +186,7 @@ def scan(sid: str, body: ScanBody | None = None):
 
 
 @router.get("/sessions/{sid}/issues")
+@locked
 def issues(sid: str, type: str | None = None, column: str | None = None, table: str | None = None,
            offset: int = 0, limit: int = Query(100, le=1000)):
     s = _session(sid)
@@ -181,6 +197,7 @@ def issues(sid: str, type: str | None = None, column: str | None = None, table: 
 
 
 @router.get("/sessions/{sid}/warnings")
+@locked
 def warnings(sid: str, table: str | None = None):
     s = _session(sid)
     _require_scan(s)
@@ -189,6 +206,7 @@ def warnings(sid: str, table: str | None = None):
 
 
 @router.get("/sessions/{sid}/diagnosis")
+@locked
 def diagnosis(sid: str, narrative: bool = False):
     s = _session(sid)
     _require_scan(s)
@@ -199,6 +217,7 @@ def diagnosis(sid: str, narrative: bool = False):
 
 
 @router.get("/sessions/{sid}/heatmap")
+@locked
 def heatmap(sid: str, blocks: int = Query(50, ge=1, le=200), table: str | None = None):
     s = _session(sid)
     _require_scan(s)
@@ -207,6 +226,7 @@ def heatmap(sid: str, blocks: int = Query(50, ge=1, le=200), table: str | None =
 
 
 @router.get("/sessions/{sid}/rules")
+@locked
 def rules(sid: str, table: str | None = None):
     s = _session(sid)
     _require_scan(s)
@@ -224,6 +244,7 @@ class PlanBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/repair/plan")
+@locked
 def plan(sid: str, body: PlanBody | None = None):
     s = _session(sid)
     _require_scan(s)
@@ -245,6 +266,7 @@ def plan(sid: str, body: PlanBody | None = None):
 
 
 @router.get("/sessions/{sid}/proposals")
+@locked
 def proposals(sid: str, tier: str | None = None, column: str | None = None, status: str | None = None,
               table: str | None = None, algorithm: str | None = None,
               sort: Literal["row", "confidence", "-confidence"] = "row",
@@ -267,6 +289,7 @@ def proposals(sid: str, tier: str | None = None, column: str | None = None, stat
 
 
 @router.get("/sessions/{sid}/proposals/groups")
+@locked
 def proposal_groups(sid: str, tier: str | None = "review", column: str | None = None):
     s = _session(sid)
     _require_plan(s)
@@ -274,6 +297,7 @@ def proposal_groups(sid: str, tier: str | None = "review", column: str | None = 
 
 
 @router.get("/sessions/{sid}/proposals/{pid}/explain")
+@locked
 def explain(sid: str, pid: str):
     s = _session(sid)
     _require_plan(s)
@@ -282,6 +306,7 @@ def explain(sid: str, pid: str):
 
 
 @router.post("/sessions/{sid}/repair/apply-auto")
+@locked
 def apply_auto(sid: str):
     s = _session(sid)
     _require_plan(s)
@@ -298,6 +323,7 @@ class BulkBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/review/bulk")
+@locked
 def review_bulk(sid: str, body: BulkBody):
     s = _session(sid)
     _require_plan(s)
@@ -318,6 +344,7 @@ class ReviewBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/review/{pid}")
+@locked
 def review(sid: str, pid: str, body: ReviewBody):
     s = _session(sid)
     _require_plan(s)
@@ -330,11 +357,13 @@ def review(sid: str, pid: str, body: ReviewBody):
 
 # ---------------------------------------------------------------- history
 @router.get("/sessions/{sid}/checkpoints")
+@locked
 def checkpoints(sid: str):
     return _session(sid).checkpoint_states()
 
 
 @router.post("/sessions/{sid}/checkpoints/{cid}/restore")
+@locked
 def restore(sid: str, cid: str):
     s = _session(sid)
     with registry.lock(sid):
@@ -344,6 +373,7 @@ def restore(sid: str, cid: str):
 
 
 @router.post("/sessions/{sid}/checkpoints/{cid}/undo")
+@locked
 def undo_checkpoint(sid: str, cid: str):
     s = _session(sid)
     with registry.lock(sid):
@@ -353,6 +383,7 @@ def undo_checkpoint(sid: str, cid: str):
 
 
 @router.post("/sessions/{sid}/changes/{change_id}/undo")
+@locked
 def undo_change(sid: str, change_id: str):
     s = _session(sid)
     with registry.lock(sid):
@@ -366,6 +397,7 @@ class UndoBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/changes/undo")
+@locked
 def undo_many(sid: str, body: UndoBody):
     s = _session(sid)
     with registry.lock(sid):
@@ -375,6 +407,7 @@ def undo_many(sid: str, body: UndoBody):
 
 
 @router.get("/sessions/{sid}/changes")
+@locked
 def changes(sid: str, row_id: int | None = None, column: str | None = None, checkpoint_id: str | None = None,
             action: str | None = None, table: str | None = None, offset: int = 0, limit: int = Query(100, le=1000)):
     s = _session(sid)
@@ -390,12 +423,14 @@ def changes(sid: str, row_id: int | None = None, column: str | None = None, chec
 
 
 @router.get("/sessions/{sid}/audit/verify")
+@locked
 def audit_verify(sid: str):
     return _session(sid).verify_audit()
 
 
 # ---------------------------------------------------------------- validation & benchmark
 @router.get("/sessions/{sid}/validation")
+@locked
 def validation(sid: str):
     s = _session(sid)
     _require_plan(s)
@@ -410,11 +445,13 @@ class BenchBody(BaseModel):
 
 
 @router.get("/sessions/{sid}/benchmark")
+@locked
 def last_benchmark(sid: str):
     return _session(sid).benchmark_result
 
 
 @router.post("/sessions/{sid}/benchmark")
+@locked
 def benchmark(sid: str, body: BenchBody | None = None):
     s = _session(sid)
     _require_scan(s)
@@ -427,11 +464,11 @@ def benchmark(sid: str, body: BenchBody | None = None):
 
 # ---------------------------------------------------------------- privacy
 @router.get("/sessions/{sid}/privacy")
+@locked
 def privacy(sid: str):
     s = _session(sid)
     _require_scan(s)
-    with registry.lock(sid):
-        return s.privacy or s.privacy_scan()
+    return s.privacy_status()
 
 
 class MaskBody(BaseModel):
@@ -442,13 +479,14 @@ class MaskBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/privacy/mask")
+@locked
 def mask(sid: str, body: MaskBody):
     s = _session(sid)
     _require_scan(s)
     with registry.lock(sid):
         k = s.mask_column(body.column, body.method, body.table, body.pii_type)
         registry.save(s)
-        return {"checkpoint": k.to_dict(), "affected": len(k.change_ids), "findings": s.privacy}
+        return {"checkpoint": k.to_dict(), "affected": len(k.change_ids), "findings": s.privacy_status()}
 
 
 # ---------------------------------------------------------------- chat & LLM
@@ -463,6 +501,7 @@ class ChatBody(BaseModel):
 
 
 @router.post("/sessions/{sid}/chat")
+@locked
 def chat(sid: str, body: ChatBody):
     s = _session(sid)
     _require_plan(s)
@@ -500,6 +539,7 @@ def _export_dir(sid: str) -> Path:
 
 
 @router.get("/sessions/{sid}/export/zip")
+@locked
 def export_zip(sid: str):
     s = _session(sid)
     _require_plan(s)
@@ -509,7 +549,8 @@ def export_zip(sid: str):
 
 
 @router.get("/sessions/{sid}/export/{kind}")
-def export_one(sid: str, kind: str):
+@locked
+def export_one(sid: str, kind: str, inline: bool = False):
     if kind not in EXPORT_KINDS:
         raise KeyError(kind)
     s = _session(sid)
@@ -530,4 +571,5 @@ def export_one(sid: str, kind: str):
         else:
             import json
             path.write_text(json.dumps(build_recipe(s), indent=1, ensure_ascii=False))
-    return FileResponse(path, media_type=media, filename=name)
+    # inline=1 lets the UI show the report in an iframe instead of downloading it
+    return FileResponse(path, media_type=media, filename=name, content_disposition_type="inline" if inline else "attachment")

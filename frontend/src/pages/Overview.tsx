@@ -131,7 +131,7 @@ export default function Overview() {
             Share of rows with no problem at all{repaired ? ' (estimate; Validation re-checks everything)' : ''}.
           </p>
         </Card>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
           <Kpi label="Rows" value={num(s.rows)} hint={s.linked_tables.map((t) => `+ ${num(t.rows)} ${t.name}`).join(' ')} />
           <Kpi label="Missing" value={num((c.missing ?? 0) + (c.disguised_missing ?? 0))} tone="red"
             hint={`${num(c.disguised_missing)} are placeholders`} onClick={() => open('Missing values', { issue_type: 'missing' })} />

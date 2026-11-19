@@ -85,8 +85,7 @@ def _report_data(s) -> dict:
     scan = s.scans[main]
     val = s.fresh_validation()
     causes = s.causes if s.causes is not None else s.diagnose()
-    if not s.privacy:
-        s.privacy_scan()
+    privacy = s.privacy_status()
     by_type = Counter(i.type for i in scan.issues if i.row_id is not None and i.type != "anomaly")
     by_col: dict[str, Counter] = defaultdict(Counter)
     for i in scan.issues:
@@ -117,7 +116,7 @@ def _report_data(s) -> dict:
     return {
         "generated": datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC"),
         "file": s.files[main], "rows_before": len(s.originals[main]), "rows_after": len(s.current(main)),
-        "n_cols": len(s.originals[main].columns), "val": val, "causes": causes, "privacy": s.privacy,
+        "n_cols": len(s.originals[main].columns), "val": val, "causes": causes, "privacy": privacy,
         "by_type": by_type.most_common(), "max_type": max_type,
         "by_col": sorted(((c, sum(v.values()), dict(v)) for c, v in by_col.items()), key=lambda t: -t[1]),
         "repairs": repairs, "tiers": tiers, "applied": len(applied),
@@ -140,11 +139,9 @@ def write_report(s, path: Path) -> Path:
 
 
 def privacy_report(s) -> pd.DataFrame:
-    if not s.privacy:
-        s.privacy_scan()
     cols = ["table", "column", "pii_type", "rows", "in_free_text", "risk", "validated_by", "sample_masked",
             "masked", "method"]
-    return pd.DataFrame(s.privacy, columns=cols)
+    return pd.DataFrame(s.privacy_status(), columns=cols)
 
 
 def export_bundle(s, out_dir: str | Path, zip_name: str = "datafix_output.zip") -> dict[str, Path]:
