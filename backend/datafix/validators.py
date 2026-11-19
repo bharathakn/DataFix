@@ -188,12 +188,40 @@ DATE_FORMATS = {
 _HAS_DIGIT = re.compile(r"\d")
 
 
+_NUMERIC_DATE = re.compile(r"(\d{1,2})([/.-])(\d{1,2})\2(\d{4}|\d{2})")
+_ISO_DATE = re.compile(r"\d{4}[-/]\d{2}[-/]\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?")
+
+
+def _real(y: int, m: int, d: int) -> bool:
+    try:
+        datetime(y, m, d)
+        return 1900 <= y <= 2100
+    except ValueError:
+        return False
+
+
 @lru_cache(maxsize=300_000)
 def date_families(v: str) -> frozenset[str]:
-    """Families ('dmy', 'mdy', 'iso', 'text') under which the value parses as a real date."""
+    """Families ('dmy', 'mdy', 'iso', 'text') under which the value parses as a real date.
+    Common shapes are decided by regex + calendar check (fast); others fall back to strptime."""
     v = v.strip()
     if not v or len(v) > 32 or not _HAS_DIGIT.search(v):
         return frozenset()
+    if _ISO_DATE.fullmatch(v):
+        y, m, d = int(v[0:4]), int(v[5:7]), int(v[8:10])
+        return frozenset({"iso"}) if _real(y, m, d) and (len(v) == 10 or _time_ok(v[11:])) else frozenset()
+    m_ = _NUMERIC_DATE.fullmatch(v)
+    if m_:
+        a, sep, b, y = int(m_.group(1)), m_.group(2), int(m_.group(3)), m_.group(4)
+        if len(y) == 2:  # only %d/%m/%y is a supported two-digit-year format
+            return frozenset({"dmy"}) if sep == "/" and _real(2000 + int(y) if int(y) < 69 else 1900 + int(y), b, a) else frozenset()
+        yy = int(y)
+        fams = set()
+        if _real(yy, b, a):
+            fams.add("dmy")
+        if sep != "." and _real(yy, a, b):
+            fams.add("mdy")
+        return frozenset(fams)
     fams = set()
     for fmt, fam in DATE_FORMATS.items():
         if fam in fams:
@@ -205,6 +233,16 @@ def date_families(v: str) -> frozenset[str]:
         if 1900 <= d.year <= 2100:
             fams.add(fam)
     return frozenset(fams)
+
+
+def _time_ok(t: str) -> bool:
+    parts = t.split(":")
+    try:
+        h, mi = int(parts[0]), int(parts[1])
+        s = float(parts[2]) if len(parts) > 2 else 0
+    except (ValueError, IndexError):
+        return False
+    return 0 <= h < 24 and 0 <= mi < 60 and 0 <= s < 60
 
 
 def parse_date_exact(v: str, fmt: str) -> datetime | None:

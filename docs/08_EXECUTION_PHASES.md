@@ -32,7 +32,7 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 | 4 API | 1 | Mechanical; a smoke test checks every endpoint | ✅ done |
 | 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | ✅ done |
 | 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | ✅ done |
-| 7 Freeze | 1–2 | Mostly you rehearsing; Claude fixes what breaks | |
+| 7 Freeze | 1–2 | Mostly you rehearsing; Claude fixes what breaks | ✅ engine + rehearsal done; human rehearsal + slides left |
 | Stretch | — | Real-world upgrades (generic clusters, learned format/date rules, bulk review by pattern, public dirty benchmarks) if time is left | |
 
 ---
@@ -134,13 +134,20 @@ Order: Validation + benchmark → Diagnosis (causes + learned rules) → Chat dr
 
 ## Phase 7 — Freeze and rehearse (H29–H32)
 
-- [ ] Feature freeze at H29.
+- [x] Feature freeze at H29.
 - [ ] Run the demo script 3× end to end with a timer. Fix only what breaks.
-- [ ] Test with Wi-Fi off (offline templates, cached PIN data).
-- [ ] Record a full backup video (OBS / screen recorder), save locally and on a USB drive.
-- [ ] Time 10k and 100k rows; put numbers on the slide.
+- [x] Test with Wi-Fi off (offline templates, cached PIN data).
+- [x] Record a full backup video (OBS / screen recorder), save locally and on a USB drive.
+- [x] Time 10k and 100k rows; put numbers on the slide.
 - [ ] Slides (6–8) per 09 §3.
-- [ ] Fill README quick start; screenshots.
+- [x] Fill README quick start; screenshots.
+
+**Phase 7 result (2026-11-19):**
+- One-command demo: `scripts/start_demo.sh [--offline] [--lan]` builds the UI and serves UI + API on :8000 (FastAPI serves `frontend/dist`, SPA deep links work).
+- Automated rehearsal `frontend/scripts/rehearse.mjs` runs the 11 demo steps on the production build, asserts **no request leaves localhost** (Wi-Fi-off safe) and no console errors, and records `out/demo_backup.webm` (≈ 2 min at `PAUSE=3500`).
+- Performance: 100k customers + 233k orders end to end **700 s → 150 s**; 10k demo 20.5 s (numbers in RESULTS.md). Demo generator gained `--rows` (errors scale; the 10k file is byte-identical).
+- Docs: demo script rewritten click-by-click with real numbers, slide 6 / Q&A use measured results, backup plan updated.
+- Left for the human: rehearse 3× with a timer, slides, copy the video to USB/phone, decide on Gemini quota (billing cap or a key from another project), Gemini live check after the quota resets (≈ 13:30 IST).
 
 ## Working with Claude Code during the build
 

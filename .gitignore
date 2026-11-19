@@ -10,3 +10,4 @@ out/
 data/reference/raw/*
 !data/reference/raw/api_cache.json
 .DS_Store
+data/demo/scale_*/

@@ -22,11 +22,21 @@ Read in order. Everything we build follows these docs.
 | 08 | [docs/08_EXECUTION_PHASES.md](docs/08_EXECUTION_PHASES.md) | Hour-by-hour build phases with checklists and exit criteria |
 | 09 | [docs/09_DEMO_AND_PITCH.md](docs/09_DEMO_AND_PITCH.md) | Demo dataset, 5-minute demo script, pitch, judge Q&A |
 | 10 | [docs/10_REQUIREMENTS.md](docs/10_REQUIREMENTS.md) | APIs, datasets and software, with install status |
-| — | [docs/RESULTS.md](docs/RESULTS.md) | Measured benchmark, validation and timing numbers (use these on slides) |
+| — | [docs/RESULTS.md](docs/RESULTS.md) | Measured benchmark, validation and timing numbers (use these on slides): F1 0.99 · 0% false repairs · 10k in 20 s · 100k in 150 s |
 
 [CLAUDE.md](CLAUDE.md) holds the rules Claude Code follows while building.
 
-## Quick start
+## Demo day (one command)
+
+```bash
+scripts/start_demo.sh            # builds the UI, serves UI + API on http://localhost:8000 (Gemini on)
+scripts/start_demo.sh --offline  # no AI calls at all: template explanations + offline chat (Wi-Fi-safe)
+scripts/start_demo.sh --lan      # also reachable from other devices on the same network
+```
+
+Then open http://localhost:8000 and click **Load demo dataset**. Backup: `out/demo_backup.webm` (recorded by `frontend/scripts/rehearse.mjs`), or the CLI path below.
+
+## Quick start (development)
 
 Requires `uv` and Node 20+ (see [docs/10_REQUIREMENTS.md](docs/10_REQUIREMENTS.md)). Copy `.env.example` to `.env` and add `GEMINI_API_KEY` (optional).
 

@@ -57,7 +57,9 @@ class Session:
         self.changes: list[Change] = []
         self.checkpoints: list[Checkpoint] = []
         self.genesis = audit.genesis_hash({n: f["sha256"] for n, f in self.files.items()})
-        self._cache: dict[str, tuple[int, pd.DataFrame]] = {}
+        self._cache: dict[str, tuple[int, pd.DataFrame]] = {}  # materialised current() views
+        # working state per table: (version, all rows with applied cell edits, removed row ids, dropped columns)
+        self._base: dict[str, tuple[int, pd.DataFrame, set, list]] = {}
         self._version = 0
         self.salt = uuid.uuid4().hex  # per-session key for privacy hashing
         self.privacy: list[dict] = []
@@ -80,11 +82,13 @@ class Session:
         from .coltypes import infer_columns
         from .reference import pin_reference
         for n, df in self.originals.items():
+            if n not in self.columns and n in getattr(self, "_reuse_columns", {}):
+                self.columns[n] = self._reuse_columns[n]
             if n not in self.columns:
                 self.columns[n] = infer_columns(df, pin_reference())
         return self.columns
 
-    def scan(self, overrides: dict[str, str] | None = None) -> dict[str, ScanResult]:
+    def scan(self, overrides: dict[str, str] | None = None, reuse: dict[str, ScanResult] | None = None) -> dict[str, ScanResult]:
         if self.changes:
             raise ValueError("repairs have already been applied; start a new session to re-scan")
         self.profile()
@@ -93,7 +97,8 @@ class Session:
             if info is None:
                 raise ValueError(f"unknown column {col!r}")
             info.semantic_type, info.type_confidence, info.overridden = t, 1.0, True
-        self.scans = {n: scan_table(df, n, columns=self.columns[n]) for n, df in self.originals.items()}
+        self.scans = {n: (reuse[n] if reuse and n in reuse else scan_table(df, n, columns=self.columns[n]))
+                      for n, df in self.originals.items()}
         self.checkpoints = []
         self.proposals = {}
         self.causes = None
@@ -108,26 +113,40 @@ class Session:
         return props
 
     # ------------------------------------------------------------------ state
+    def _base_state(self, table: str) -> tuple[int, pd.DataFrame, set, list]:
+        """Working table kept in sync by _append; rebuilt by replaying the log only after undo/redo."""
+        bases = self.__dict__.setdefault("_base", {})
+        b = bases.get(table)
+        if b and b[0] == self._version:
+            return b
+        df = self.originals[table].copy()
+        rows: set = set()
+        cols: list = []
+        for c in self.changes:
+            if c.action != "apply" or c.status != "applied" or c.table != table:
+                continue
+            if c.algorithm == "privacy_drop":
+                cols.append(c.column)
+            elif c.column == ROW:
+                rows.add(c.row_id)
+            else:
+                df.at[c.row_id, c.column] = c.new_value
+        b = (self._version, df, rows, cols)
+        bases[table] = b
+        return b
+
     def current(self, table: str | None = None) -> pd.DataFrame:
         table = table or self.main
         cached = self._cache.get(table)
         if cached and cached[0] == self._version:
             return cached[1]
-        df = self.originals[table].copy()
-        dropped = set()
-        for c in self.changes:
-            if c.action != "apply" or c.status != "applied" or c.table != table or c.algorithm == "privacy_drop":
-                continue
-            if c.column == ROW:
-                dropped.add(c.row_id)
-            else:
-                df.at[c.row_id, c.column] = c.new_value
-        df = df.drop(index=sorted(dropped))
-        drop_cols = [c for c in self.dropped_columns(table) if c in df.columns]
+        _, df, rows, cols = self._base_state(table)
+        out = df.drop(index=sorted(rows)) if rows else df  # materialise row removals lazily (one copy per read)
+        drop_cols = [c for c in cols if c in out.columns]
         if drop_cols:
-            df = df.drop(columns=drop_cols)
-        self._cache[table] = (self._version, df)
-        return df
+            out = out.drop(columns=drop_cols)
+        self._cache[table] = (self._version, out)
+        return out
 
     def dropped_columns(self, table: str | None = None) -> list[str]:
         table = table or self.main
@@ -162,20 +181,24 @@ class Session:
     def _append(self, change: Change) -> Change:
         prev = self.changes[-1].hash if self.changes else self.genesis
         self.changes.append(audit.seal(change, prev))
-        cached = self._cache.get(change.table)
+        bases = self.__dict__.setdefault("_base", {})
+        b = bases.get(change.table)
         self._version += 1
-        if change.action == "apply" and cached and cached[0] == self._version - 1:
-            df = cached[1]  # apply in place instead of replaying the whole log
+        if change.action == "apply" and b and b[0] == self._version - 1:
+            _, df, rows, cols = b  # apply in place instead of replaying the whole log
             if change.algorithm == "privacy_drop":
-                df = df.drop(columns=[change.column], errors="ignore")
+                cols = cols + [change.column]
             elif change.column == ROW:
-                df = df.drop(index=change.row_id, errors="ignore")
-            elif change.row_id in df.index:
+                rows.add(change.row_id)
+            else:
                 df.at[change.row_id, change.column] = change.new_value
-            self._cache[change.table] = (self._version, df)
+            bases[change.table] = (self._version, df, rows, cols)
+        for t, bt in list(bases.items()):
+            if t != change.table and bt[0] == self._version - 1:
+                bases[t] = (self._version, *bt[1:])  # other tables are unaffected
         for t, (ver, df) in list(self._cache.items()):
             if t != change.table and ver == self._version - 1:
-                self._cache[t] = (self._version, df)  # other tables are unaffected
+                self._cache[t] = (self._version, df)
         return change
 
     def _new_checkpoint(self, label: str, kind: str) -> Checkpoint:
@@ -188,10 +211,10 @@ class Session:
         return last if last.kind == "review" else self._new_checkpoint("Review decisions", "review")
 
     def _cell(self, table: str, row: int, col: str) -> str:
-        df = self.current(table)
-        if col not in df.columns:
+        _, df, _, cols = self._base_state(table)
+        if col in cols or col not in df.columns:
             return ""
-        return df.at[row, col] if row in df.index else self.originals[table].at[row, col]
+        return df.at[row, col]
 
     def _record(self, k: Checkpoint, p: RepairProposal | None, table: str, row: int, col: str, new: str,
                 reason: str, evidence: list[str], source: str, conf: float, algorithm: str, actor: str) -> Change:
@@ -203,12 +226,19 @@ class Session:
         return c
 
     # ------------------------------------------------------------------ applying proposals
+    def _issue_index(self, table: str) -> dict:
+        cache = self.__dict__.setdefault("_issue_idx", {})
+        if table not in cache:
+            cache[table] = {i.issue_id: i for i in self.scans[table].issues}
+        return cache[table]
+
     def _reason(self, p: RepairProposal) -> str:
-        msgs = [i.message for i in self.scans[p.table].issues if i.issue_id in set(p.issue_ids)]
+        idx = self._issue_index(p.table)
+        msgs = [idx[i].message for i in p.issue_ids if i in idx]
         return msgs[0] if msgs else p.repair_class
 
     def apply_proposal(self, pid: str, candidate_index: int = 0, custom_value: str | None = None,
-                       actor: str = "user", checkpoint: Checkpoint | None = None) -> list[Change]:
+                       actor: str = "user", checkpoint: Checkpoint | None = None, rescore: bool = True) -> list[Change]:
         p = self.proposals[pid]
         if p.status == "applied":
             raise ValueError(f"{pid} is already applied")
@@ -244,7 +274,8 @@ class Session:
         p.status = "applied"
         p.meta["applied_value"] = value
         p.meta["change_ids"] = [c.change_id for c in out]
-        k.quality_score = self.score()
+        if rescore:  # O(issues); batch callers score once at the end
+            k.quality_score = self.score()
         return out
 
     def apply_auto(self) -> list[Checkpoint]:
@@ -255,7 +286,7 @@ class Session:
                 continue
             k = self._new_checkpoint(label, "auto")
             for p in batch:
-                self.apply_proposal(p.proposal_id, actor="auto", checkpoint=k)
+                self.apply_proposal(p.proposal_id, actor="auto", checkpoint=k, rescore=False)
             k.quality_score = self.score()
             made.append(k)
         return made
@@ -277,7 +308,18 @@ class Session:
         raise ValueError(f"unknown review action {action!r}")
 
     def bulk_review(self, pids: list[str], action: str) -> int:
-        return sum(1 for pid in pids if self.proposals[pid].status == "pending" and self.review(pid, action))
+        n = 0
+        for pid in pids:
+            if self.proposals[pid].status != "pending":
+                continue
+            if action == "accept":
+                self.apply_proposal(pid, 0, rescore=False)
+            else:
+                self.review(pid, action)
+            n += 1
+        if n:
+            self.checkpoints[-1].quality_score = self.score()
+        return n
 
     # ------------------------------------------------------------------ undo / redo / time travel
     def _set_status(self, change: Change, applied: bool, actor: str) -> None:
@@ -381,6 +423,8 @@ class Session:
         state = dict(self.__dict__)
         state["_cache"] = {}
         state.pop("_ui_cache", None)
+        state.pop("_issue_idx", None)
+        state.pop("_base", None)
         return state
 
     def diagnose(self) -> list[dict]:

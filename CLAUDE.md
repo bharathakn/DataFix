@@ -33,6 +33,8 @@ cd frontend && node scripts/ui_walkthrough.mjs <outdir>   # headless Chrome clic
 cd frontend && node scripts/ui_repair.mjs <outdir>         # Repair Studio + History check
 cd frontend && node scripts/ui_proof.mjs <outdir>          # Validation + Diagnosis check
 cd frontend && node scripts/ui_finish.mjs <outdir>         # Chat + Privacy + Export check
+scripts/start_demo.sh --offline                            # production: UI + API on :8000
+cd frontend && node scripts/rehearse.mjs ../out http://localhost:8000   # full demo rehearsal + backup video (PAUSE=3500 for viewing pace)
 curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now
 python3 scripts/build_pin_reference.py                     # stdlib only
 cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv

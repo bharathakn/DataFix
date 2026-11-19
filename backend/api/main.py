@@ -102,3 +102,20 @@ def health() -> dict:
 
 
 app.include_router(router)
+
+# Serve the built frontend (frontend/dist) from the same process: one command, one port for the demo.
+DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if DIST.is_dir():
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount("/assets", StaticFiles(directory=DIST / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str):
+        if path.startswith("api/"):
+            return _error(404, "NOT_FOUND", f"no API route /{path}")
+        f = (DIST / path).resolve()
+        if path and f.is_file() and DIST.resolve() in f.parents:
+            return FileResponse(f)
+        return FileResponse(DIST / "index.html")  # client-side routes like /s/<id>/repair

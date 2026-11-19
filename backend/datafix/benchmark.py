@@ -191,9 +191,12 @@ def run_benchmark(session, sample_rows: int = 2000, error_rate: float = 0.05, du
     tables = {main: LoadedTable(dirty, "benchmark", "benchmark")}
     for n in session.originals:
         if n != main:
-            tables[n] = LoadedTable(session.current(n), n, session.files[n]["sha256"])
+            # the original linked table, so it matches the reused scan below (current() may have merged rows)
+            tables[n] = LoadedTable(session.originals[n], n, session.files[n]["sha256"])
     b = Session(tables, main, session.thresholds)
-    b.scan()
+    # linked tables are unchanged by the benchmark: reuse their scan instead of re-scanning (230k orders ≈ 25 s)
+    b._reuse_columns = {n: session.scans[n].columns for n in session.originals if n != main}
+    b.scan(reuse={n: session.scans[n] for n in session.originals if n != main})
     b.plan()
     b.apply_auto()
     auto_ids = {p.proposal_id for p in b.proposals.values() if p.status == "applied"}

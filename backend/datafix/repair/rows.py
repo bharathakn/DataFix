@@ -1,7 +1,7 @@
 """Row-level repairs: duplicate merges (with foreign-key remap) and cross-field totals."""
 from ..confidence import signal
 from ..models import Issue
-from . import RepairContext
+from . import RepairContext, _build_index
 from .outcome import Outcome
 
 
@@ -20,7 +20,9 @@ def merge_duplicate(ctx: RepairContext, issue: Issue) -> Outcome:
             old, new = ctx.df.at[dup, main_col], ctx.df.at[root, main_col]
             if old == new:
                 continue
-            for r in lk.df.index[lk.df[link_col] == old]:
+            if link_col not in lk.index:
+                lk.index[link_col] = _build_index(lk.df[link_col], ctx.col_type(main_col))
+            for r in lk.index[link_col].get(old.strip(), []):
                 remaps.append({"table": lk.name, "row_id": int(r), "column": link_col, "old": old, "new": new})
     if near:
         sigs = [signal("record_match", issue.meta.get("similarity", 90) / 100,

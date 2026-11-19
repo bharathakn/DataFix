@@ -57,19 +57,20 @@ cd backend && uv run python -m datafix bench ../data/demo/customers_dirty.csv --
 
 All 50 planted identifiers in free-text notes found: 25 Aadhaar (Verhoeff-confirmed), 15 PAN, 10 phone. Plus structured PAN / phone / email columns.
 
-## 6. Timings (10,200 customers + 23,060 orders)
+## 6. Timings (laptop, after Phase 7 performance fixes)
 
-| Step | Time |
-|---|---|
-| Scan both tables | ≈ 9 s |
-| Plan repairs | 0.8 s |
-| Apply auto batch | ≈ 1.5 s |
-| Validation (re-scan + re-plan) | ≈ 5 s |
-| Benchmark | ≈ 4 s |
-| Export bundle (incl. highlighted XLSX) | 3.3 s |
-| `datafix fix … --bench` end to end | 23.6 s |
+Full pipeline: load → scan both tables → plan → apply all auto-fixes → do-no-harm validation (re-scan + re-plan) → root cause → benchmark (2,000 rows) → export bundle (incl. highlighted XLSX + HTML report).
 
-100k-row timings: to be measured in Phase 7.
+| Dataset | Customers | Orders | Scan | Plan | Apply | Validate | Benchmark | Export | **Total** |
+|---|---|---|---|---|---|---|---|---|---|
+| Demo | 10,200 | 23,060 | 8.3 s | 0.5 s | 0.1 s | 5.3 s | 2.3 s | 2.6 s | **20.5 s** |
+| 10× scale | 102,000 | 232,869 | 49.9 s | 3.1 s | 1.1 s | 49.8 s | 2.3 s | 32.2 s | **150 s** |
+
+Both runs: all 8 do-no-harm checks pass, clean rows 84.6–84.7% → 96.05–96.08%, benchmark F1 0.99, false repair rate 0%.
+
+Before the Phase 7 fixes the 100k run took **700 s**: applying fixes recomputed the quality score per fix and searched all issues per fix (quadratic, 352 s), date checks ran `strptime` against 19 formats per unique timestamp, age imputation and duplicate merges re-scanned whole tables per cell, and every duplicate merge copied the 100k-row table. Now: issue index + one score per batch, regex + calendar date check, cached group statistics and foreign-key index, lazy row removal, and the benchmark reuses the linked table's scan.
+
+Reproduce: `cd backend && uv run python ../scripts/make_demo_data.py --rows 100000 --out data/demo/scale_100k`, then the timing snippet in docs/08 Phase 7.
 
 ### API (in-process, demo session)
 

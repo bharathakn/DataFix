@@ -45,6 +45,18 @@ def _best_grouping(ctx: RepairContext, col: str) -> str | None:
     return ctx.cache[key]
 
 
+def _group_stats(ctx: RepairContext, col: str, g: str) -> dict:
+    """label -> (n, median, q25, q75), computed once per (column, grouping) instead of per cell."""
+    key = ("gstats", col, g)
+    if key not in ctx.cache:
+        vals = _numeric(ctx, col)
+        grouped = vals.groupby(ctx.df[g].loc[vals.index])
+        stats = grouped.agg(["count", "median", lambda s: s.quantile(0.25), lambda s: s.quantile(0.75)])
+        ctx.cache[key] = {label: (int(r.iloc[0]), float(r.iloc[1]), float(r.iloc[2]), float(r.iloc[3]))
+                          for label, r in stats.iterrows()}
+    return ctx.cache[key]
+
+
 def impute_numeric(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Outcome:
     g = _best_grouping(ctx, col)
     if g is None:
@@ -52,19 +64,16 @@ def impute_numeric(ctx: RepairContext, row: int, col: str, issues: list[Issue]) 
     label = ctx.trusted(row, g)
     if label is None:
         return refuse("impute", "group_median", f"{g} is unknown for this row, so no comparable group")
-    vals = _numeric(ctx, col)
-    members = vals[ctx.df[g].loc[vals.index] == ctx.df.at[row, g]]
-    n = len(members)
+    n, med, q25, q75 = _group_stats(ctx, col, g).get(ctx.df.at[row, g], (0, 0.0, 0.0, 0.0))
     if n < MIN_GROUP:
         return refuse("impute", "group_median", f"group too small: only {n} other rows with {g} = '{label}'",
                       group=label, group_size=n)
-    iqr = members.quantile(0.75) - members.quantile(0.25)
+    iqr = q75 - q25
     if iqr > MAX_IQR:
         return refuse("impute", "group_median", f"ages of {g} = '{label}' vary too much (IQR {iqr:.0f})")
-    med = members.median()
     value = str(int(round(med)))
     return Outcome("impute", "group_median", {value: [signal(
         "group_statistic", 1 - 0.15 * iqr / MAX_IQR,
         f"median {col} of {n} rows with {g} = '{label}' is {value} (middle half: "
-        f"{members.quantile(0.25):.0f}–{members.quantile(0.75):.0f}); this is an ESTIMATE")]},
+        f"{q25:.0f}–{q75:.0f}); this is an ESTIMATE")]},
         cap_key="impute", meta={"estimate": True, "group_by": g, "group": label, "group_size": n})

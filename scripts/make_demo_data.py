@@ -7,6 +7,7 @@ Writes to data/demo/:
   truth.json            every injected error
 
 Run: cd backend && uv run python ../scripts/make_demo_data.py
+Scale test: ... make_demo_data.py --rows 100000 --out data/demo/scale_100k  (error counts scale with rows)
 """
 import csv
 import json
@@ -19,6 +20,7 @@ OUT = ROOT / "data" / "demo"
 API_CACHE = ROOT / "data" / "reference" / "raw" / "api_cache.json"
 SEED = 42
 N = 10_000
+SCALE = 1.0  # error counts scale with N / 10,000 (set by --rows)
 rng = random.Random(SEED)
 
 # ---------------------------------------------------------------- vocab
@@ -275,10 +277,11 @@ def main() -> None:
     for o in [o for o in orders if o["customer_id"] == cid_1043][1:]:
         o["phone"] = conflict_phone
 
-    rows_used_for_dups = set(rng.sample(pool, 200))
+    rows_used_for_dups = set(rng.sample(pool, round(200 * SCALE)))
     free = [i for i in pool if i not in rows_used_for_dups]
 
     def pick(n, where=lambda r: True, col=None):
+        n = round(n * SCALE)
         cands = [i for i in free if where(dirty[i]) and (col is None or (i, col) not in touched)]
         return rng.sample(cands, n)
 
@@ -357,7 +360,7 @@ def main() -> None:
         row = dict(dirty[src])
         row["customer_id"] = f"C-{next_id}"
         next_id += 1
-        kind = "duplicate" if k < 120 else "near_duplicate"
+        kind = "duplicate" if k < round(120 * SCALE) else "near_duplicate"
         if kind == "near_duplicate":
             change = rng.choice(["name", "email", "phone"])
             if change == "name":
@@ -370,7 +373,7 @@ def main() -> None:
                 p = row["phone"]
                 row["phone"] = f"+91 {p[:5]} {p[5:]}"
         # insert only after row 6500 so story rows keep their exact indices
-        target = rng.randint(max(src, 6500), N - 1)
+        target = rng.randint(max(src, int(0.65 * N)), N - 1)
         insert_after.setdefault(target, []).append((row, kind, dirty[src]["customer_id"]))
     for i in range(N):
         final.append(dirty[i])
@@ -429,4 +432,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--rows", type=int, default=10_000)
+    ap.add_argument("--out", default=str(OUT))
+    a = ap.parse_args()
+    N, SCALE, OUT = a.rows, a.rows / 10_000, Path(a.out)
+    if not OUT.is_absolute():
+        OUT = ROOT / OUT
     main()
