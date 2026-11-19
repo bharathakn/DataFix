@@ -1,5 +1,8 @@
+import itertools
 import json
+import logging
 import os
+import time
 from pathlib import Path
 
 import numpy as np
@@ -39,6 +42,33 @@ class AppJSON(JSONResponse):
 app = FastAPI(title="DataFix API", version=__version__, default_response_class=AppJSON)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
                    allow_methods=["*"], allow_headers=["*"])
+
+
+log = logging.getLogger("datafix.api")
+INFLIGHT: dict[int, dict] = {}
+_ids = itertools.count()
+SLOW_S = 5.0
+
+
+@app.middleware("http")
+async def track_requests(request: Request, call_next):
+    """Every request is visible while it runs (GET /api/debug/inflight) and slow ones are logged."""
+    rid = next(_ids)
+    INFLIGHT[rid] = {"method": request.method, "path": request.url.path + (f"?{request.url.query}" if request.url.query else ""),
+                     "started": time.time()}
+    try:
+        return await call_next(request)
+    finally:
+        info = INFLIGHT.pop(rid, None)
+        if info and (d := time.time() - info["started"]) > SLOW_S:
+            log.warning("slow request %.1fs %s %s", d, info["method"], info["path"])
+
+
+@app.get("/api/debug/inflight")
+def inflight() -> list[dict]:
+    now = time.time()
+    return sorted(({"method": i["method"], "path": i["path"], "running_s": round(now - i["started"], 1)}
+                   for i in list(INFLIGHT.values()) if i["path"] != "/api/debug/inflight"), key=lambda x: -x["running_s"])
 
 
 def _error(status: int, code: str, message: str) -> AppJSON:

@@ -409,6 +409,11 @@ class BenchBody(BaseModel):
     seed: int = 42
 
 
+@router.get("/sessions/{sid}/benchmark")
+def last_benchmark(sid: str):
+    return _session(sid).benchmark_result
+
+
 @router.post("/sessions/{sid}/benchmark")
 def benchmark(sid: str, body: BenchBody | None = None):
     s = _session(sid)

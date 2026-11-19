@@ -154,14 +154,16 @@ def diagnose(df: pd.DataFrame, scan: ScanResult) -> list[dict]:
         group_desc = " and ".join(f"{nm} = {vv}" for nm, vv in zip(names, val.split(" · ")))
         label = _label(t, kind, col)
         others = (len(rows) - hits) / max(n - sizes[val], 1)
-        by_group = [{"value": g, "rows": int(sizes[g]), "issues": int(series.loc[rows].value_counts().get(g, 0)),
-                     "rate": round(float(series.loc[rows].value_counts().get(g, 0) / sizes[g]), 4)}
-                    for g in sizes.index[:12] if g]
+        hits_by = series.loc[rows].value_counts()
+        by_group = sorted(({"value": g, "rows": int(sizes[g]), "issues": int(hits_by.get(g, 0)),
+                            "rate": round(float(hits_by.get(g, 0) / sizes[g]), 4)} for g in sizes.index if g),
+                          key=lambda x: (-x["issues"], -x["rate"]))[:8]  # culprit groups first
         causes.append({
             "cause_id": "", "kind": "source_lift", "issue_type": t, "column": col, "issue_kind": kind,
             "title": f"{hits} of {len(rows)} {label} come from {group_desc}",
             "group": {"columns": list(names), "value": val},
             "share_of_issues": round(share, 4), "lift": round(lift, 1), "issue_count": len(rows),
+            "times_elsewhere": round(rate / others, 1) if others else None,
             "explanation": f"{_pct(rate)} of rows from {group_desc} have {label}, "
                            + (f"against {_pct(others)} elsewhere ({rate / others:.0f}× more likely)" if others
                               else "and no rows from anywhere else do")
@@ -189,7 +191,7 @@ def diagnose(df: pd.DataFrame, scan: ScanResult) -> list[dict]:
         causes.append({
             "cause_id": "", "kind": "pattern", "issue_type": key, "issue_kind": key, "column": ", ".join(cols),
             "title": f"{title}: {total} values in {', '.join(f'{c} ({n})' for c, n in cols.most_common())}",
-            "group": where["group"] if where else None, "share_of_issues": None, "lift": None,
+            "group": where["group"] if where else None, "share_of_issues": None, "lift": None, "times_elsewhere": None,
             "issue_count": total,
             "explanation": why + (f" Concentrated in {where['title'].split(' come from ')[-1]}." if where else ""),
             "suggested_fix": fix, "rate_by_group": [],

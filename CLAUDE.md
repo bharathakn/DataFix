@@ -31,6 +31,8 @@ cd frontend && npm run dev
 cd frontend && npm run build   # type-check
 cd frontend && node scripts/ui_walkthrough.mjs <outdir>   # headless Chrome click-through + screenshots (needs both servers)
 cd frontend && node scripts/ui_repair.mjs <outdir>         # Repair Studio + History check
+cd frontend && node scripts/ui_proof.mjs <outdir>          # Validation + Diagnosis check
+curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now
 python3 scripts/build_pin_reference.py                     # stdlib only
 cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv
 ```
@@ -42,3 +44,4 @@ cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin 
 - Commit after each checklist block in docs/08_EXECUTION_PHASES.md.
 - Update the affected docs in the same commit as the code (spec deviations, results, commands, phase status). Measured numbers go in docs/RESULTS.md.
 - Secrets only in `.env` (gitignored).
+- Restart the backend by the PID that listens on :8000 (`ss -ltnp`); `pkill -f` patterns can match the shell running them. Graceful shutdown waits for in-flight requests, so escalate to `kill -9` after 5 s.

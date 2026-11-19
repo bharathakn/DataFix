@@ -89,6 +89,7 @@ export const api = {
   changes: (sid: string, q: Query) => req<{ total: number; items: Change[] }>('GET', `${S(sid)}/changes`, undefined, q),
   auditVerify: (sid: string) => req<{ valid: boolean; entries: number; head_hash: string; broken_at: string | null }>('GET', `${S(sid)}/audit/verify`),
   validation: (sid: string) => req<Validation>('GET', `${S(sid)}/validation`),
+  lastBenchmark: (sid: string) => req<BenchmarkResult | null>('GET', `${S(sid)}/benchmark`),
   benchmark: (sid: string, body: { sample_rows?: number; seed?: number } = {}) => req<BenchmarkResult>('POST', `${S(sid)}/benchmark`, body),
   privacy: (sid: string) => req<PiiFinding[]>('GET', `${S(sid)}/privacy`),
   chat: (sid: string, message: string, history: { role: 'user' | 'assistant'; text: string }[]) =>

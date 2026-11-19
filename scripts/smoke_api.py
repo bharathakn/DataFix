@@ -130,9 +130,11 @@ def run(live: bool = False, verbose: bool = True) -> dict:
         assert call("get", f"/sessions/{sid}/export/{kind}").content
     call("get", f"/sessions/{sid}/export/nope", expect=404)
     call("get", "/sessions/doesnotexist", expect=404)
+    assert call("get", "/debug/inflight").json() == []
 
     # persistence: a fresh registry reloads the pickled session
     from api.registry import Registry, registry
+    registry.flush()  # saves are debounced in the background
     fresh = Registry(registry.dir)
     assert fresh.get(sid).verify_audit()["valid"]
     return timings

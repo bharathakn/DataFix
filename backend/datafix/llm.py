@@ -108,6 +108,8 @@ class Gemini:
         del self.calls[:-50]
 
     def text(self, prompt: str, system: str | None = None) -> str:
+        if not self.enabled:
+            raise LLMUnavailable("no Gemini key configured (offline mode)")
         from google.genai import types
         prompt = sanitize(prompt)
         key = hashlib.sha256(json.dumps([system, prompt]).encode()).hexdigest()

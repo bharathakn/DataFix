@@ -31,7 +31,7 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 | 3 Proof | 1 | Ends with benchmark numbers for you to check | ✅ done |
 | 4 API | 1 | Mechanical; a smoke test checks every endpoint | ✅ done |
 | 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | ✅ done |
-| 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | |
+| 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | ✅ 6A · 6B next |
 | 7 Freeze | 1–2 | Mostly you rehearsing; Claude fixes what breaks | |
 | Stretch | — | Real-world upgrades (generic clusters, learned format/date rules, bulk review by pattern, public dirty benchmarks) if time is left | |
 
@@ -127,6 +127,8 @@ Exit: the demo steps 1–8 in 09 work in the browser.
 Order: Validation + benchmark → Diagnosis (causes + learned rules) → Chat drawer → Privacy → Export.
 
 24h cut: Privacy page becomes a section on Overview; chat uses offline router only if Gemini integration is fighting you.
+
+**Phase 6A result (2026-11-19):** Validation page (8/8 checks, clean rows 84.7% → 96.1%, benchmark run from the browser: F1 0.991, repair precision 100%, false repair rate 0.000%, calibration chart) and Diagnosis page (5 source causes with per-group charts, 8 mechanism causes, learned-rules table, rows drawers). Verified with `frontend/scripts/ui_proof.mjs`, no console errors. Also added: `GET /benchmark`, culprit-first group charts, `times_elsewhere` so badges and sentences agree, **in-flight request tracking** (`GET /api/debug/inflight` + "slow request" log lines > 5 s) after a worker thread was found spinning at 100% CPU during testing (cause not reproduced; the tracker will name it if it recurs), and **debounced background session saves** (a review click no longer waits ≈ 0.6 s for the pickle).
 
 ## Phase 7 — Freeze and rehearse (H29–H32)
 

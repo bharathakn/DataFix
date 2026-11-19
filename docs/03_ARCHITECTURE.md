@@ -166,7 +166,7 @@ Row deletions (dedupe) are a `Change` with `column="__row__"`, `new_value="__del
 - **Duplicate merges are atomic:** fills on the survivor + foreign-key re-points in linked tables + the row removal share one proposal; undoing any of them undoes all.
 - **Rejections are logged** (`action=reject`), so the audit trail records human decisions as well as changes.
 - **Scores per checkpoint** are a fast estimate: scan issues minus resolved cells/rows. Phase 3 validation re-scans the repaired data.
-- **Persistence:** `Session.save(dir)` / `Session.load(path)` pickle the whole session.
+- **Persistence:** `Session.save(dir)` / `Session.load(path)` pickle the whole session (≈ 30 MB for the demo, ≈ 0.6 s). The API registry saves synchronously on create, then **debounced in a background thread** 1.5 s after the last change (and on shutdown), so clicks don't wait for disk.
 
 ## 6. Request flow (happy path)
 

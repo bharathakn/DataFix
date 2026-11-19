@@ -51,7 +51,7 @@ export interface Warning {
 export interface RootCause {
   cause_id: string; title: string; kind: 'source_lift' | 'pattern'; issue_type: string; issue_kind: string | null
   column: string | null; group: { columns: string[]; value: string } | null
-  share_of_issues: number | null; lift: number | null; explanation: string; suggested_fix: string
+  share_of_issues: number | null; lift: number | null; times_elsewhere: number | null; explanation: string; suggested_fix: string
   issue_count: number; rate_by_group: { value: string; rows: number; issues: number; rate: number }[]
 }
 

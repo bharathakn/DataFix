@@ -1,4 +1,5 @@
-"""In-memory session registry, pickled to disk after every change so a restart mid-demo loses nothing."""
+"""In-memory session registry, pickled to disk shortly after every change so a restart mid-demo loses nothing."""
+import atexit
 import os
 import threading
 from pathlib import Path
@@ -21,12 +22,14 @@ class Registry:
         self.sessions: dict[str, Session] = {}
         self.locks: dict[str, threading.RLock] = {}
         self._guard = threading.Lock()
+        self._pending: dict[str, threading.Timer] = {}
+        atexit.register(self.flush)
 
     def add(self, s: Session) -> Session:
         with self._guard:
             self.sessions[s.session_id] = s
             self.locks[s.session_id] = threading.RLock()
-        self.save(s)
+        s.save(self.dir)  # first save is synchronous so a reload right away finds it
         return s
 
     def get(self, sid: str) -> Session:
@@ -44,8 +47,37 @@ class Registry:
         self.get(sid)
         return self.locks[sid]
 
+    SAVE_DELAY_S = 1.5
+
     def save(self, s: Session) -> None:
-        s.save(self.dir)
+        """Debounced background save: a burst of review clicks costs one pickle (≈ 0.6 s), off the request path."""
+        sid = s.session_id
+        with self._guard:
+            if sid in self._pending:
+                return  # the pending save will write the latest state
+            t = threading.Timer(self.SAVE_DELAY_S, self._save_now, args=(sid,))
+            t.daemon = True
+            self._pending[sid] = t
+        t.start()
+
+    def _save_now(self, sid: str) -> None:
+        with self._guard:
+            self._pending.pop(sid, None)
+        s = self.sessions.get(sid)
+        if s is not None:
+            with self.locks[sid]:
+                s.save(self.dir)
+
+    def flush(self) -> None:
+        with self._guard:
+            pending = list(self._pending)
+            for t in self._pending.values():
+                t.cancel()
+            self._pending.clear()
+        for sid in pending:
+            s = self.sessions.get(sid)
+            if s is not None:
+                s.save(self.dir)
 
     def list(self) -> list[dict]:
         out = []
