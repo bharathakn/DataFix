@@ -138,17 +138,25 @@ class Session:
         return [c for c in self.changes if c.action == "apply" and c.status == "applied"
                 and (table is None or c.table == table)]
 
-    def score(self, table: str | None = None) -> float:
-        """Quality score with resolved issues removed (fast estimate; Phase 3 validation re-scans)."""
+    def remaining_issues(self, table: str | None = None) -> tuple[list, int]:
+        """Scan issues not yet resolved by an applied change, and the current row count (fast, no re-scan)."""
         table = table or self.main
-        scan = self.scans[table]
         applied = self.applied_changes(table)
         changed = {(c.row_id, c.column) for c in applied if c.column != ROW}
         dropped = {c.row_id for c in applied if c.column == ROW}
-        remaining = [i for i in scan.issues if i.row_id is not None and i.row_id not in dropped
+        remaining = [i for i in self.scans[table].issues if i.row_id is not None and i.row_id not in dropped
                      and (i.column is None or (i.row_id, i.column) not in changed)]
-        n_rows = len(self.originals[table]) - len(dropped)
-        return quality_score(remaining, n_rows, len(self.originals[table].columns))
+        return remaining, len(self.originals[table]) - len(dropped)
+
+    def score(self, table: str | None = None) -> float:
+        """Quality score with resolved issues removed (fast estimate; validation re-scans)."""
+        remaining, n_rows = self.remaining_issues(table)
+        return quality_score(remaining, n_rows, len(self.originals[table or self.main].columns))
+
+    def dimensions_now(self, table: str | None = None) -> dict:
+        from .validate import dimensions
+        remaining, n_rows = self.remaining_issues(table)
+        return dimensions(remaining, n_rows)
 
     # ------------------------------------------------------------------ log primitives
     def _append(self, change: Change) -> Change:

@@ -21,6 +21,9 @@ export interface SessionSummary {
   columns: ColumnInfo[]; linked_tables: { name: string; rows: number; join_key: string | null }[]
   file_sha256: string; created_at: string; stage: Stage; version: number
   quality_score?: number; score_now?: number; counts?: Partial<Record<IssueType, number>>
+  dimensions?: Dimensions; dimensions_now?: Dimensions; pii_columns?: number
+  tiers?: Partial<Record<Tier, number>>; pending?: Partial<Record<Tier, number>>; applied?: number
+  checkpoints?: number; rows_main_pending?: number
 }
 
 export interface Dimensions {

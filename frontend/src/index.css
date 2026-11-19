@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dbe7ff;
+  --color-brand-500: #2f6bec;
+  --color-brand-600: #2457c5;
+  --color-brand-700: #1d469e;
+}
+
+html, body, #root { height: 100%; }
+body { @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* cell states, shared by grid, legend and heatmap tooltips */
+.cell-issue { @apply bg-rose-50 text-rose-900 dark:bg-rose-950/60 dark:text-rose-200; }
+.cell-repaired { @apply bg-emerald-50 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200; }
+.cell-review { @apply bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200; }
+.cell-flagged { @apply bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300; background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgb(148 163 184 / .18) 6px 8px); }
+.cell-estimated { @apply bg-sky-50 text-sky-900 dark:bg-sky-950/60 dark:text-sky-200; }
+.cell-masked { @apply bg-violet-50 text-violet-900 dark:bg-violet-950/60 dark:text-violet-200; }

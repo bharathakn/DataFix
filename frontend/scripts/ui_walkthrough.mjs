@@ -1,0 +1,52 @@
+// Headless UI walk-through with screenshots: cd frontend && node scripts/ui_walkthrough.mjs <outDir> [baseUrl]
+// Uses the installed Google Chrome via playwright-core (no browser download).
+import { chromium } from 'playwright-core'
+
+const out = process.argv[2] || 'shots'
+const base = process.argv[3] || 'http://localhost:5173'
+const errors = []
+const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true })
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+page.on('pageerror', (e) => errors.push(String(e)))
+const shot = async (name) => { await page.screenshot({ path: `${out}/${name}.png`, fullPage: true }); console.log('shot', name) }
+const t0 = Date.now()
+const step = (s) => console.log(`[${((Date.now() - t0) / 1000).toFixed(1)}s] ${s}`)
+
+await page.goto(base)
+await page.getByText('Load demo dataset').waitFor()
+await shot('01-upload')
+await page.getByText('Load demo dataset').click()
+await page.getByText('Check the column types').waitFor({ timeout: 30000 })
+step('setup page')
+await shot('02-setup')
+await page.getByRole('button', { name: /^Scan / }).click()
+await page.waitForTimeout(1500)
+await shot('03-scanning')
+await page.getByText('Next: plan repairs').waitFor({ timeout: 60000 })
+step('overview (scanned)')
+await page.waitForTimeout(800)
+await shot('04-overview-scanned')
+await page.getByRole('button', { name: 'Plan repairs' }).click()
+await page.getByText('Repair plan ready').waitFor({ timeout: 60000 })
+step('planned')
+await shot('05-planned')
+await page.getByRole('button', { name: /^Apply .* high-confidence fixes/ }).click()
+await page.getByText('Repairs applied').waitFor({ timeout: 60000 })
+step('applied')
+await page.waitForTimeout(900)
+await shot('06-applied')
+await page.getByRole('button', { name: 'Show rows' }).first().click()
+await page.locator('table').waitFor()
+await page.waitForTimeout(500)
+await shot('07-drawer-rows')
+await page.keyboard.press('Escape')
+await page.getByRole('button', { name: 'Toggle dark mode' }).click()
+await page.waitForTimeout(300)
+await shot('08-dark')
+await page.getByRole('button', { name: 'Toggle dark mode' }).click()
+await page.setViewportSize({ width: 1366, height: 768 })
+await page.waitForTimeout(300)
+await page.screenshot({ path: `${out}/09-1366x768.png` })
+console.log('console errors:', errors.length ? errors : 'none')
+await browser.close()

@@ -29,6 +29,7 @@ cd backend && uv run uvicorn api.main:app --reload --port 8000
 cd backend && uv run python ../scripts/smoke_api.py          # every endpoint; --live spends Gemini quota (20/day on 2.5 Flash)
 cd frontend && npm run dev
 cd frontend && npm run build   # type-check
+cd frontend && node scripts/ui_walkthrough.mjs <outdir>   # headless Chrome click-through + screenshots (needs both servers)
 python3 scripts/build_pin_reference.py                     # stdlib only
 cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv
 ```

@@ -1,6 +1,17 @@
 # 07 · Frontend Specification
 
-React 18 + Vite + TypeScript + Tailwind + shadcn/ui. TanStack Query for server state, TanStack Table + `@tanstack/react-virtual` for the grid, Recharts for charts, lucide-react icons, react-router.
+React 19 + Vite + TypeScript + Tailwind v4. TanStack Query for server state, lucide-react icons, react-router.
+
+## 0. As built (Phase 5A)
+
+- **No shadcn/ui.** Its CLI setup is interactive and fiddly with Tailwind v4; we only need ~10 primitives, so they're hand-written in `src/components/ui.tsx` (Button, Card, Badge, Kpi, Skeleton, Spinner, ErrorNote, EmptyState, Drawer, Legend). Recharts / TanStack Table are not needed yet: the gauge, dimension bars and heatmap are plain SVG/CSS (`components/viz.tsx`), the grid is a paged table (`components/DataGrid.tsx`, 50 rows/page, sticky header).
+- **Routes:** `/` Upload · `/s/:sid/setup` column types (override before scanning; animated scan progress) · `/s/:sid` Overview · other pages are placeholders until 5B/6A/6B. Overview redirects to setup while the session is unscanned.
+- **API layer:** `src/api/client.ts` (typed fetch, `{error:{code,message}}` → `ApiError`), `src/api/hooks.ts` (React Query; every key starts with the session id, so one invalidation refreshes a page after any mutation).
+- **Personal data:** column samples and the data grid mask phone / email / Aadhaar / PAN / GSTIN / IFSC / free-text digits by default (`maskSample`); the grid has a "Show personal data" toggle for reviewers.
+- **Overview:** clean-rows gauge (before → after, using the cheap `dimensions_now` from the session summary; Validation does the full re-check) · 8 KPI tiles (click → rows drawer) · next-step card (Plan → Apply N fixes with an Undo toast → Repair Studio / Validation) · dimension bars before/after · smart warnings (severity: duplicates, placeholders, rule breaks and widespread blanks high; formatting noise low) with "Show rows" · root-cause teaser · heatmap (click a cell → rows of that block, column first).
+- **Grid:** the column the user came for is moved first; cell colours from `.cell-*` classes in `index.css`; hovering a repaired cell shows its before-value.
+- **Theme:** light default (projectors), dark toggle stored in localStorage and applied before first paint.
+- **Verification:** `frontend/scripts/ui_walkthrough.mjs` drives the installed Google Chrome headlessly (playwright-core, no browser download) through demo → setup → scan → plan → apply → drawer → dark mode → 1366×768 and fails on console errors.
 
 ## 1. Layout
 

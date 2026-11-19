@@ -17,6 +17,7 @@ Implemented in `backend/api/routes.py`, verified by `scripts/smoke_api.py` (46 e
 | New: `POST /sessions/{sid}/changes/undo` | Body `{change_ids: [...]}`; used to confirm the chatbot's "undo the city fixes". |
 | `GET /diagnosis?narrative=true` | Returns `{causes: RootCause[], narrative, mode}` (was a bare list). Narrative is Gemini or a template; can take 2–15 s, so the UI should request it separately and show the template first. |
 | `POST /scan` response | Adds `dimensions`, `rules`, `tables` (per-table score and counts). |
+| `SessionSummary` (5A) | Once scanned also carries `dimensions`, `dimensions_now` (fast estimate from unresolved issues), `pii_columns`, `tiers`, `pending` (by tier), `applied`, `checkpoints`, `rows_main_pending`, `score_now`. |
 | `GET /rows` | Extra filters `table`, `state` (cell state), `row_ids=1,2,3`. `cell_state` lists **only non-clean cells**; new `original` map gives before-values of repaired / estimated / masked cells. `view=diff` = rows with ≥ 1 applied change. |
 | `GET /row/{row_id}` | `{row_id, table, deleted, record_id, values, original, cell_state, issues, proposals, changes}`. |
 | `GET /proposals` | Extra filters `table`, `algorithm`, `sort=row|confidence`; items include `record_id` (the dataset's own ID). |

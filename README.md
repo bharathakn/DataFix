@@ -38,6 +38,8 @@ cd backend && uv run python ../scripts/make_demo_data.py && cd ..
 cd backend && uv sync && uv run uvicorn api.main:app --reload --port 8000   # http://localhost:8000/api/health
 # frontend
 cd frontend && npm install && npm run dev                                     # http://localhost:5173 (proxies /api)
+# headless UI walk-through with screenshots (uses installed Google Chrome)
+cd frontend && node scripts/ui_walkthrough.mjs /tmp/shots
 # engine only (CLI)
 cd backend
 uv run python -m datafix scan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv   # detect

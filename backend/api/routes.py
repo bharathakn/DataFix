@@ -45,9 +45,20 @@ def _summary(s: Session) -> dict:
            "version": s.version}
     if s.scans:
         scan = s.scans[s.main]
+        from collections import Counter
+        from datafix.validate import dimensions
         out["quality_score"] = scan.quality_score
         out["score_now"] = s.score()
         out["counts"] = scan.counts
+        out["dimensions"] = dimensions(scan.issues, len(s.originals[s.main]))
+        out["dimensions_now"] = s.dimensions_now()
+        out["pii_columns"] = len({(f["table"], f["column"]) for f in s.privacy})
+        mine = [p for p in s.proposals.values() if p.table == s.main]
+        out["tiers"] = dict(Counter(p.tier for p in s.proposals.values()))
+        out["pending"] = dict(Counter(p.tier for p in s.proposals.values() if p.status == "pending"))
+        out["applied"] = sum(1 for p in s.proposals.values() if p.status == "applied")
+        out["checkpoints"] = len(s.checkpoints)
+        out["rows_main_pending"] = len({p.row_id for p in mine if p.status == "pending" and p.tier != "auto"})
     return out
 
 

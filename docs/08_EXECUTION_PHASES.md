@@ -30,7 +30,7 @@ About 10 prompts. Each prompt runs to its exit criterion, updates the docs it to
 | 2 Repair | 2 | **2A:** confidence, tiers and all repairs; stop at row 412 and the row-1043 refusal. **2B:** change log, checkpoints and undo, CLI `fix` | ✅ done |
 | 3 Proof | 1 | Ends with benchmark numbers for you to check | ✅ done |
 | 4 API | 1 | Mechanical; a smoke test checks every endpoint | ✅ done |
-| 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | |
+| 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | ✅ 5A · 5B next |
 | 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | |
 | 7 Freeze | 1–2 | Mostly you rehearsing; Claude fixes what breaks | |
 | Stretch | — | Real-world upgrades (generic clusters, learned format/date rules, bulk review by pattern, public dirty benchmarks) if time is left | |
@@ -117,6 +117,8 @@ Order: AppShell + header → Upload (with demo button) → Overview (KPIs, warni
 Exit: the demo steps 1–8 in 09 work in the browser.
 
 24h cut: heatmap becomes a simple per-column bar chart; diff grid shows current view only with coloured cells.
+
+**Phase 5A result (2026-11-19):** App shell, Upload (file + linked table + demo), column-type setup with overrides and scan progress, Overview (gauge 84.7% → 96.1% after auto-fix, KPI tiles, plan/apply with Undo toast, dimension bars, smart warnings, root-cause teaser, clickable heatmap, rows drawer with PII masking). Verified in headless Chrome at 1440×900 and 1366×768, light and dark, no console errors; demo → applied fixes in ≈ 16 s of clicking. Backend additions: `dimensions`, `dimensions_now`, tier / pending counts and `pii_columns` on the session summary; warning severity reworked.
 
 ## Phase 6 — UI standouts (H25–H29)
 

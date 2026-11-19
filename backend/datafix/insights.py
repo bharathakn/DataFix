@@ -21,6 +21,18 @@ ACTIONS = {
 }
 
 
+COSMETIC = {"whitespace", "case", "money_format", "variant"}
+
+
+def _severity(t: str, kind: str | None, n: int, n_rows: int) -> str:
+    """Duplicates, placeholders, rule breaks and widespread blanks first; formatting noise last."""
+    if t in HIGH or (t == "missing" and n > 0.01 * n_rows):
+        return "high"
+    if t == "anomaly" or (t == "inconsistent" and kind in COSMETIC):
+        return "low"
+    return "medium"
+
+
 def warnings(scan, n_rows: int) -> list[dict]:
     groups: dict[tuple, list] = defaultdict(list)
     for i in scan.issues:
@@ -37,7 +49,7 @@ def warnings(scan, n_rows: int) -> list[dict]:
             title = f"{len(rows)} unusual {col} values"
         else:
             title = f"{len(rows)} {_label(t, kind, col)}"
-        sev = "low" if t == "anomaly" else "high" if t in HIGH or len(rows) > 0.01 * n_rows else "medium"
+        sev = _severity(t, kind, len(rows), n_rows)
         out.append({"warning_id": "", "title": title, "explanation": f"e.g. row {items[0].row_id}: {items[0].message}",
                     "affected_rows": len(rows), "sample_row_ids": rows[:10], "suggested_action": ACTIONS.get(t, ""),
                     "severity": sev, "issue_type": t, "issue_kind": kind, "column": col})
