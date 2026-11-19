@@ -64,7 +64,7 @@ def repair_pin(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> O
 
     summary = (f"{len(valid)} valid PINs are one digit from '{raw}'" if raw else "PIN is missing") + \
               (f"; {n_ctx} are in {city or district}" if (city or district) else "") + \
-              (f"; {n_loc} serve '{locality}'" if locality else "")
+              (f"; {n_loc} {'serves' if n_loc == 1 else 'serve'} '{locality}'" if locality else "")
     if not cands:
         return refuse("recover", "pin_recovery", f"{summary}; none is supported by this row's address",
                       valid_candidates=len(valid))

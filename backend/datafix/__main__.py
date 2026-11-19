@@ -1,4 +1,4 @@
-"""DataFix CLI: scan, plan. fix / check / bench / apply arrive in later phases."""
+"""DataFix CLI: scan, plan, fix. check / bench / apply arrive in Phase 3."""
 import argparse
 import json
 import sys
@@ -81,6 +81,41 @@ def cmd_plan(args) -> int:
     return 0
 
 
+def cmd_fix(args) -> int:
+    import time
+    from .session import Session
+    t0 = time.perf_counter()
+    paths = {Path(args.file).stem: args.file}
+    if args.linked:
+        paths[Path(args.linked).stem] = args.linked
+    s = Session.from_paths(paths)
+    before = s.score()
+    batches = s.apply_auto()
+    accepted = 0
+    if args.accept_review:
+        pending = [p.proposal_id for p in s.proposals.values() if p.tier == "review" and p.status == "pending"]
+        accepted = s.bulk_review(pending, "accept")
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    for name in s.originals:
+        s.cleaned(name, with_status=not args.no_status).to_csv(out / f"cleaned_{name}.csv", index=False)
+    s.change_log().to_csv(out / "change_log.csv", index=False)
+    audit = s.verify_audit()
+    tiers = Counter(p.tier for p in s.proposals.values())
+    status = s.row_status().value_counts().to_dict()
+    print(f"quality score {before} -> {s.score()}")
+    for k in batches:
+        print(f"  checkpoint {k.checkpoint_id} {k.label:<32} {len(k.change_ids):>5} changes  score {k.quality_score}")
+    if accepted:
+        print(f"  accepted {accepted} review items")
+    print(f"proposals: {dict(tiers)}")
+    print(f"rows: {status}")
+    print(f"audit log: {len(s.changes)} entries, chain {'valid' if audit['valid'] else 'BROKEN'}, "
+          f"head {audit['head_hash'][:12]}")
+    print(f"wrote {', '.join(sorted(p.name for p in out.iterdir()))} to {out}  ({time.perf_counter() - t0:.1f}s)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="datafix")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -96,6 +131,13 @@ def main(argv: list[str] | None = None) -> int:
     pl.add_argument("--rows", help="comma-separated row numbers to explain, e.g. 412,1043")
     pl.add_argument("--json")
     pl.set_defaults(fn=cmd_plan)
+    fx = sub.add_parser("fix", help="apply high-confidence repairs, write cleaned data + change log")
+    fx.add_argument("file")
+    fx.add_argument("--linked")
+    fx.add_argument("--out", default="datafix_output")
+    fx.add_argument("--accept-review", action="store_true", help="also accept the top candidate of review items")
+    fx.add_argument("--no-status", action="store_true", help="omit the _datafix_status column")
+    fx.set_defaults(fn=cmd_fix)
     args = p.parse_args(argv)
     return args.fn(args)
 

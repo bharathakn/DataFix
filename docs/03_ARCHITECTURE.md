@@ -155,6 +155,17 @@ Row deletions (dedupe) are a `Change` with `column="__row__"`, `new_value="__del
 - Linked tables (orders) live in `Session.tables: dict[str, DataFrame]`, same change mechanism with `table` field.
 - Persistence: after each mutation, pickle the session to `.sessions/<id>.pkl` so a backend restart during the demo doesn't lose state.
 
+### 5a. As built (Phase 2B, `datafix/session.py`, `datafix/audit.py`)
+
+- **The log is append-only.** Every entry is a `Change` with `action` = `apply` | `undo` | `redo` | `reject`. Undo/redo never edit an old entry's values: they append a new entry pointing at it (`target`) and flip the old entry's derived `status`.
+- **Hash chain:** `hash = sha256(prev_hash + canonical JSON of every field except status/hash)`. The chain starts from a genesis hash of the input files' SHA-256, so the log is tied to exactly those files. `verify()` names the first broken entry.
+- **Current state:** the original replayed with every `apply` entry whose status is `applied`. Applying a change updates the cached table in place (no replay); undo/redo invalidates and replays (10k rows: milliseconds).
+- **Checkpoints:** `K00 Original`, one per auto batch, and a rolling "Review decisions" checkpoint that collects consecutive review actions, so the timeline doesn't get one node per click. `restore(K)` makes exactly checkpoints ≤ K active and works backwards and forwards.
+- **Duplicate merges are atomic:** fills on the survivor + foreign-key re-points in linked tables + the row removal share one proposal; undoing any of them undoes all.
+- **Rejections are logged** (`action=reject`), so the audit trail records human decisions as well as changes.
+- **Scores per checkpoint** are a fast estimate: scan issues minus resolved cells/rows. Phase 3 validation re-scans the repaired data.
+- **Persistence:** `Session.save(dir)` / `Session.load(path)` pickle the whole session.
+
 ## 6. Request flow (happy path)
 
 1. `POST /sessions` → ingest, coltypes, profile → returns `session_id` + profile.

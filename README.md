@@ -38,5 +38,8 @@ cd backend && uv sync && uv run uvicorn api.main:app --reload --port 8000   # ht
 # frontend
 cd frontend && npm install && npm run dev                                     # http://localhost:5173 (proxies /api)
 # engine only (CLI)
-cd backend && uv run python -m datafix scan ../data/demo/customers_dirty.csv
+cd backend
+uv run python -m datafix scan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv   # detect
+uv run python -m datafix plan ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --rows 412,1043  # proposals + evidence
+uv run python -m datafix fix  ../data/demo/customers_dirty.csv --linked ../data/demo/orders.csv --out out/      # cleaned CSVs + change log
 ```

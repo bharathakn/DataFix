@@ -72,7 +72,7 @@ Practise to time. Speak to the problem, not the tech.
 |---|---|---|---|
 | 0:00 | Hook | "Every team cleans data. Nobody can prove their cleaning didn't break something. DataFix does." | Title slide → app |
 | 0:20 | 1. Load demo | "10,000 customers + 25,000 orders, with errors injected the way real pipelines create them." | Click demo; column types auto-detected (point at `col_7` → PIN if you rename one) |
-| 0:40 | 2. Scan | "Score 61. Here's what's wrong and where." | Overview: KPIs, warnings, heatmap stripe at batch B07 |
+| 0:40 | 2. Scan | "Score 97.6, which sounds fine, until you see 1,678 errors hiding in 10,200 rows. Here's what's wrong and where." (Use the real numbers; dimension scores from Phase 3 show the drops.) | Overview: KPIs, warnings, heatmap stripe at batch B07 |
 | 1:00 | 3. Root cause | "Not just *what* — *why*. 71 of 73 blank cities came from one mobile-app batch. Branch uploads went through Excel and destroyed phone numbers." | Diagnosis page; learned rules table: "nobody wrote PIN→City, DataFix learned it" |
 | 1:40 | 4. Auto-fix | "Only fixes it can prove — 95%+ confidence." | Plan → Apply; timeline fills with checkpoints; score jumps |
 | 2:00 | 5. Row 412 | "PIN 40001 has 5 digits. 29 real PINs are one digit away, 19 of them in Mumbai — city alone can't decide. Only one serves this row's locality, Stock Exchange." | Evidence card with signals narrowing 29 → 19 → 1 |

@@ -109,3 +109,45 @@ class RepairProposal:
         d = asdict(self)
         d["confidence"] = self.confidence
         return d
+
+
+@dataclass
+class Change:
+    """One audit-log entry. action=apply changes a cell; undo/redo/reject reference an earlier entry.
+    Every field except `status` and `hash` is covered by the hash chain; status is derived state."""
+    change_id: str
+    checkpoint_id: str
+    proposal_id: str | None
+    table: str
+    row_id: int
+    column: str  # "__row__" for a row removal
+    original_value: str
+    new_value: str
+    reason: str
+    evidence: list[str]
+    source: str
+    confidence: float
+    algorithm: str
+    actor: str  # auto | user | chat | system
+    action: str  # apply | undo | redo | reject
+    target: str | None  # change_id that an undo/redo refers to
+    timestamp: str
+    prev_hash: str = ""
+    hash: str = ""
+    status: str = "applied"  # applied | undone (only meaningful for action=apply)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class Checkpoint:
+    checkpoint_id: str
+    label: str
+    kind: str  # original | auto | review | mask | user
+    change_ids: list[str]
+    created_at: str
+    quality_score: float
+
+    def to_dict(self) -> dict:
+        return asdict(self)

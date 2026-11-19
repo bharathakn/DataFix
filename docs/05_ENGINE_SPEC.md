@@ -140,11 +140,11 @@ Dedupe and relationships: when a row is merged away, every `orders.customer_id` 
 
 ### 5.3 Checkpoint batching for auto-apply
 
-`apply-auto` creates one checkpoint per class, in this order: `Formats normalised` → `Values standardised` → `Duplicates merged` → `Spelling corrected` → `Learned-rule fixes` → `PIN / address recovered` → `Contacts recovered`. After each checkpoint, store the quality score.
+`apply-auto` creates one checkpoint per class, in this order: `Formats normalised` → `Values standardised` → `Duplicates merged` → `Spelling & learned-rule fixes` → `PIN / address recovered` → `Contacts recovered`. After each checkpoint, store the quality score. Demo result: 313 / 91 / 121 / 249 / 103 / 383 changes.
 
 ### 5.4 Status column
 
-Cleaned export adds `_datafix_status` per row: `repaired` (≥ 1 applied change), `estimated` (an applied `impute`), `needs_review` (pending review/flag/refused), else `unchanged`.
+Cleaned export adds `_datafix_status` per row, highest priority first: `needs_review` (a pending review/flag/refused proposal on the row), `estimated` (an applied `impute`), `repaired` (≥ 1 applied change), else `unchanged`. Demo after auto-fix: 8,629 unchanged · 1,046 repaired · 405 needs review.
 
 ### 5.5 PIN digit recovery (demo row 412: `40001` → `400001`)
 

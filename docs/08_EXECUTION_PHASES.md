@@ -19,6 +19,22 @@ If the window is only 24 hours, apply the **24h cut** noted in each phase.
 | 7 Freeze | H29–H32 | Polish, rehearse ×3, record backup video, slides | Feature freeze at H29. Only bug fixes after |
 | Buffer | H32–H36 | Slippage | |
 
+## Prompt plan (how the build is driven)
+
+About 10 prompts. Each prompt runs to its exit criterion, updates the docs it touches, commits, and stops for a check.
+
+| Phase | Prompts | Why | Status |
+|---|---|---|---|
+| 0 Setup | 1 | Tools, repo, demo data, PIN reference | ✅ done |
+| 1 Detection | 1 | Clear spec, everything testable from the command line | ✅ done |
+| 2 Repair | 2 | **2A:** confidence, tiers and all repairs; stop at row 412 and the row-1043 refusal. **2B:** change log, checkpoints and undo, CLI `fix` | ✅ done |
+| 3 Proof | 1 | Ends with benchmark numbers for you to check | |
+| 4 API | 1 | Mechanical; a smoke test checks every endpoint | |
+| 5 Core UI | 2 | You need to see it. **5A:** layout, Upload and Overview. **5B:** Repair Studio and History | |
+| 6 Standout UI | 2 | **6A:** Validation and Diagnosis. **6B:** Chat, Privacy and Export | |
+| 7 Freeze | 1–2 | Mostly you rehearsing; Claude fixes what breaks | |
+| Stretch | — | Real-world upgrades (generic clusters, learned format/date rules, bulk review by pattern, public dirty benchmarks) if time is left | |
+
 ---
 
 ## Phase 0 — Setup (H0–H1.5)
@@ -54,17 +70,20 @@ If the window is only 24 hours, apply the **24h cut** noted in each phase.
 - [x] `repair/fd_repair.py`.
 - [x] `repair/pin.py` (reference lookup, digit recovery §5.5), `repair/phone.py` (linked table), `repair/age.py` (group median), `repair/dedupe.py` (survivorship + FK remap).
 - [x] `planner.py` → proposals with refusals.
-- [ ] `audit.py` hash chain + verify; `session.py` replay, undo cell/batch, restore checkpoint.
-- [ ] CLI `fix`.
+- [x] `audit.py` hash chain + verify; `session.py` replay, undo cell/batch, restore checkpoint.
+- [x] CLI `fix`.
 - [x] Tests: row 412 → `400001` in review/auto; conflicting-phone customer refused; never changes a clean cell (property test on `customers_clean.csv` → 0 proposals).
 
 24h cut: PIN-from-address only via learned rules (email recovery was built).
 
 **Phase 2A result (2026-11-19):** 38 tests pass. Demo: 1,700 proposals (auto 1,260 · review 281 · refused 149 · flag 10). Auto tier: 1,259 correct, 0 wrong, 0 valid cells touched, 75% of injected errors fixed. Auto + review: 1,461 correct, 0 wrong, 51 age estimates, 90% coverage. Every refusal is justified (age groups too spread out, no linked record, conflicting phones). Planning 0.8 s after scan. Code lives in `repair/` as text, category, pin, contact, impute, rows (not the file names listed above). Remaining for 2B: audit hash chain, session replay / undo / checkpoints, CLI `fix`.
 
+**Phase 2B result (2026-11-19):** 49 tests pass. `datafix fix` on the demo: 1,260 auto changes in 6 checkpoints, row states 8,629 unchanged · 1,046 repaired · 405 needs review, 1,260-entry audit chain valid, 11 s end to end (scan ≈ 9 s). Tests cover: original never mutated, cached state = full replay, undo at cell / batch / restore-to-original and forward again, atomic merge undo incl. order re-pointing, accept / reject / custom value, tamper detection naming the edited entry, no change ever lands on a cell without a detected issue, save/load.
+
 ## Phase 3 — Prove (H10.5–H13.5)
 
 - [ ] `validate.py` do-no-harm checks (all 8).
+- [ ] Quality **dimension** scores (completeness, validity, consistency, uniqueness) next to the overall score. The overall score only moves 97.6 → 99.1 on the demo because errors are diluted over 194k cells; dimension scores show the change clearly.
 - [ ] `benchmark.py` inject → run → score; CLI `bench`. **Tune thresholds** so false repair rate < 0.5%; write the numbers into `docs/RESULTS.md`.
 - [ ] `diagnose.py` lift analysis + pattern causes.
 - [ ] `privacy.py` scan + mask.
