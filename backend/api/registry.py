@@ -2,6 +2,7 @@
 import atexit
 import os
 import threading
+import time
 from pathlib import Path
 
 from datafix.session import Session
@@ -10,6 +11,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SESSION_DIR = Path(os.getenv("DATAFIX_SESSION_DIR", "backend/.sessions"))
 if not SESSION_DIR.is_absolute():
     SESSION_DIR = ROOT / SESSION_DIR
+
+
+# Delete sessions (memory and disk) untouched for this many hours; 0 keeps them forever (local default).
+SESSION_TTL_H = float(os.getenv("DATAFIX_SESSION_TTL_H", "0") or 0)
 
 
 class NotFound(KeyError):
@@ -25,7 +30,27 @@ class Registry:
         self._pending: dict[str, threading.Timer] = {}
         atexit.register(self.flush)
 
+    def prune(self) -> int:
+        """Drop sessions idle longer than DATAFIX_SESSION_TTL_H (a public server must not keep uploads forever)."""
+        if SESSION_TTL_H <= 0 or not self.dir.exists():
+            return 0
+        cutoff = time.time() - SESSION_TTL_H * 3600
+        removed = 0
+        for p in list(self.dir.glob("*.pkl")):
+            try:
+                if p.stat().st_mtime >= cutoff:
+                    continue
+                p.unlink()
+            except FileNotFoundError:
+                continue
+            with self._guard:
+                self.sessions.pop(p.stem, None)
+                self.locks.pop(p.stem, None)
+            removed += 1
+        return removed
+
     def add(self, s: Session) -> Session:
+        self.prune()
         with self._guard:
             self.sessions[s.session_id] = s
             self.locks[s.session_id] = threading.RLock()

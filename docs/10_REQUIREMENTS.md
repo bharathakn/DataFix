@@ -29,7 +29,7 @@ No other APIs are needed. The app runs fully without Gemini (offline templates).
 | Node / npm | 24.14 / 11.11 | ✅ preinstalled |
 | uv | 0.13.9 | ✅ installed into `~/.local/share/uv-venv`, linked at `~/.local/bin/uv` (the astral.sh download server hung, PyPI worked) |
 | Python | 3.12.16 (managed by uv) | ✅ installed via the GitHub mirror (`UV_PYTHON_INSTALL_MIRROR`) |
-| Backend packages | pandas 3.1, scikit-learn 1.9, FastAPI 0.165, rapidfuzz, google-genai, openpyxl, … | ✅ `backend/uv.lock` |
+| Backend packages | pandas 3.1, FastAPI 0.165 (scikit-learn removed 2026-11-20: never imported), rapidfuzz, google-genai, openpyxl, … | ✅ `backend/uv.lock` |
 | Frontend packages | React + Vite + TS, Tailwind v4, TanStack Query/Table/Virtual, Recharts, react-router, lucide | ✅ `frontend/package-lock.json`; shadcn/ui gets initialised in Phase 5 |
 | Screen recorder (backup demo video) | OBS Studio or GNOME built-in recorder (Ctrl+Shift+Alt+R) | ⏳ Needed only in Phase 7 |
 

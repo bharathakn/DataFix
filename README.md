@@ -26,6 +26,10 @@ Read in order. Everything we build follows these docs.
 
 [CLAUDE.md](CLAUDE.md) holds the rules Claude Code follows while building.
 
+## Deploy (Vercel UI + Render API)
+
+See [docs/DEPLOY.md](docs/DEPLOY.md): API from the `Dockerfile` on Render (`render.yaml`), UI on Vercel with root `frontend` and `VITE_API_URL` set to the API URL, then `DATAFIX_CORS_ORIGINS` on the API set to the Vercel URL.
+
 ## Demo day (one command)
 
 ```bash

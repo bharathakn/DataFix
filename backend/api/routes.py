@@ -1,5 +1,6 @@
 """REST routes (docs/04_API_CONTRACT.md). Thin: every rule lives in the datafix engine."""
 import functools
+import os
 import re
 import tempfile
 from pathlib import Path
@@ -18,11 +19,12 @@ from datafix.recipe import build_recipe
 from datafix.repair import find_joins
 from datafix.session import Session
 
-from .registry import ROOT, registry
+from .registry import ROOT, NotFound, registry
 
 router = APIRouter(prefix="/api")
 DEMO = ROOT / "data" / "demo"
-MAX_UPLOAD = 200 * 1024 * 1024
+MAX_UPLOAD_MB = int(os.getenv("DATAFIX_MAX_UPLOAD_MB", "200"))
+MAX_UPLOAD = MAX_UPLOAD_MB * 1024 * 1024
 
 
 # ---------------------------------------------------------------- helpers
@@ -103,6 +105,8 @@ def _require_plan(s: Session):
 # ---------------------------------------------------------------- sessions
 @router.get("/sessions")
 def list_sessions():
+    if os.getenv("DATAFIX_PUBLIC", "") in ("1", "true"):
+        raise NotFound("the session list is off in public mode")  # other people's uploads must not be listable
     return registry.list()
 
 
@@ -111,10 +115,12 @@ async def create_session(file: UploadFile = File(...), linked_file: UploadFile |
                          linked_name: str | None = Form(None)):
     data = await file.read()
     if len(data) > MAX_UPLOAD:
-        raise ValueError("file is larger than 200 MB")
+        raise ValueError(f"file is larger than {MAX_UPLOAD_MB} MB")
     tables = {_table_name(file.filename, "data"): load_bytes(data, file.filename or "data.csv")}
     if linked_file is not None and linked_file.filename:
         ldata = await linked_file.read()
+        if len(ldata) > MAX_UPLOAD:
+            raise ValueError(f"linked file is larger than {MAX_UPLOAD_MB} MB")
         name = _table_name(linked_name or linked_file.filename, "linked")
         if name in tables:
             name += "_linked"

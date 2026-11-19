@@ -1,0 +1,11 @@
+.git
+.env
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+backend/.sessions
+out
+data/demo/scale_*
+*.pyc

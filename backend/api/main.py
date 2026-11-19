@@ -39,9 +39,18 @@ class AppJSON(JSONResponse):
         return json.dumps(content, default=_default, ensure_ascii=False, allow_nan=False).encode("utf-8")
 
 
-app = FastAPI(title="DataFix API", version=__version__, default_response_class=AppJSON)
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-                   allow_methods=["*"], allow_headers=["*"])
+# Production settings (all optional; local dev needs none of them):
+#   DATAFIX_CORS_ORIGINS       comma list of extra allowed origins, e.g. https://datafix.vercel.app
+#   DATAFIX_CORS_ORIGIN_REGEX  e.g. https://datafix-.*\.vercel\.app for Vercel preview deployments
+#   DATAFIX_PUBLIC=1           hide the session list and the debug endpoint (sessions are only reachable by their id)
+PUBLIC = os.getenv("DATAFIX_PUBLIC", "") in ("1", "true")
+ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173"] + [
+    o.strip().rstrip("/") for o in os.getenv("DATAFIX_CORS_ORIGINS", "").split(",") if o.strip()]
+
+app = FastAPI(title="DataFix API", version=__version__, default_response_class=AppJSON,
+              docs_url=None if PUBLIC else "/docs", redoc_url=None, openapi_url=None if PUBLIC else "/openapi.json")
+app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_origin_regex=os.getenv("DATAFIX_CORS_ORIGIN_REGEX") or None,
+                   allow_methods=["*"], allow_headers=["*"], expose_headers=["Content-Disposition"])
 
 
 log = logging.getLogger("datafix.api")
@@ -66,6 +75,8 @@ async def track_requests(request: Request, call_next):
 
 @app.get("/api/debug/inflight")
 def inflight() -> list[dict]:
+    if PUBLIC:
+        raise NotFound("debug endpoints are off in public mode")
     now = time.time()
     return sorted(({"method": i["method"], "path": i["path"], "running_s": round(now - i["started"], 1)}
                    for i in list(INFLIGHT.values()) if i["path"] != "/api/debug/inflight"), key=lambda x: -x["running_s"])
@@ -98,7 +109,7 @@ async def _validation(_: Request, e: RequestValidationError):
 @app.get("/api/health")
 def health() -> dict:
     return {"status": "ok", "version": __version__, "llm": get_llm().status()["provider"],
-            "offline_forced": os.getenv("DATAFIX_OFFLINE", "") in ("1", "true")}
+            "offline_forced": os.getenv("DATAFIX_OFFLINE", "") in ("1", "true"), "public": PUBLIC}
 
 
 app.include_router(router)

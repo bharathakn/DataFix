@@ -11,6 +11,7 @@ dependencies = [
     "charset-normalizer>=3.5.2",
     "fastapi>=0.165.0",
     "google-genai>=3.6.1",
+    "httpx>=0.28.1",
     "jinja2>=3.1.6",
     "numpy>=2.5.5",
     "openpyxl>=3.1.5",
@@ -20,7 +21,6 @@ dependencies = [
     "python-dotenv>=1.2.4",
     "python-multipart>=0.0.34",
     "rapidfuzz>=3.14.6",
-    "scikit-learn>=1.9.1",
     "uvicorn[standard]>=0.54.0",
     "xlsxwriter>=3.2",
 ]

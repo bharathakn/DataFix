@@ -37,7 +37,8 @@ cd frontend && node scripts/ui_accept_all.mjs <outdir>     # bulk Accept/Reject 
 cd frontend && node scripts/ui_shots.mjs <outdir>          # screenshot every page (light, dark, phone) for visual review
 scripts/start_demo.sh --offline                            # production: UI + API on :8000
 cd frontend && node scripts/rehearse.mjs ../out http://localhost:8000   # full demo rehearsal + backup video (PAUSE=3500 for viewing pace)
-curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now
+curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now (off when DATAFIX_PUBLIC=1)
+# deploy: docs/DEPLOY.md (UI on Vercel with VITE_API_URL, API = Dockerfile on Render, one uvicorn worker)
 python3 scripts/build_pin_reference.py                     # stdlib only
 cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv
 ```

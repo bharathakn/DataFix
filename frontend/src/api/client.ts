@@ -13,6 +13,10 @@ export class ApiError extends Error {
   }
 }
 
+/** Backend origin. Empty (default) = same origin: Vite's dev proxy locally, or the API serving the UI itself.
+ *  For a split deploy (UI on Vercel, API elsewhere) build with VITE_API_URL=https://your-api.example.com */
+export const API_BASE = `${(import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '')}/api`
+
 type Query = Record<string, string | number | boolean | undefined | null>
 
 function qs(q?: Query): string {
@@ -32,9 +36,11 @@ async function req<T>(method: string, path: string, body?: unknown, query?: Quer
   }
   let res: Response
   try {
-    res = await fetch(`/api${path}${qs(query)}`, init)
+    res = await fetch(`${API_BASE}${path}${qs(query)}`, init)
   } catch {
-    throw new ApiError(0, 'NETWORK', 'Cannot reach the DataFix backend. Is it running on port 8000?')
+    throw new ApiError(0, 'NETWORK', import.meta.env.VITE_API_URL
+      ? 'Cannot reach the DataFix server. It may be waking up after a quiet period (about a minute on free hosting); please try again.'
+      : 'Cannot reach the DataFix backend. Is it running on port 8000?')
   }
   if (!res.ok) {
     let code = 'HTTP', message = `${res.status} ${res.statusText}`
@@ -107,5 +113,5 @@ export const api = {
     req<{ checkpoint: Checkpoint; affected: number; findings: PiiFinding[] }>('POST', `${S(sid)}/privacy/mask`, body),
   chat: (sid: string, message: string, history: { role: 'user' | 'assistant'; text: string }[]) =>
     req<ChatReply>('POST', `${S(sid)}/chat`, { message, history }),
-  exportUrl: (sid: string, kind: string) => `/api${S(sid)}/export/${kind}`,
+  exportUrl: (sid: string, kind: string) => `${API_BASE}${S(sid)}/export/${kind}`,
 }
