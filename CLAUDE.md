@@ -8,12 +8,12 @@ Hackathon build (24–36 h, solo + Claude). Specs live in `docs/`; follow them, 
 
 ## Non-negotiable engine rules
 
-1. `backend/datafix` never imports FastAPI or the Gemini SDK (only `datafix/llm.py` may import `google.genai`, lazily).
+1. `backend/datafix` never imports FastAPI or the Gemini SDK (only `datafix/llm.py` may import `google.genai`, lazily, or call Groq).
 2. Load every column as string; never mutate `Session.original`. All edits go through `Change` records in `audit.py`.
 3. Never change a cell that has no detected issue. Anomalies are flag-only.
 4. The LLM never produces cell values. Chat runs only whitelisted tools from `chat_tools.py`; no `eval`/`exec`/`df.query`/`df.eval` on model output.
 5. Raw rows and PII values never go to Gemini; payloads pass `llm.sanitize()`.
-6. Every LLM feature has an offline fallback; the app must work with no `GEMINI_API_KEY`. Use `DATAFIX_OFFLINE=1` for tests and rehearsals: the free tier is only 20 requests/day on 2.5 Flash.
+6. Every LLM feature has an offline fallback; the app must work with no `GEMINI_API_KEY`/`GROQ_API_KEY` (chain: Gemini keys → Groq → offline). Use `DATAFIX_OFFLINE=1` for tests and rehearsals: the free tier is only 20 requests/day on 2.5 Flash.
 7. Randomness is seeded (default 42).
 
 ## Commands

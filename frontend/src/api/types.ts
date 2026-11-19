@@ -55,7 +55,7 @@ export interface RootCause {
   issue_count: number; rate_by_group: { value: string; rows: number; issues: number; rate: number }[]
 }
 
-export interface Diagnosis { causes: RootCause[]; narrative: string | null; mode: 'gemini' | 'offline' | null }
+export interface Diagnosis { causes: RootCause[]; narrative: string | null; mode: 'gemini' | 'groq' | 'offline' | null }
 
 export interface Heatmap { columns: string[]; block_size: number; cells: number[][]; max: number }
 
@@ -152,10 +152,11 @@ export interface ChatReply {
   table: { columns: string[]; rows: string[][] } | null
   proposed_action: { kind: 'undo_checkpoint' | 'undo_changes'; label: string;
                      payload: { checkpoint_id?: string; change_ids?: string[] } } | null
-  mode: 'gemini' | 'offline'
+  mode: 'gemini' | 'groq' | 'offline'
 }
 
 export interface LlmStatus {
-  provider: 'gemini' | 'offline'; model: string | null; models?: string[]; keys: number; ok: boolean | null
+  provider: 'gemini' | 'groq' | 'offline'; model: string | null; models?: string[]; keys: number; ok: boolean | null
   last_error: string | null; using_backup_key: boolean; cooling_down?: Record<string, number>
+  backup?: { provider: 'groq'; configured: boolean; model: string; cooling_down: number; last_error: string | null }
 }

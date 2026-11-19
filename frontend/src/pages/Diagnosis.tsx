@@ -89,7 +89,7 @@ export default function Diagnosis() {
         {diag.isLoading ? <Skeleton className="h-12" /> : (
           <p className="text-[15px] leading-relaxed">
             {ai.data?.narrative ?? (template || 'No concentrated source of errors found: problems are spread evenly.')}
-            {ai.data && <span className="ml-2 text-xs text-slate-500">({ai.data.mode === 'gemini' ? 'written by Gemini from the findings below' : 'AI unavailable: template'})</span>}
+            {ai.data && <span className="ml-2 text-xs text-slate-500">({ai.data.mode === 'offline' ? 'AI unavailable: template' : `written by ${ai.data.mode === 'groq' ? 'Groq (backup)' : 'Gemini'} from the findings below`})</span>}
           </p>
         )}
         <ErrorNote error={ai.error} />

@@ -172,14 +172,14 @@ type PiiFinding = { table: string; column: string; pii_type: "aadhaar"|"pan"|"gs
 | Method | Path | Body | Returns |
 |---|---|---|---|
 | POST | `/sessions/{sid}/chat` | `{message: string, history?: {role, text}[]}` | `ChatReply` |
-| GET | `/llm/status` | — | `{provider: "gemini"\|"offline", model?: string, ok: boolean}` |
+| GET | `/llm/status` | — | `{provider: "gemini"\|"groq"\|"offline", model?: string, ok: boolean, backup: {provider: "groq", configured, model, cooling_down, last_error}}`. `provider` is "groq" when the last successful call fell back to Groq |
 
 ```ts
 type ChatReply = { text: string;
                    tool_calls: { name: string; args: object; result_preview: object }[];
                    table?: { columns: string[]; rows: string[][] };
                    proposed_action?: { kind: "undo_checkpoint"|"undo_column"|"filter"; label: string; payload: object };
-                   mode: "gemini"|"offline" };
+                   mode: "gemini"|"groq"|"offline" };   // also the `mode` of /diagnosis and /explain
 ```
 
 A `proposed_action` is never executed by the chat route; the UI shows a confirm button that calls the normal history/repair endpoints.

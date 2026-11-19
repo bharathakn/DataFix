@@ -30,15 +30,17 @@ function useTheme() {
 
 export function LlmPill() {
   const { data } = useLlmStatus()
-  const online = data?.provider === 'gemini' && data.ok !== false
-  const title = data?.provider === 'gemini'
-    ? `Gemini · ${data.model ?? ''}${data.last_error ? ` · last error: ${data.last_error}` : ''}`
-    : 'No Gemini key: explanations and chat use built-in templates'
+  const live = data?.provider === 'gemini' || data?.provider === 'groq'
+  const online = live && data.ok !== false
+  const backup = data?.backup?.configured ? ` · backup: Groq ${data.backup.model}` : ''
+  const title = live
+    ? `${data.provider === 'groq' ? 'Groq (backup)' : 'Gemini'} · ${data.model ?? ''}${backup}${data.last_error ? ` · last error: ${data.last_error}` : ''}`
+    : 'No AI key: explanations and chat use built-in templates'
   return (
     <span title={title} className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
       online ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300')}>
       <span className={cn('size-1.5 rounded-full', online ? 'bg-emerald-500' : 'bg-slate-400')} />
-      {data?.provider === 'gemini' ? (online ? 'AI: Gemini' : 'AI: offline fallback') : 'AI: offline templates'}
+      {live ? (online ? (data.provider === 'groq' ? 'AI: Groq (backup)' : 'AI: Gemini') : 'AI: offline fallback') : 'AI: offline templates'}
     </span>
   )
 }

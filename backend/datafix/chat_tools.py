@@ -281,10 +281,17 @@ def answer(s, message: str, history: list[dict] | None = None) -> dict:
     tools = ChatTools(s)
     calls: list[dict] = []
     llm = get_llm()
-    if llm.enabled:
+    if llm.gemini_enabled:
         try:
             text = _gemini_answer(s, tools, message, history or [], calls)
             return _reply(text, calls, tools, "gemini")
+        except LLMUnavailable:
+            calls.clear()
+            tools = ChatTools(s)
+    if llm.groq.enabled:
+        try:
+            text = _groq_answer(s, tools, message, history or [], calls)
+            return _reply(text, calls, tools, "groq")
         except LLMUnavailable:
             calls.clear()
             tools = ChatTools(s)
@@ -336,6 +343,33 @@ def _gemini_answer(s, tools: ChatTools, message: str, history: list[dict], calls
         contents.append(types.Content(role="user", parts=parts))
     resp = llm.generate(contents, cfg)
     return (resp.text or "").strip() or "I ran out of steps; please ask a narrower question."
+
+
+def _groq_answer(s, tools: ChatTools, message: str, history: list[dict], calls: list[dict]) -> str:
+    """Same whitelisted tools as the Gemini path, in OpenAI tool-calling format. Arguments are parsed as JSON
+    and only ever passed to ChatTools.run; nothing the model writes is executed."""
+    msgs: list[dict] = [{"role": "system", "content": _system_prompt(s)}]
+    msgs += [{"role": "user" if h.get("role") == "user" else "assistant", "content": str(h.get("text", ""))}
+             for h in history[-6:]]
+    msgs.append({"role": "user", "content": message})
+    llm = get_llm()
+    for _ in range(MAX_ROUNDS):
+        msg = llm.groq_chat(msgs, TOOLS, temperature=0)
+        tcs = msg.get("tool_calls") or []
+        if not tcs:
+            return (msg.get("content") or "").strip() or "I couldn't find an answer in the data."
+        msgs.append({"role": "assistant", "content": msg.get("content") or "", "tool_calls": tcs})
+        for tc in tcs:
+            fn = tc.get("function") or {}
+            try:
+                args = json.loads(fn.get("arguments") or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            result = _call(tools, str(fn.get("name", "")), args if isinstance(args, dict) else {}, calls)
+            msgs.append({"role": "tool", "tool_call_id": tc.get("id", ""),
+                         "content": json.dumps(result, ensure_ascii=False, default=str)[:6000]})
+    msg = llm.groq_chat(msgs, None, temperature=0)
+    return (msg.get("content") or "").strip() or "I ran out of steps; please ask a narrower question."
 
 
 # ---------------------------------------------------------------- offline intent router (no key / no internet)

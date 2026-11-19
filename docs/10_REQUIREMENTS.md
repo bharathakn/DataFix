@@ -6,6 +6,7 @@ Status as of Phase 0 (2026-11-19).
 
 | API | Needed for | Cost / key | Status |
 |---|---|---|---|
+| **Groq API** (backup LLM) | Used only when every Gemini key/model fails or is rate-limited | Free tier; key from console.groq.com as `GROQ_API_KEY` in `.env` (optional `GROQ_MODEL`, default `llama-3.3-70b-versatile`) | ✅ Wired 2026-11-20; mocked tests in `tests/test_llm_groq.py` |
 | **Google Gemini API** | Explanations, chatbot, root-cause narrative, plain-English rules | Free tier; key from Google AI Studio. ⚠️ Free tier = **20 requests/day/project for 2.5 Flash**; both keys share it. App fails over to `gemini-3.1-flash-lite` → `gemini-3.5-flash-lite` → offline (see 06 §2a). Optional: billing with a budget cap, or a backup key from a different project | ✅ Key in `.env`, tested 2026-11-19. Use `gemini-2.5-flash` with `api_version="v1beta"` (this key type defaults to `v1`, which rejects function calling). Tool call correct in ~1.5 s. `gemini-3.5/3.8-flash` returned 503/504 (free-tier overload), so they're not used for the demo |
 | India Post PIN API (`api.postalpincode.in`) | PIN → post offices/district/state lookups for PINs not in the bundled reference | Free, no key | Working, results cached in `data/reference/raw/api_cache.json` |
 | data.gov.in Open Data | Full All-India Pincode Directory (165,627 offices, resource `5c2f62fe-5afa-4119-a499-fec9d604d5bd`) for offline PIN validation | Free | Not needed any more: the full directory was provided as a CSV. The sample key in `.env` (10 records per call) stays as a spot-check fallback |

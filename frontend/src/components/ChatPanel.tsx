@@ -69,7 +69,7 @@ function AssistantTurn({ t, sid }: { t: Turn; sid: string }) {
           </div>
         )}
         {r && <ToolCalls calls={r.tool_calls} />}
-        {r && <div className="mt-1 text-[10px] text-slate-400">{r.mode === 'gemini' ? 'Gemini chose the queries; the numbers come from DataFix' : 'offline mode: built-in question patterns'}</div>}
+        {r && <div className="mt-1 text-[10px] text-slate-400">{r.mode === 'offline' ? 'offline mode: built-in question patterns' : `${r.mode === 'groq' ? 'Groq (backup)' : 'Gemini'} chose the queries; the numbers come from DataFix`}</div>}
       </div>
     </div>
   )
