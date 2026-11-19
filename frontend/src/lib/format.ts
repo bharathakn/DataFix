@@ -31,7 +31,11 @@ export function maskSample(x: string, type: string): string {
   if (digits.length >= 5 && /^(\d)\1+$/.test(digits)) return v  // placeholder like 9999999999, not personal data
   switch (type) {
     case 'phone': return digits.length >= 4 ? `${digits.slice(0, 2)}XXXXXX${digits.slice(-2)}` : 'XXXX'
-    case 'email': { const [l, d] = v.split('@'); return d ? `${l.slice(0, 2)}***@${d}` : '***' }
+    case 'email': {  // hide the mailbox, keep everything from the first '@' so typos like '@@' or ',com' stay visible
+      const at = v.indexOf('@')
+      if (at >= 0) return `${v.slice(0, Math.min(2, at))}***${v.slice(at)}`
+      return `${v.slice(0, 2)}***${v.match(/[.,]\w+$/)?.[0] ?? ''}`
+    }
     case 'aadhaar': return `XXXX XXXX ${digits.slice(-4)}`
     case 'pan': return `${v.slice(0, 5)}****${v.slice(-1)}`
     case 'gstin': return `${v.slice(0, 2)}XXXXXXXXXX${v.slice(-3)}`
