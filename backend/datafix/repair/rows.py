@@ -32,8 +32,18 @@ def merge_duplicate(ctx: RepairContext, issue: Issue) -> Outcome:
                        f"{issue.meta.get('similarity', 90):.0f}% similar overall")]
         cap = "near_duplicate"
     else:
-        sigs = [signal("deterministic_transform", 1.0, f"row {dup} is identical to row {root} apart from its ID")]
-        cap = None
+        ids = [c for c in ctx.df.columns if ctx.col_type(c) == "id"
+               and ctx.df.at[dup, c].strip() != ctx.df.at[root, c].strip()]
+        if ids:
+            # identical content under a different record ID: almost surely a re-entry, but removing a record
+            # that has its own ID is a person's decision (the ID may be referenced elsewhere)
+            sigs = [signal("deterministic_transform", 1.0,
+                           f"row {dup} is identical to row {root} apart from its {ids[0]} "
+                           f"('{ctx.df.at[dup, ids[0]].strip()}' vs '{ctx.df.at[root, ids[0]].strip()}')")]
+            cap = "distinct_id_duplicate"
+        else:
+            sigs = [signal("deterministic_transform", 1.0, f"row {dup} is identical to row {root}")]
+            cap = None
     if remaps:
         sigs.append(signal("records_agree", 0.0,
                            f"{len(remaps)} linked record(s) will be re-pointed to the surviving row"))

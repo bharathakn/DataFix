@@ -15,6 +15,9 @@ KIND_SIGNAL = {
     "variant": ("format_variant", "same value written with different case/punctuation; most common form chosen"),
     "alias": ("alias_dictionary", "known alternate / old name"),
     "synonym": ("format_variant", "same meaning written in another style; the column's most common form chosen"),
+    "case": ("format_variant", "same value in ALL CAPS; written the way the rest of the column writes it"),
+    "abbreviation": ("abbreviation", "only common value starting with these letters; the code may still mean "
+                                     "something else, so a person confirms"),
 }
 
 
@@ -71,6 +74,10 @@ def repair_category(ctx: RepairContext, row: int, col: str, issues: list[Issue])
     cls = "correct" if "fd_violation" in types or any(i.meta.get("kind") == "spelling" for i in issues) else (
         "recover" if algo == "fill_from_rules" else "standardize")
     if not cands:
+        outside = next((i for i in issues if i.meta.get("kind") == "outside_domain"), None)
+        if outside:
+            return refuse("none", "none", f"'{raw.strip()}' is not one of the allowed values ({outside.meta['allowed']}); "
+                                          "DataFix won't map it without a confirmed rule")
         if algo == "fill_from_rules":
             return refuse("recover", algo, f"no learned rule or reference determines {col} for this row")
         return refuse(cls, algo, "no candidate value with supporting evidence")

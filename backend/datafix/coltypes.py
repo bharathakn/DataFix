@@ -61,6 +61,7 @@ def infer_column(name: str, s: pd.Series, ref: PinReference | None = None) -> Co
 
     toks = header_tokens(name)
     distinct_ratio = distinct / max(len(nonblank), 1)
+    top_share = float(nonblank.value_counts(normalize=True).iloc[0])
     avg_len = sum(len(x) for x in vals) / len(vals)
     in_ref = (lambda x: x in ref) if ref else (lambda x: True)
 
@@ -79,7 +80,7 @@ def infer_column(name: str, s: pd.Series, ref: PinReference | None = None) -> Co
         "pan": lambda x: re.fullmatch(r"[A-Za-z0-9]{9,11}", x) is not None,
         "gstin": lambda x: re.fullmatch(r"[A-Za-z0-9]{14,16}", x) is not None,
         "ifsc": lambda x: re.fullmatch(r"[A-Za-z0-9]{10,12}", x) is not None,
-        "age": lambda x: re.fullmatch(r"-?\d{1,3}", x) is not None,
+        "age": lambda x: re.fullmatch(r"-?\d{1,3}(?:\.0+)?", x) is not None,
     }
 
     scores: dict[str, float] = {}
@@ -99,6 +100,10 @@ def infer_column(name: str, s: pd.Series, ref: PinReference | None = None) -> Co
                 score *= 0.9  # generic: any specific type that fits should win
         elif t in ("city", "state", "district", "locality", "name"):
             if not hinted:
+                continue
+            # no real name covers a fifth of a column; a few values repeated that often is a category
+            # ("customer_status": Active / Inactive), whatever the header says
+            if t == "name" and len(nonblank) >= 20 and distinct_ratio < 0.3 and top_share >= 0.2:
                 continue
             score = _ratio(vals, lambda x: bool(_ALPHA.match(x))) + 0.15
         elif t == "text":

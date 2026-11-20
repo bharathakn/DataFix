@@ -120,9 +120,14 @@ def _case(ctx, col, s, usable):
     vals = s[usable].str.strip()
     upper = vals.str.isupper() & (vals.str.len() > 3)
     if 0 < upper.mean() < 0.1:
+        # suggest the form the column already uses for the same value (MUMBAI -> Mumbai), else Title Case
+        written = {}
+        for x, n in vals[~upper].value_counts().items():
+            written.setdefault(v.norm_key(x), x)
         for rid in upper[upper].index:
+            raw = s[rid].strip()
             ctx.add(rid, col, "inconsistent", "consistency:case", f"{col} is in ALL CAPS unlike the rest", s[rid],
-                    kind="case", suggestion=s[rid].strip().title())
+                    kind="case", suggestion=written.get(v.norm_key(raw), raw.title()))
 
 
 def _family_map(key_count: dict[str, int], by_key: dict[str, Counter]) -> dict[str, str] | None:
@@ -236,12 +241,54 @@ def _variants(ctx, col, s, usable, t):
                 reason[raw] = ("spelling", f"{col} '{raw}' looks like a misspelling of '{target}'",
                                {"similar_to": similar_to, "similarity": round(best_score, 1)})
 
+    if t == "category":
+        _abbreviations(raw_counts, key_count, canon_raw, by_key, canonical, reason, col)
     ctx.canonical[col] = canonical
+    if t == "category":
+        _outside_domain(ctx, col, vals, key_count, canon_raw, by_key, reason)
     for rid, raw in vals.items():
         if raw in reason:
             kind, msg, meta = reason[raw]
             ctx.add(rid, col, "inconsistent", f"consistency:{kind}", msg, raw, kind=kind,
                     suggestion=canonical[raw], **meta)
+
+
+RARE = 2  # a value written at most this often is "rare" in a category column
+FREQUENT = 5
+
+
+def _abbreviations(raw_counts, key_count, canon_raw, by_key, canonical, reason, col):
+    """A rare one- or two-letter value that starts exactly one frequent value ('A' -> 'Active').
+    Only a suggestion: the code could mean something else, so the repair stays in review."""
+    frequent = [k for k, n in key_count.items() if n >= FREQUENT and len(k) > 2]
+    for k, n in key_count.items():
+        if n > RARE or not (1 <= len(k) <= 2) or not k.isalpha() or any(r in reason for r in by_key[k]):
+            continue
+        starts = [f for f in frequent if f.startswith(k)]
+        if len(starts) != 1:
+            continue
+        target = canon_raw[starts[0]]
+        for raw in by_key[k]:
+            canonical[raw] = target
+            reason[raw] = ("abbreviation", f"{col} '{raw}' may be short for '{target}', the only common value "
+                           f"starting with '{raw.strip()}'", {"abbreviation_of": target})
+
+
+def _outside_domain(ctx, col, vals, key_count, canon_raw, by_key, reason):
+    """In a column with a small, settled set of values (Active / Inactive), a value written once that matches
+    none of them is outside the column's domain. Flagged with no suggestion: mapping it needs a confirmed rule."""
+    total = sum(key_count.values())
+    frequent = [k for k, n in key_count.items() if n >= FREQUENT]
+    if total < 30 or not 2 <= len(frequent) <= 10 or sum(key_count[k] for k in frequent) < 0.9 * total:
+        return
+    allowed = ", ".join(canon_raw[k] for k in sorted(frequent, key=lambda k: -key_count[k]))
+    for k, n in key_count.items():
+        if n != 1 or k in frequent or any(r in reason for r in by_key[k]):
+            continue
+        for rid, raw in vals[vals.map(v.norm_key) == k].items():
+            ctx.add(rid, col, "invalid_format", "category:outside_domain",
+                    f"{col} '{raw.strip()}' is not one of the column's established values ({allowed})", raw,
+                    kind="outside_domain", allowed=allowed)
 
 
 def _dates(ctx, col, s, usable):
@@ -252,11 +299,24 @@ def _dates(ctx, col, s, usable):
     dominant, n_dom = unambiguous.most_common(1)[0]
     if n_dom / max(sum(unambiguous.values()), 1) < 0.6:
         return
+    # within the dominant family, the written shape can still differ (2025/07/03 in a YYYY-MM-DD column)
+    shape = Counter(_shape(s[rid]) for rid, f in fams.items() if f == frozenset({dominant}))
+    main_shape, n_shape = shape.most_common(1)[0] if shape else ("", 0)
+    shape_ok = n_shape / max(sum(shape.values()), 1) >= 0.8
     for rid, f in fams.items():
         if f and dominant not in f:
             ctx.add(rid, col, "inconsistent", "consistency:date_format",
                     f"{col} is written as {'/'.join(sorted(f))} while the column uses {dominant}", s[rid],
                     kind="date_format", dominant=dominant, found=sorted(f))
+        elif shape_ok and f == frozenset({dominant}) and _shape(s[rid]) != main_shape:
+            ctx.add(rid, col, "inconsistent", "consistency:date_format",
+                    f"{col} '{s[rid].strip()}' uses different separators from the rest of the column", s[rid],
+                    kind="date_format", dominant=dominant, found=[dominant], same_family=True)
+
+
+def _shape(x: str) -> str:
+    """Digits -> 9, letters -> a: '2025-07-03' -> '9999-99-99'."""
+    return re.sub(r"[A-Za-z]", "a", re.sub(r"\d", "9", x.strip()))
 
 
 def _money(ctx, col, s, usable):

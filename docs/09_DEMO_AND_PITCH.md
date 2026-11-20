@@ -74,7 +74,7 @@ Start with `scripts/start_demo.sh` (add `--offline` if the Wi-Fi is unreliable o
 | 0:20 | 1. Load | **Load demo dataset** | "10,200 customers and 23,060 orders with errors injected the way real pipelines create them. DataFix recognised every column from its values, not its name." |
 | 0:40 | 2. Scan | **Scan 10,200 rows** → Overview | "Only 84.7% of rows are fully clean: 1,678 errors. Here's what's wrong and where." Point at the heatmap stripe. |
 | 1:00 | 3. Why | sidebar **Diagnosis** | "Not just what, but why. 71 of 73 blank cities came from one mobile-app batch: 34% of that batch against 0.02% everywhere else. Branch uploads went through Excel and destroyed phone numbers." Scroll to the rules table: "Nobody wrote PIN → city. DataFix learned it from the data." |
-| 1:40 | 4. Fix | **Overview → Plan repairs → Apply 1,310 high-confidence fixes** | "It only auto-applies what it can prove: 95% or more." Gauge goes 84.7% → 96.1%. |
+| 1:40 | 4. Fix | **Overview → Plan repairs → Apply 1,189 high-confidence fixes** | "It only auto-applies what it can prove: 95% or more. Even exact duplicates wait for you, because each has its own customer ID." Gauge goes 84.7% → 95.0%. |
 | 2:00 | 5. Row 412 | **Repair Studio → Applied → column pin → C-10413** | "PIN 40001 has five digits. 29 real PINs are one digit away, 19 of them in Mumbai, so city alone can't decide. Only one serves this row's locality, Stock Exchange." Point at the top-3 options. |
 | 2:30 | 6. Refusal | **column phone → C-10778**, then **Refused → C-11044** | "Row 777's phone was recovered from its orders. Row 1043 has two different phones in its orders, so DataFix refuses to guess." Pause here. |
 | 3:00 | 7. Undo | **History → Original → Back to the original → Confirm → Go back** | "Change of mind? Jump back to any checkpoint. The original file is never touched, and the audit chain proves nobody edited the log." |
@@ -93,7 +93,7 @@ Tips: keep the browser at 100% zoom on a 1366×768+ projector; light theme; clos
 3. Approach: Detect → Diagnose → Repair → Validate → Explain → Track, with the confidence gate.
 4. What's different: comparison table (trimmed from the report: rules-only tools, HoloClean, Cleanlab, OpenRefine vs DataFix).
 5. Live demo.
-6. Results: **measured** numbers (from [RESULTS.md](RESULTS.md)): detection F1 0.99, repair precision 100%, **false repair rate 0%**, clean rows 84.7% → 96.1%, all 8 do-no-harm checks green; 10k customers + 23k orders end to end in 20 s, 100k + 233k in 150 s on a laptop.
+6. Results: **measured** numbers (from [RESULTS.md](RESULTS.md)): detection F1 0.99, repair precision 100%, **false repair rate 0%**, clean rows 84.7% → 95.0% after auto-fix, all 8 do-no-harm checks green; 10k customers + 23k orders end to end in 20 s, 100k + 233k in 150 s on a laptop.
 7. Architecture (one diagram) + "LLM never sets values; works offline".
 8. Impact & roadmap: banking KYC, healthcare, e-commerce, government; drift monitoring, DB connectors, quality-gate in CI.
 

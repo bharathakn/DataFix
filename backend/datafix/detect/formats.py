@@ -30,7 +30,7 @@ def _pin(x: str, ctx) -> tuple[bool, str]:
 def _age(x: str, ctx) -> tuple[bool, str]:
     if v.is_age(x):
         return True, ""
-    return False, "out_of_range" if re.fullmatch(r"-?\d+", x.strip()) else "not_a_number"
+    return False, "out_of_range" if re.fullmatch(r"-?\d+(?:\.\d+)?", x.strip()) else "not_a_number"
 
 
 def _simple(fn, kind):

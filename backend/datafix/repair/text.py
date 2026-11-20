@@ -56,17 +56,30 @@ def fix_date(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Out
     raw = ctx.value(row, col)
     issue = next(i for i in issues if i.meta.get("kind") == "date_format")
     dominant, found = issue.meta["dominant"], issue.meta["found"]
-    if len(found) != 1:
-        return refuse("normalize", "date_reformat", "date is ambiguous between formats")
-    d = v.parse_date(raw, prefer=found[0])
     fmt = _dominant_format(ctx, col, dominant)
-    if d is None or fmt is None:
+    if fmt is None:
+        return refuse("normalize", "date_reformat", "could not determine the column's date format")
+    if len(found) != 1:
+        # day and month both <= 12: each reading is a real date. Offer both for a human to pick.
+        cands = {}
+        for fam in sorted(found):  # dmy before mdy
+            d = v.parse_date(raw, prefer=fam)
+            if d is not None and d.strftime(fmt) not in cands:
+                cands[d.strftime(fmt)] = [signal(
+                    "format_variant", 0.8, f"'{raw}' read as {fam.upper()}; the other reading is also a real date, "
+                    "so a person has to choose")]
+        if not cands:
+            return refuse("normalize", "date_reformat", "date is ambiguous between formats")
+        return Outcome("normalize", "date_reformat", cands)
+    d = v.parse_date(raw, prefer=found[0])
+    if d is None:
         return refuse("normalize", "date_reformat", "could not determine the column's date format")
     fixed = d.strftime(fmt)
+    why = (f"'{raw}' is the same {dominant.upper()} date written with different separators"
+           if issue.meta.get("same_family") else
+           f"'{raw}' is only a valid date as {found[0].upper()} (month > 12 otherwise)")
     return Outcome("normalize", "date_reformat", {fixed: [signal(
-        "deterministic_transform", 1.0,
-        f"'{raw}' is only a valid date as {found[0].upper()} (month > 12 otherwise); rewritten in the column's "
-        f"{dominant.upper()} format")]})
+        "deterministic_transform", 1.0, f"{why}; rewritten in the column's {dominant.upper()} format")]})
 
 
 def fix_money(ctx: RepairContext, row: int, col: str, issues: list[Issue]) -> Outcome:

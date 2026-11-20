@@ -54,7 +54,7 @@ step('4a plan ready (tiers)')
 await linger()
 await page.getByRole('button', { name: /^Apply .* high-confidence fixes/ }).click()
 await page.getByText('Repairs applied').waitFor({ timeout: 60000 })
-step('4b auto-fixes applied: gauge 84.7% -> 96.1%')
+step('4b auto-fixes applied: gauge 84.7% -> 95.0%')
 await linger(PAUSE * 1.5)
 
 // 5. row 412

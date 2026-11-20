@@ -1,0 +1,56 @@
+record_id,customer_name,email,phone,age,city,signup_date,purchase_amount,customer_status
+DF001,Aarav Menon,aarav.menon@example.com,+91-9876543210,24.0,Chennai,2025-01-12,1250.0,Active
+DF002,Diya Sharma,diya.sharma@example.com,+91-9876543211,29.0,Bengaluru,2025-02-03,2499.5,Active
+DF003,Kabir Nair,kabir.nair@example.com,+91-9876543212,34.0,Kochi,2025-02-18,899.0,Inactive
+DF004,Meera Iyer,meera.iyer@example.com,+91-9876543213,27.0,Hyderabad,2025-03-01,1799.0,Active
+DF005,Rohan Das,rohan.das@example.com,+91-9876543214,41.0,Pune,2025-03-14,3200.0,Active
+DF006,Ananya Rao,ananya.rao@example.com,+91-9876543215,31.0,Mumbai,2025-03-22,1500.0,Inactive
+DF007,Ishaan Gupta,ishaan.gupta@example.com,+91-9876543216,22.0,Delhi,2025-04-02,699.0,Active
+DF008,Sara Thomas,sara.thomas@example.com,+91-9876543217,36.0,Coimbatore,2025-04-19,2100.0,Active
+DF009,Vikram Patel,vikram.patel@example.com,+91-9876543218,45.0,Ahmedabad,2025-05-05,4500.0,Inactive
+DF010,Nisha Roy,nisha.roy@example.com,+91-9876543219,26.0,Kolkata,2025-05-17,999.0,Active
+DF011,Arjun Pillai,arjun.pillai@example.com,+91-9876543220,38.0,Thiruvananthapuram,2025-06-01,2750.0,Active
+DF012,Tara Bose,tara.bose@example.com,+91-9876543221,30.0,Jaipur,2025-06-16,1850.0,Inactive
+DF013,Neha Kapoor,,+91-9876543222,28.0,Chennai,2025-06-20,1100.0,Active
+DF014,Rahul Verma,rahul.verma@example.com,98765,32.0,Bengaluru,2025-06-22,950.0,Active
+DF015,Priya Shah,priya.shah.example.com,+91-9876543224,25.0,Mumbai,2025-06-25,1300.0,Active
+DF016,Karan Singh,karan.singh@example.com,+91-9876543225,-4.0,Delhi,2025-06-28,800.0,Active
+DF017,Aditi Menon,aditi.menon@example.com,+91-9876543226,150.0,Kochi,2025-07-01,1600.0,Active
+DF018,Dev Malhotra,dev.malhotra@example.com,+91-9876543227,33.0,Pune,2025/07/03,2200.0,Active
+DF019,Pooja Nair,pooja.nair@example.com,+91-9876543228,29.0,Bangalore,2025-07-05,1750.0,Active
+DF020,Manav Joshi,manav.joshi@example.com,+91-9876543229,37.0,MUMBAI,2025-07-08,2600.0,active
+DF021,Riya Sen,riya.sen@example.com,+91-9876543230,27.0,Hyderabad,08-07-2025,1450.0,Active
+DF022,Aditya Rao,aditya.rao@example.com,+91-9876543231,31.0,Chennai,2025-07-10,-250.0,Active
+DF023,Sneha Das,sneha.das@example.com,+91-9876543232,26.0,Kolkata,2025-07-12,999999.0,Active
+DF024,Arnav Mehta,arnav.mehta@example.com,+91-9876543233,35.0,Pune,2025-07-15,1800.0,A
+DF025,Ira Kulkarni,ira.kulkarni@example.com,+91-9876543234,24.0,Delhi,2025-07-18,1250.0,ACTIVE
+DF026,Yash Kumar,yash.kumar@example.com,+91-9876543235,,Jaipur,2025-07-20,900.0,Inactive
+DF027,Maya Joseph,maya.joseph@example.com,,29.0,Kochi,2025-07-22,2100.0,Active
+DF028,Sahil Khan,sahil.khan@example.com,+91-9876543237,32.0,,2025-07-25,1550.0,Active
+DF029,Lavanya Reddy,lavanya.reddy@example.com,+91-9876543238,28.0,Hyderabad,2025-07-27,,Active
+DF030,Nikhil Bhat,nikhil.bhat@example.com,+91-9876543239,34.0,Chennai,2025-07-29,1900.0,
+DF031,Anil Kumar,anil.kumar@example.com,+91-9876543240,40.0,Chennai,2025-08-01,2400.0,Active
+DF032,Anil Kumar,anil.kumar@example.com,+91-9876543240,40.0,Chennai,2025-08-01,2400.0,Active
+DF033,Fatima Ali,fatima.ali@example.com,+91-9876543241,27.0,Bengaluru,2025-08-03,1750.0,Active
+DF034,Fatima Ali,fatima.ali@example.com,+91-9876543241,27.0,Bengaluru,2025-08-03,1750.0,Active
+DF035,Gautam Roy,gautam.roy@example.com,+91-9876543242,36.0,New Delhi,2025-08-05,2300.0,Inactive
+DF036,Sana Sheikh,sana.sheikh@example.com,+91-9876543243,29.0,Calcutta,2025-08-07,1400.0,Active
+DF037,Vivek S,vivek.s@example.com,+91-9876543244,31.0,Chennai ,2025-08-09,1650.0,Active
+DF038,   Kavya Rao   ,kavya.rao@example.com,+91-9876543245,26.0,Mysuru,2025-08-11,1200.0,Active
+DF039,Om Prakash,om.prakash@example.com,+91-9876543246,39.0,Kochi,2025-08-13,2100.0,Unknown
+DF040,Ritu Jain,ritu.jain@example.com,+91-9876543247,28.0,Pune,2025-08-15,1750.0,ACTIVE
+DF041,Sameer Paul,sameer.paul@example.com,+91-9876543248,33.0,Bengaluru,2025-08-17,1850.0,active
+DF042,Tanya Bose,tanya.bose@example.com,+91-9876543249,30.0,Mumbai,2025-08-19,2000.0,Actve
+DF043,Rakesh Iyer,rakesh.iyer@example.com,+91-9876543250,42.0,Chennai,2025-08-21,1750.0,Inactive
+DF044,Rakesh Iyer,rakesh.iyer@example.com,+91-9876543250,42.0,Chennai,2025-08-21,1750.0,Inactive
+DF045,Leela Nambiar,leela.nambiar@example.com,+91-9876543251,27.0,Kochi,2025-08-23,1350.0,Active
+DF046,Harish Rao,harish.rao@example.com,+91-9876543252,35.0,Bengaluru,2025-08-25,1650.0,Active
+DF047,Mira Sen,mira.sen@example.com,+91-9876543253,29.0,Mumbai,2025-08-27,1550.0,Inactive
+DF048,Aman Gill,aman.gill@example.com,+91-9876543254,31.0,Delhi,2025-08-29,1450.0,Active
+DF049,Zoya Khan,zoya.khan@example.com,+91-9876543255,26.0,Hyderabad,2025-08-31,1950.0,Active
+DF050,Neil D'Souza,neil.dsouza@example.com,+91-9876543256,38.0,Goa,2025-09-02,2200.0,Inactive
+DF051,Ishita Paul,ishita.paul@example.com,+91-9876543257,25.0,Chennai,2025-09-04,0.0,Active
+DF052,Rohan Das,rohan.das@example.com,+91-9876543214,41.0,Pune,2025-03-14,3200.0,Active
+DF053,Kriti Sinha,kriti.sinha@example.com,+91-9876543259,28.0,Bengaluru,not-a-date,1550.0,Active
+DF054,Varun Nair,varun.nair@example.com,+91-9876543260,34.0,Kochi,2025-09-08,"1,850.00",Active
+DF055,Asha Menon,asha.menon@example.com,+91-9876543261,29.0,Chennai,2025-09-10,1750.0,Customer

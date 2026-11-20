@@ -1,0 +1,56 @@
+test_case_id,test_category,expected_issue,expected_action,needs_human_review
+DF001,Data Quality Issue,,No repair expected,No
+DF002,Data Quality Issue,,No repair expected,No
+DF003,Data Quality Issue,,No repair expected,No
+DF004,Data Quality Issue,,No repair expected,No
+DF005,Data Quality Issue,,No repair expected,No
+DF006,Data Quality Issue,,No repair expected,No
+DF007,Data Quality Issue,,No repair expected,No
+DF008,Data Quality Issue,,No repair expected,No
+DF009,Data Quality Issue,,No repair expected,No
+DF010,Data Quality Issue,,No repair expected,No
+DF011,Data Quality Issue,,No repair expected,No
+DF012,Data Quality Issue,,No repair expected,No
+DF013,Missing Value,Missing email,Email is blank; do not invent an address,Yes
+DF014,Invalid Format,Invalid phone format,Phone has too few digits; request/retain for review rather than guessing,Yes
+DF015,Invalid Format,Invalid email format,Email lacks @; do not auto-correct without evidence,Yes
+DF016,Out-of-Range Value,Out-of-range age,Age is negative; requires source confirmation,Yes
+DF017,Out-of-Range Value,Out-of-range age,Age 150 is implausible; requires source confirmation,Yes
+DF018,Inconsistent Format,Inconsistent date format,Convert to YYYY-MM-DD if parsing is unambiguous,No
+DF019,Inconsistent Entry,Inconsistent city name,Bangalore is an alias for Bengaluru; normalize to Bengaluru,No
+DF020,Inconsistent Entry,Inconsistent casing,Normalize city and status casing,No
+DF021,Inconsistent Format,Inconsistent date format,Convert to YYYY-MM-DD if parsing is unambiguous,No
+DF022,Invalid Value,Invalid purchase amount,Negative amount requires source confirmation,Yes
+DF023,Anomaly / Outlier,Potential numeric outlier,"Amount is unusually high; flag, do not silently change",Yes
+DF024,Inconsistent Entry,Inconsistent status code,Map A to Active only if schema/business rules confirm,Yes
+DF025,Inconsistent Entry,Inconsistent status casing,Normalize ACTIVE to Active,No
+DF026,Missing Value,Missing age,Age is missing; do not infer,Yes
+DF027,Missing Value,Missing phone,Phone is missing; do not infer,Yes
+DF028,Missing Value,Missing city,City is missing; do not infer,Yes
+DF029,Missing Value,Missing purchase amount,Amount is missing; do not infer,Yes
+DF030,Missing Value,Missing customer status,Status is missing; do not infer,Yes
+DF031,Data Quality Issue,,No repair expected,No
+DF032,Duplicate Record,Exact duplicate record,Duplicate of DF031; review before removal,Yes
+DF033,Data Quality Issue,,No repair expected,No
+DF034,Duplicate Record,Exact duplicate record,Duplicate of DF033; review before removal,Yes
+DF035,Inconsistent Entry,City alias,New Delhi may normalize to Delhi under agreed city mapping,No
+DF036,Inconsistent Entry,City alias,Calcutta may normalize to Kolkata under agreed city mapping,No
+DF037,Whitespace,Leading/trailing whitespace,Trim city value,No
+DF038,Whitespace,Leading/trailing whitespace,Trim customer name,No
+DF039,Invalid Category,Invalid category value,Unknown status is outside allowed values,Yes
+DF040,Whitespace / Inconsistent Entry,Whitespace and casing inconsistency,Trim and normalize status to Active,No
+DF041,Inconsistent Entry,Inconsistent status casing,Normalize active to Active,No
+DF042,Possible Typo,Possible typo in category,"Actve may mean Active; propose, do not apply without confirmation",Yes
+DF043,Data Quality Issue,,No repair expected,No
+DF044,Duplicate Record,Exact duplicate record,Duplicate of DF043; review before removal,Yes
+DF045,Data Quality Issue,,No repair expected,No
+DF046,Data Quality Issue,,No repair expected,No
+DF047,Data Quality Issue,,No repair expected,No
+DF048,Data Quality Issue,,No repair expected,No
+DF049,Data Quality Issue,,No repair expected,No
+DF050,Data Quality Issue,,No repair expected,No
+DF051,Data Quality Issue,,No repair expected,No
+DF052,Possible Duplicate,Duplicate customer record,Same customer and transaction as DF005; verify duplicate policy,Yes
+DF053,Invalid Format,Invalid date,Date cannot be parsed; request correction,Yes
+DF054,Data Type Inconsistency,Numeric value stored as text,"Parse 1,850.00 as 1850.00",No
+DF055,Invalid Category,Invalid category value,Customer is not an allowed status; map only with confirmed rules,Yes

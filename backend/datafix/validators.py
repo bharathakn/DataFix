@@ -138,8 +138,9 @@ def is_pin_format(v: str) -> bool:
 
 
 def is_age(v: str) -> bool:
-    v = v.strip()
-    return v.isdigit() and 1 <= int(v) <= 120
+    """Whole years 1-120; '24.0' (an integer exported as a float) counts as 24."""
+    m = re.fullmatch(r"(\d{1,3})(?:\.0+)?", v.strip())
+    return bool(m) and 1 <= int(m.group(1)) <= 120
 
 
 _MONEY_RE = re.compile(

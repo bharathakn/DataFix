@@ -48,7 +48,7 @@ def learn_age_rule(df, age_col: str, dob_col: str, usable_age, usable_dob, today
     two years that makes the most rows agree (data is often exported days or months before it is cleaned).
     Returns {ref, agreement, support} only if the rule holds for >= 90% of at least 50 rows."""
     today = today or date.today()
-    rows = [(r, int(df.at[r, age_col].strip()), d) for r in df.index[usable_age & usable_dob]
+    rows = [(r, int(float(df.at[r, age_col].strip())), d) for r in df.index[usable_age & usable_dob]
             if v.is_age(df.at[r, age_col]) and (d := parse_dob(df.at[r, dob_col])) is not None]
     if len(rows) < AGE_RULE_MIN_SUPPORT:
         return None
@@ -89,7 +89,7 @@ def _age_dob_rule(ctx: ScanContext) -> None:
         if dob is None or not v.is_age(x):
             continue
         expected = age_on(dob, ref)
-        if int(x) != expected:
+        if int(float(x)) != expected:
             bad += 1
             ctx.add(rid, a, "crossfield", f"crossfield:{a}~{d}",
                     f"{a} {x} does not match {d} {ctx.df.at[rid, d]} (age {expected} on {ref.isoformat()})",

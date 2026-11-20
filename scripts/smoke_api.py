@@ -76,7 +76,7 @@ def run(live: bool = False, verbose: bool = True) -> dict:
     assert p412["candidates"][0]["value"] == "400001"
     call("get", f"/sessions/{sid}/proposals/{p412['proposal_id']}/explain")
     auto = call("post", f"/sessions/{sid}/repair/apply-auto").json()
-    assert auto["applied"] > 1000 and len(auto["checkpoints"]) == 6
+    assert auto["applied"] > 1000 and len(auto["checkpoints"]) == 5  # duplicate merges are review items
     pend = [p for p in pr["items"] if p["status"] == "pending"]
     call("post", f"/sessions/{sid}/review/{pend[0]['proposal_id']}", json={"action": "accept"})
     call("post", f"/sessions/{sid}/review/{pend[1]['proposal_id']}", json={"action": "reject"})

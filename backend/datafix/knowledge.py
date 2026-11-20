@@ -14,7 +14,7 @@ CITY_ALIASES = {
     "mysore": "Mysuru", "baroda": "Vadodara", "benares": "Varanasi", "banaras": "Varanasi",
     "allahabad": "Prayagraj", "pondicherry": "Puducherry", "simla": "Shimla", "vizag": "Visakhapatnam",
     "mangalore": "Mangaluru", "belgaum": "Belagavi", "hubli": "Hubballi", "calicut": "Kozhikode",
-    "trichy": "Tiruchirappalli", "orissa": "Odisha", "uttaranchal": "Uttarakhand", "new bombay": "Navi Mumbai",
+    "trichy": "Tiruchirappalli", "orissa": "Odisha", "uttaranchal": "Uttarakhand", "new bombay": "Navi Mumbai", "new delhi": "Delhi",
 }
 
 GST_STATE_CODES = {

@@ -82,6 +82,17 @@ For every ordered pair of columns (X, Y) where X and Y are `category`, `pin`, `n
 
 Expected learned rules on demo data: `pin → city`, `pin → state`, `city → state`, `customer_id(orders) → email`. They appear in the Diagnosis page as "Rules DataFix learned from your data" with support/confidence and an on/off toggle.
 
+### 4.2 Rules added from the 55-row answer key (2026-11-20)
+
+- **Types:** `24.0` is a whole-number age; a `name`-hinted column with distinct ratio < 0.3 whose top value covers ≥ 20% is a category (no real name covers a fifth of a column).
+- **Outliers:** money/number columns use the log scale when the positive values are skewed; zero and negative values are left to the format checks instead of blocking the log scale.
+- **Dates:** within the dominant family, a value whose written shape (digits → 9) differs from ≥ 80% of the column is a `date_format` issue (`2025/07/03` in a `YYYY-MM-DD` column → auto). A date valid as both DD/MM and MM/DD in a column of another family gets both readings as review candidates instead of a refusal.
+- **Case:** an ALL-CAPS value takes the spelling the column already uses for the same key (`MUMBAI` → `Mumbai`), else Title Case; city/category repairs accept this kind.
+- **Abbreviations (category):** a value written ≤ 2 times, 1–2 letters, that starts exactly one value written ≥ 5 times → suggestion with an `abbreviation` signal (reliability 0.80), so always review.
+- **Outside the domain (category):** with ≥ 30 values, 2–10 values written ≥ 5 times covering ≥ 90% of the column, a value written once and not already explained → `invalid_format` (`category:outside_domain`), refused with the allowed values listed.
+- **E-mail:** the missing-'@' fix drops a dot that stood where the '@' was (`priya.shah.example.com` → `priya.shah@example.com`), and only proposes addresses that pass the validator.
+- **Duplicates:** an exact copy whose ID column differs is capped at 0.94 (`distinct_id_duplicate`), so removing a record that has its own ID is a review decision.
+
 ## 5. Repairs (`repair/`, `planner.py`)
 
 The planner turns issues into `RepairProposal`s. One proposal per (row, column); dedupe proposals are per duplicate group.
@@ -145,7 +156,7 @@ Dedupe and relationships: when a row is merged away, every `orders.customer_id` 
 
 ### 5.3 Checkpoint batching for auto-apply
 
-`apply-auto` creates one checkpoint per class, in this order: `Formats normalised` → `Values standardised` → `Duplicates merged` → `Spelling & learned-rule fixes` → `PIN / address recovered` → `Contacts recovered` → `Ages computed from date of birth` (empty batches are skipped). After each checkpoint, store the quality score. Demo result: 363 / 91 / 121 / 249 / 103 / 383 changes (was 313 in K01 before canonical formats: the 50 extra are near-duplicate rows whose e-mail/phone was re-formatted).
+`apply-auto` creates one checkpoint per class, in this order (empty batches skipped; since 2026-11-20 the demo's exact duplicates carry new IDs and go to review, so `Duplicates merged` is usually empty): `Formats normalised` → `Values standardised` → `Duplicates merged` → `Spelling & learned-rule fixes` → `PIN / address recovered` → `Contacts recovered` → `Ages computed from date of birth` (empty batches are skipped). After each checkpoint, store the quality score. Demo result: 363 / 91 / 121 / 249 / 103 / 383 changes (was 313 in K01 before canonical formats: the 50 extra are near-duplicate rows whose e-mail/phone was re-formatted).
 
 ### 5.4 Status column
 
@@ -211,7 +222,7 @@ Row-level issues (duplicates) count every cell of the row once. Reported before,
 
 ### 7.1a Quality dimensions (as built)
 
-Row-based, because cell-based ratios dilute ~1,700 errors over ~200k cells into 99.x%: **completeness** (no missing/placeholder), **validity** (no invalid format), **consistency** (no inconsistent / rule / cross-field issue), **uniqueness** (not a duplicate), and **clean rows** (none of these). Demo: clean rows 84.7% → 96.1%. `datafix check FILE --min clean_rows=95` gates on any of them.
+Row-based, because cell-based ratios dilute ~1,700 errors over ~200k cells into 99.x%: **completeness** (no missing/placeholder), **validity** (no invalid format), **consistency** (no inconsistent / rule / cross-field issue), **uniqueness** (not a duplicate), and **clean rows** (none of these). Demo: clean rows 84.7% → 94.95% after auto-fix (about 96% once the duplicate merges in review are accepted). `datafix check FILE --min clean_rows=95` gates on any of them.
 
 Masked cells are removed from the re-scan before computing dimensions, score and remaining errors: a masked value fails its validator by design.
 

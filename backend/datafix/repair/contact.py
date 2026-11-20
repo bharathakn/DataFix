@@ -109,6 +109,10 @@ def _email_fixes(raw: str, domains: set[str]) -> list[tuple[str, str]]:
     else:
         for d in sorted(domains | KNOWN_DOMAINS, key=len, reverse=True):
             if s.casefold().endswith(d) and len(s) > len(d):
-                out.append((f"{s[:-len(d)]}@{d}".casefold(), f"restored the missing '@' before '{d}'"))
+                local = s[:-len(d)]
+                # 'priya.shah.example.com': the '@' was typed as a dot, so that dot goes
+                local = local[:-1] if local.endswith(".") else local
+                if local and not local.endswith(".") and v.is_email(f"{local}@{d}"):
+                    out.append((f"{local}@{d}".casefold(), f"restored the missing '@' before '{d}'"))
                 break
     return out

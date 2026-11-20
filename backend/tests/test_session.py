@@ -40,7 +40,9 @@ def test_original_is_never_mutated(fixed):
 
 def test_auto_batches_and_scores(fixed):
     labels = [k.label for k in fixed.checkpoints]
-    assert labels[0] == "Original" and "Duplicates merged" in labels and "PIN / address recovered" in labels
+    assert labels[0] == "Original" and "PIN / address recovered" in labels
+    # demo duplicates carry their own new customer_id, so merging them is a review decision, never auto
+    assert "Duplicates merged" not in labels
     scores = [k.quality_score for k in fixed.checkpoints]
     assert scores == sorted(scores) and scores[-1] > scores[0]
     applied = {p.proposal_id for p in fixed.proposals.values() if p.status == "applied"}

@@ -36,16 +36,18 @@ cd backend && uv run python -m datafix bench ../data/demo/customers_dirty.csv --
 
 ## 3. Do-no-harm validation after auto-fix (`datafix fix`)
 
-8 of 8 checks pass: valid cells changed 0 · schema unchanged · 120 removed rows = 120 merges · distributions stable · 0 errors introduced · 0 orphaned orders · idempotent (0 further auto-fixes) · audit chain valid.
+8 of 8 checks pass: valid cells changed 0 · schema unchanged · 0 rows removed (the 120 exact duplicates carry their own new customer_id, so their merges wait in review since 2026-11-20) · distributions stable · 0 errors introduced · 0 orphaned orders · idempotent (0 further auto-fixes) · audit chain valid.
 
 | Dimension (% of rows free of the problem) | Before | After auto-fix |
 |---|---|---|
-| Completeness | 93.88 | 97.49 |
+| Completeness | 93.88 | 97.52 |
 | Validity | 97.35 | 99.36 |
-| Consistency | 94.77 | 100.00 |
-| Uniqueness | 98.04 | 99.21 (80 near-duplicates wait for review) |
-| **Clean rows** | **84.70** | **96.08** |
-| Quality score (cell-weighted) | 97.63 | 99.10 |
+| Consistency | 94.28 | 100.00 |
+| Uniqueness | 98.04 | 98.04 (120 exact + 80 near duplicates wait for review) |
+| **Clean rows** | **84.70** | **94.95** |
+| Quality score (cell-weighted) | 97.63 | 97.93 |
+
+Auto-fix applies 1,189 changes in 5 checkpoints (363 / 91 / 249 / 103 / 383); 402 items wait for review. Accepting the duplicate merges in review brings uniqueness to 100% and clean rows to about 96%. Before 2026-11-20, exact duplicates were merged automatically (clean rows 96.08%, score 99.10).
 
 ## 4. Root cause found automatically
 
@@ -103,4 +105,17 @@ Scored with the cells listed in the answer pack's `score_details.csv` (33,961 ce
 | pan_lowercase (300), occupation_variant (191), name_case (180), age words (30), PIN `.0` (24) | 0 / 0 | all correct / 0 |
 | **All listed cells** | **1,488 / 5,836** | **26,495 / 0** |
 
-Still open (by design or out of scope for this change): ambiguous dd/mm vs mm/dd dates (6,552) and other date formats, 5-digit PINs with no unique candidate (32), placeholder phones with no linked record (25), ages with no DOB (12). Do-no-harm 8/8 (distribution check now compares meanings; it failed before on `gender`/`is_active` respelling). Demo unchanged: benchmark F1 0.991, repair precision 100%, false repairs 0, clean rows 84.7% → 96.08%.
+Still open (by design or out of scope for this change): ambiguous dd/mm vs mm/dd dates (6,552) and other date formats, 5-digit PINs with no unique candidate (32), placeholder phones with no linked record (25), ages with no DOB (12). Do-no-harm 8/8 (distribution check now compares meanings; it failed before on `gender`/`is_active` respelling). Demo unchanged: benchmark F1 0.991, repair precision 100%, false repairs 0, clean rows 84.7% → 96.08% (94.95% since exact duplicates moved to review, §3).
+
+## 9. External answer key: 55-row customer file (`data/testsets/df55`, 2026-11-20)
+
+A hand-labelled file with one expected action per row (no repair / auto fix / human review). Scored by `tests/test_expected_df55.py`: **55 of 55 rows match**.
+
+| Behaviour | Rows | Result |
+|---|---|---|
+| Clean rows left untouched | 18 | 18 (the 4,500 purchase is no longer called an outlier) |
+| Auto fixes | 11 | Bangalore, New Delhi, Calcutta → Bengaluru, Delhi, Kolkata; MUMBAI → Mumbai; active/ACTIVE/`ACTIVE ` → Active; stray spaces; `2025/07/03` → `2025-07-03`; `1,850.00` → 1850 |
+| Human decision, never auto | 25 | missing values refused; ages −4 / 150, negative amount, `not-a-date`, `Customer`, `Unknown`, 5-digit phone refused with reasons; 999,999 flagged; `A` → Active, `Actve` → Active, `priya.shah.example.com` → `priya.shah@example.com` and 4 exact duplicates (different record IDs) proposed for review |
+| Ambiguous date `08-07-2025` | 1 | both readings offered for review (the key asks to convert only if unambiguous) |
+
+Rules added (none name this file's values): `24.0` is a valid age; a low-cardinality column whose top value covers ≥ 20% is a category even if the header says "customer"; amounts judged on a log scale ignoring zero/negative values; date separators that differ from the column's shape; ALL-CAPS values take the column's existing spelling; a rare 1–2 letter code that starts exactly one frequent value is a review suggestion; a once-only value outside a settled set of ≤ 10 values is flagged with no suggestion; the '@'-typed-as-dot email fix; New Delhi → Delhi alias; exact duplicates with different IDs go to review.

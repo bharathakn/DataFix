@@ -38,7 +38,7 @@ One fixed theme for every page, defined once in `src/index.css`:
 - Type: **Newsreader** (serif, `font-display`) for page titles, KPI numbers and the donut total; **Inter** for everything else. Both are bundled with `@fontsource` (no Google Fonts request: the demo must work with Wi-Fi off; the rehearsal asserts no external requests).
 - Shell: 232 px sidebar (logo, nav with Column types, AI status, dark-mode toggle, New file); slim top bar with file, rows, quality score and Chat; on phones the nav becomes a horizontal strip.
 - Primitives (`components/ui.tsx`): `PageHeader` (serif title + lead + actions), `Card` (`title`, `subtitle`, 16 px radius, no shadow), `Kpi` (serif value), `Badge`, `Button` (10 px radius). Overview adds a clickable `Donut` (problems by type) in `components/viz.tsx`.
-- Overview reads as a sentence first: "84.7% of rows are clean." before repair, "Clean rows went from 84.7% to 96.1%." after; four KPI tiles (clean rows, missing, duplicates, invalid); the plan card explains the four outcome groups (auto-fix, review, flagged, refused) in plain words.
+- Overview reads as a sentence first: "84.7% of rows are clean." before repair, "Clean rows went from 84.7% to 95.0%." after; four KPI tiles (clean rows, missing, duplicates, invalid); the plan card explains the four outcome groups (auto-fix, review, flagged, refused) in plain words.
 - `frontend/scripts/ui_shots.mjs <outdir>` screenshots every page (light, dark, phone width) for visual review.
 
 ## 1. Layout

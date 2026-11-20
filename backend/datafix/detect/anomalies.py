@@ -18,8 +18,10 @@ def detect_anomalies(ctx: ScanContext) -> None:
             continue
         x = vals
         logged = False
-        if (vals > 0).all() and vals.skew() > 1:
-            x, logged = np.log(vals), True
+        pos = vals[vals > 0]
+        # amounts are judged on a log scale when skewed; zero/negative values are left to the format checks
+        if len(pos) >= 0.9 * len(vals) and len(pos) >= 30 and pos.skew() > 1:
+            x, logged = np.log(pos), True
         med = x.median()
         mad = (x - med).abs().median()
         if mad == 0:

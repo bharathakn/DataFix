@@ -23,9 +23,10 @@ RELIABILITY = {
     "group_statistic": 0.85,
     "record_match": 0.95,
     "vocab_frequency": 0.50,
+    "abbreviation": 0.80,
 }
 
-CAPS = {"impute": 0.85, "near_duplicate": 0.94}
+CAPS = {"impute": 0.85, "near_duplicate": 0.94, "distinct_id_duplicate": 0.94}
 DEFAULT_CAP = 0.99
 DEFAULT_THRESHOLDS = {"auto": 0.95, "review": 0.70}
 
