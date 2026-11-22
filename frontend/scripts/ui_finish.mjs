@@ -27,7 +27,7 @@ const shot = async (name) => { await page.screenshot({ path: `${out}/${name}.png
 // Chat
 await page.goto(`${base}/s/${sid}`)
 await page.getByRole('button', { name: 'Chat', exact: true }).click()
-for (const q of ['How many customers are in Pune?', 'Why did row 412 change?', 'Why did row 1043 not change?']) {
+for (const q of ['How many customers are in Pune?', 'Why did row 412 change?', 'Why did row 643 not change?']) {
   const before = await page.locator('[data-testid="assistant-turn"]').count()
   const input = page.getByLabel('Chat message')
   await input.fill(q)

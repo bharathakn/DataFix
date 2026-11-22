@@ -39,11 +39,11 @@ await page.getByText('False repair rate', { exact: true }).waitFor({ timeout: 30
 log('benchmark result survives reload')
 
 await page.goto(`${base}/s/${sid}/diagnosis`)
-await page.getByText('71 of 73 blank city').first().waitFor({ timeout: 30000 })
+await page.getByText(/of \d+ blank city/).first().waitFor({ timeout: 30000 })
 await page.waitForTimeout(500)
 await shot('22-diagnosis', true)
 await page.getByRole('button', { name: 'Show rows' }).nth(1).click()
-await page.locator('table').waitFor()
+await page.getByTestId('drawer').locator('table').waitFor()
 await page.waitForTimeout(600)
 await shot('23-diagnosis-rows')
 await page.keyboard.press('Escape')

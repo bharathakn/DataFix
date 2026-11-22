@@ -19,7 +19,7 @@ React 19 + Vite + TypeScript + Tailwind v4. TanStack Query for server state, luc
 - **Privacy (6B):** findings grouped per column (free-text columns list each ID type found with counts and masked samples), risk badge, "confirmed by" checksum line, method picker (partial / hash / redact / drop) + Apply with Undo toast, "Mask all high-risk" (free text → redact, structured → partial), banner for IDs hidden in free text, method explainer cards. Masked status is derived from the change log, so an undo un-marks it.
 - **Export (6B):** do-no-harm status bar (validation), clean rows before → after, open-item badges, Download all (ZIP) and six individual downloads with descriptions, inline report preview (`?inline=1`).
 - Placeholder values made of one repeated digit (9999999999) are not masked: they're not personal data and the reviewer needs to see them.
-- **Verification:** `frontend/scripts/ui_walkthrough.mjs` drives the installed Google Chrome headlessly (playwright-core, no browser download) through demo → setup → scan → plan → apply → drawer → dark mode → 1366×768 and fails on console errors. `frontend/scripts/ui_repair.mjs` prepares a session through the API, then checks the Repair Studio (A-key accept, row 1043 refusal, row 412 evidence, merge card, pattern bulk accept) and History (restore to original → row 412 PIN back to 40001 → Go back → 400001, per-entry undo, audit chain valid).
+- **Verification:** `frontend/scripts/ui_walkthrough.mjs` drives the installed Google Chrome headlessly (playwright-core, no browser download) through demo → setup → scan → plan → apply → drawer → dark mode → 1366×768 and fails on console errors. `frontend/scripts/ui_repair.mjs` prepares a session through the API, then checks the Repair Studio (A-key accept, row 643 refusal (1,000-row demo), row 412 evidence, merge card, pattern bulk accept) and History (restore to original → row 412 PIN back to 40001 → Go back → 400001, per-entry undo, audit chain valid).
 
 ## 0a. Visual design (2026-11-20 redesign)
 
@@ -38,7 +38,7 @@ One fixed theme for every page, defined once in `src/index.css`:
 - Type: **Newsreader** (serif, `font-display`) for page titles, KPI numbers and the donut total; **Inter** for everything else. Both are bundled with `@fontsource` (no Google Fonts request: the demo must work with Wi-Fi off; the rehearsal asserts no external requests).
 - Shell: 232 px sidebar (logo, nav with Column types, AI status, dark-mode toggle, New file); slim top bar with file, rows, quality score and Chat; on phones the nav becomes a horizontal strip.
 - Primitives (`components/ui.tsx`): `PageHeader` (serif title + lead + actions), `Card` (`title`, `subtitle`, 16 px radius, no shadow), `Kpi` (serif value), `Badge`, `Button` (10 px radius). Overview adds a clickable `Donut` (problems by type) in `components/viz.tsx`.
-- Overview reads as a sentence first: "84.7% of rows are clean." before repair, "Clean rows went from 84.7% to 95.0%." after; four KPI tiles (clean rows, missing, duplicates, invalid); the plan card explains the four outcome groups (auto-fix, review, flagged, refused) in plain words.
+- Overview reads as a sentence first: "82.8% of rows are clean." before repair, "Clean rows went from 82.8% to 94.9%." after (1,000-row app demo); four KPI tiles (clean rows, missing, duplicates, invalid); the plan card explains the four outcome groups (auto-fix, review, flagged, refused) in plain words.
 - `frontend/scripts/ui_shots.mjs <outdir>` screenshots every page (light, dark, phone width) for visual review.
 
 ## 1. Layout
@@ -87,7 +87,7 @@ One fixed theme for every page, defined once in `src/index.css`:
   - signals list with icons: `✓ PIN 400001 → Mumbai (India Post)`, `✓ city in row = Mumbai`, `✗ conflicting: …`
   - plain-English line (Gemini or template)
   - buttons: Accept (A) · Reject (R) · Custom value · Next (J/K keys)
-- Refused items show the refusal reason prominently ("DataFix will not guess: 2 different phones found in orders for C-1043").
+- Refused items show the refusal reason prominently ("DataFix will not guess: 2 different phones found in orders for C-10644").
 - Bottom: data grid with view toggle **Original · Current · Diff**; diff cells coloured, hover tooltip = change reason + confidence.
 
 ### P4 Diagnosis (`/s/:sid/diagnosis`)

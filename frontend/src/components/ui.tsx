@@ -120,7 +120,7 @@ export function Drawer({ open, onClose, title, children, wide }: { open: boolean
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
       <div className="absolute inset-0 bg-slate-900/35 backdrop-blur-[1px]" onClick={onClose} />
-      <aside className={cn('relative flex h-full w-full flex-col bg-white shadow-2xl dark:bg-slate-900', wide ? 'max-w-6xl' : 'max-w-xl')}>
+      <aside data-testid="drawer" className={cn('relative flex h-full w-full flex-col bg-white shadow-2xl dark:bg-slate-900', wide ? 'max-w-6xl' : 'max-w-xl')}>
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
           <h2 className="font-display text-xl">{title}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="Close"><X className="size-4" /></Button>

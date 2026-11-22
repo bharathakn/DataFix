@@ -40,7 +40,8 @@ cd frontend && node scripts/rehearse.mjs ../out http://localhost:8000   # full d
 curl -s localhost:8000/api/debug/inflight                  # what the backend is busy with right now (off when DATAFIX_PUBLIC=1)
 # deploy: docs/DEPLOY.md (UI on Vercel with VITE_API_URL, API = Dockerfile on Render, one uvicorn worker)
 python3 scripts/build_pin_reference.py                     # stdlib only
-cd backend && uv run python ../scripts/make_demo_data.py   # needs ~/.local/bin on PATH for uv
+cd backend && uv run python ../scripts/make_demo_data.py   # full 10k demo in data/demo (engine tests); needs ~/.local/bin on PATH for uv
+cd backend && uv run python ../scripts/make_demo_data.py --rows 1000 --out data/demo_small   # the app's "Load demo dataset" (DATAFIX_DEMO_DIR)
 ```
 
 ## Working style

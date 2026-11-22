@@ -40,7 +40,7 @@ await linger()
 
 // 3. root cause
 await nav('Diagnosis')
-await page.getByText('71 of 73 blank city').first().waitFor({ timeout: 30000 })
+await page.getByText(/of \d+ blank city/).first().waitFor({ timeout: 30000 })
 step('3 diagnosis: mobile_app + B07 story, learned rules')
 await linger(PAUSE * 1.5)
 await page.getByText('Rules DataFix learned from your data').scrollIntoViewIfNeeded()
@@ -54,7 +54,7 @@ step('4a plan ready (tiers)')
 await linger()
 await page.getByRole('button', { name: /^Apply .* high-confidence fixes/ }).click()
 await page.getByText('Repairs applied').waitFor({ timeout: 60000 })
-step('4b auto-fixes applied: gauge 84.7% -> 95.0%')
+step('4b auto-fixes applied: clean rows 82.8% -> 94.9%')
 await linger(PAUSE * 1.5)
 
 // 5. row 412
@@ -74,9 +74,9 @@ step('6a row 777: phone recovered from orders')
 await linger()
 await page.getByRole('button', { name: /^Refused/ }).click()
 await page.getByLabel('Filter by column').selectOption('phone')
-await page.locator('[data-pid]', { hasText: 'C-11044' }).first().click()
+await page.locator('[data-pid]', { hasText: 'C-10644' }).first().click()
 await page.getByText('DataFix refused to guess').waitFor({ timeout: 15000 })
-step('6b row 1043: refused (conflicting phones)')
+step('6b row 643: refused (conflicting phones)')
 await linger(PAUSE * 2)
 
 // 7. undo timeline

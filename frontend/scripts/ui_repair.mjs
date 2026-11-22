@@ -38,14 +38,14 @@ log(`accepted with A: "${first.replace(/\n/g, ' ')}" -> next "${(await evidenceT
 await page.keyboard.press('j')
 await page.waitForTimeout(400)
 
-// Refused: row 1043 phone
+// Refused: row 643 phone (conflicting phones in orders)
 await page.getByRole('button', { name: /^Refused/ }).click()
 await page.getByLabel('Filter by column').selectOption('phone')
 await page.waitForTimeout(800)
-await page.locator('[data-pid]', { hasText: 'C-11044' }).first().click()
+await page.locator('[data-pid]', { hasText: 'C-10644' }).first().click()
 await page.getByText('DataFix refused to guess').waitFor()
 await page.waitForTimeout(500)
-await shot('11-refused-1043')
+await shot('11-refused-643')
 
 // Applied: row 412 pin
 await page.getByRole('button', { name: /^Applied/ }).click()

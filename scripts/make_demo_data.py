@@ -7,7 +7,11 @@ Writes to data/demo/:
   truth.json            every injected error
 
 Run: cd backend && uv run python ../scripts/make_demo_data.py
+App demo (what "Load demo dataset" opens): ... make_demo_data.py --rows 1000 --out data/demo_small
 Scale test: ... make_demo_data.py --rows 100000 --out data/demo/scale_100k  (error counts scale with rows)
+
+Story rows (the demo narrative) sit at fixed indices. Files below 4,000 rows use a compact set inside the first
+1,000 rows; 10,000+ rows keep the original indices, so data/demo stays byte-identical.
 """
 import csv
 import json
@@ -202,6 +206,17 @@ def build_orders(customers: list[dict]) -> list[dict]:
     return orders
 
 
+# ---------------------------------------------------------------- story rows
+def story_rows() -> dict:
+    """Index of each demo story row. The 10k demo keeps its historic rows; small demos keep 52/412/777 and move
+    the rest inside the file."""
+    if N >= 4000:
+        return {"city": 52, "pin": 412, "phone_recover": 777, "phone_conflict": 1043, "age_impute": 2001,
+                "age_small": (2002, 2003), "outliers": (3000, 3500, 4100, 5200, 6300)}
+    return {"city": 52, "pin": 412, "phone_recover": 777, "phone_conflict": 643, "age_impute": 201,
+            "age_small": (202, 203), "outliers": tuple(int(i * N / 10_000) for i in (3000, 3500, 4100, 5200, 6300))}
+
+
 # ---------------------------------------------------------------- main
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
@@ -209,32 +224,37 @@ def main() -> None:
     clean = build_clean(by_city)
 
     # ---- story rows: clean-side setup (these define the truth)
+    S = story_rows()
+    R_CITY, R_PIN, R_REC, R_CONF, R_AGE = S["city"], S["pin"], S["phone_recover"], S["phone_conflict"], S["age_impute"]
+    R_SMALL1, R_SMALL2 = S["age_small"]
+
     def set_clean(idx, **kv):
         clean[idx].update(kv)
 
     mumbai_400001 = next(r for r in by_city["Mumbai"] if r["pin"] == "400001" and r["office"] == "Stock Exchange")
-    set_clean(412, city="Mumbai", pin="400001", locality=mumbai_400001["office"],
+    set_clean(R_PIN, city="Mumbai", pin="400001", locality=mumbai_400001["office"],
               district=mumbai_400001["district"], state="Maharashtra")
     blr = next(r for r in by_city["Bengaluru"] if r["pin"] == "560001")
-    set_clean(52, city="Bengaluru", pin="560001", locality=blr["office"], district=blr["district"], state=blr["state"])
+    set_clean(R_CITY, city="Bengaluru", pin="560001", locality=blr["office"], district=blr["district"], state=blr["state"])
     pune = by_city["Pune"][0]
-    set_clean(2001, occupation="retired", age="68", city="Pune", pin=pune["pin"], locality=pune["office"],
+    set_clean(R_AGE, occupation="retired", age="68", city="Pune", pin=pune["pin"], locality=pune["office"],
               district=pune["district"], state=pune["state"])
-    set_clean(2002, occupation="astronaut", age="41")
-    set_clean(2003, occupation="astronaut", age="38")
-    outliers = {3000: "8000000", 3500: "4500000", 4100: "6200000", 5200: "5000000", 6300: "7500000"}
+    set_clean(R_SMALL1, occupation="astronaut", age="41")
+    set_clean(R_SMALL2, occupation="astronaut", age="38")
+    outliers = dict(zip(S["outliers"], ("8000000", "4500000", "6200000", "5000000", "7500000")))
     for idx, v in outliers.items():
         set_clean(idx, annual_income=v)
 
     # planted PII in notes (present in clean and dirty — privacy, not quality)
     pii_truth = []
-    story = {52, 412, 777, 1043, 2001, 2002, 2003, *outliers}
+    story = {R_CITY, R_PIN, R_REC, R_CONF, R_AGE, R_SMALL1, R_SMALL2, *outliers}
     pool = [i for i in range(N) if i not in story]
-    pii_rows = rng.sample(pool, 50)
+    n_pii = max(10, round(50 * SCALE))  # 50 in the 10k demo: 25 Aadhaar, 15 PAN, 10 phone
+    pii_rows = rng.sample(pool, n_pii)
     for k, idx in enumerate(pii_rows):
-        if k < 25:
+        if k < n_pii * 0.5:
             val, kind, text = aadhaar(), "aadhaar", "KYC verified, Aadhaar {}"
-        elif k < 40:
+        elif k < n_pii * 0.8:
             val, kind, text = pan(clean[idx]["name"].split()[-1]), "pan", "PAN on file: {}"
         else:
             val, kind, text = clean[idx]["phone"], "phone", "Alternate number {} (wife)"
@@ -243,7 +263,7 @@ def main() -> None:
         pii_truth.append({"row_ref": clean[idx]["customer_id"], "column": "notes", "pii_type": kind, "value": val})
 
     orders = build_orders(clean)
-    # story 777 / 1043 need orders
+    # the phone-recovery and phone-conflict story rows need orders
     def ensure_orders(cid, n):
         have = [o for o in orders if o["customer_id"] == cid]
         c = next(c for c in clean if c["customer_id"] == cid)
@@ -251,8 +271,8 @@ def main() -> None:
             orders.append({"order_id": f"O-{900001 + len(orders)}", "customer_id": cid, "email": c["email"],
                            "phone": c["phone"], "order_date": "15/06/2026", "quantity": "1",
                            "unit_price": "999", "total": "999"})
-    ensure_orders(clean[777]["customer_id"], 2)
-    ensure_orders(clean[1043]["customer_id"], 3)
+    ensure_orders(clean[R_REC]["customer_id"], 2)
+    ensure_orders(clean[R_CONF]["customer_id"], 3)
 
     # ---- dirty copy
     dirty = [dict(r) for r in clean]
@@ -266,13 +286,13 @@ def main() -> None:
         dirty[idx][col] = new
 
     # story rows: dirty side
-    inject(412, "pin", "40001", "invalid_pin", story="row 412")
-    inject(52, "city", "Banglore", "misspelling", story="row 52")
-    inject(777, "phone", clean[777]["phone"][:5], "truncated_phone", story="row 777 phone recovery")
-    inject(1043, "phone", "", "missing", story="row 1043 refused: conflicting phones in orders")
-    inject(2001, "age", "", "missing", story="row 2001 group-median imputation")
-    inject(2002, "age", "", "missing", story="row 2002 refused: group too small")
-    cid_1043 = clean[1043]["customer_id"]
+    inject(R_PIN, "pin", "40001", "invalid_pin", story=f"row {R_PIN}")
+    inject(R_CITY, "city", "Banglore", "misspelling", story=f"row {R_CITY}")
+    inject(R_REC, "phone", clean[R_REC]["phone"][:5], "truncated_phone", story=f"row {R_REC} phone recovery")
+    inject(R_CONF, "phone", "", "missing", story=f"row {R_CONF} refused: conflicting phones in orders")
+    inject(R_AGE, "age", "", "missing", story=f"row {R_AGE} group-median imputation")
+    inject(R_SMALL1, "age", "", "missing", story=f"row {R_SMALL1} refused: group too small")
+    cid_1043 = clean[R_CONF]["customer_id"]
     conflict_phone = "9" + "".join(str(rng.randint(0, 9)) for _ in range(9))
     for o in [o for o in orders if o["customer_id"] == cid_1043][1:]:
         o["phone"] = conflict_phone
@@ -280,13 +300,15 @@ def main() -> None:
     rows_used_for_dups = set(rng.sample(pool, round(200 * SCALE)))
     free = [i for i in pool if i not in rows_used_for_dups]
 
-    def pick(n, where=lambda r: True, col=None):
-        n = round(n * SCALE)
+    def pick(n, where=lambda r: True, col=None, at_least=0):
+        """n scaled to the file size; at_least keeps a root-cause story above the diagnosis threshold
+        (10 issues) in small demos without changing the 10k demo."""
+        n = max(at_least, round(n * SCALE))
         cands = [i for i in free if where(dirty[i]) and (col is None or (i, col) not in touched)]
         return rng.sample(cands, n)
 
     # blank city: 71 from mobile_app B07 + 2 elsewhere (root-cause story)
-    for i in pick(71, lambda r: r["source"] == "mobile_app" and r["import_batch"] == "B07", "city"):
+    for i in pick(71, lambda r: r["source"] == "mobile_app" and r["import_batch"] == "B07", "city", at_least=12):
         inject(i, "city", "", "missing", root_cause="mobile_app B07 drops city")
     for i in pick(2, lambda r: not (r["source"] == "mobile_app" and r["import_batch"] == "B07"), "city"):
         inject(i, "city", "", "missing")
@@ -318,7 +340,7 @@ def main() -> None:
     for i in pick(50, col="age"):
         inject(i, "age", rng.choice(["-5", "0", "150", "999", "-1"]), "invalid_age")
     # partner_api writes US dates
-    for i in pick(50, lambda r: r["source"] == "partner_api", "signup_date"):
+    for i in pick(50, lambda r: r["source"] == "partner_api", "signup_date", at_least=10):
         d = datetime.strptime(dirty[i]["signup_date"], "%d/%m/%Y")
         inject(i, "signup_date", d.strftime("%m/%d/%Y"), "date_format", root_cause="partner_api US dates")
     # 5-digit PINs / phones
@@ -329,10 +351,12 @@ def main() -> None:
     for i in pick(30, col="phone"):
         inject(i, "phone", dirty[i]["phone"][:5], "truncated_phone")
     # Excel scientific notation from branch uploads
-    for n, (i) in enumerate(pick(40, lambda r: r["source"] == "branch_upload", "phone")):
+    sci_rows = pick(40, lambda r: r["source"] == "branch_upload", "phone", at_least=10)
+    lossless = round(len(sci_rows) * 15 / 40)  # the rest lost digits: DataFix must refuse those
+    for n, (i) in enumerate(sci_rows):
         p = dirty[i]["phone"]
-        sci = f"{p[0]}.{p[1:]}E+09" if n < 15 else f"{p[0]}.{p[1:6]}E+09"
-        inject(i, "phone", sci, "excel_sci_notation", lossy=n >= 15, root_cause="branch_upload via Excel")
+        sci = f"{p[0]}.{p[1:]}E+09" if n < lossless else f"{p[0]}.{p[1:6]}E+09"
+        inject(i, "phone", sci, "excel_sci_notation", lossy=n >= lossless, root_cause="branch_upload via Excel")
     # encoding damage (partner_api)
     for i in pick(20, lambda r: r["source"] == "partner_api", "name"):
         first = dirty[i]["name"].split()[0]
@@ -372,8 +396,8 @@ def main() -> None:
             else:
                 p = row["phone"]
                 row["phone"] = f"+91 {p[:5]} {p[5:]}"
-        # insert only after row 6500 so story rows keep their exact indices
-        target = rng.randint(max(src, int(0.65 * N)), N - 1)
+        # insert only after the last story row (row 6500 in the 10k demo) so story rows keep their exact indices
+        target = rng.randint(max(src, int(0.65 * N), max(story) + 1), N - 1)
         insert_after.setdefault(target, []).append((row, kind, dirty[src]["customer_id"]))
     for i in range(N):
         final.append(dirty[i])
@@ -381,7 +405,7 @@ def main() -> None:
             final.append(row)
             dup_truth.append({"customer_id": row["customer_id"], "duplicate_of": of, "error_type": kind})
     # give 20 near-duplicates an order (exercises foreign-key remap on merge)
-    near = [d for d in dup_truth if d["error_type"] == "near_duplicate"][:20]
+    near = [d for d in dup_truth if d["error_type"] == "near_duplicate"][:max(5, round(20 * SCALE))]
     for d in near:
         src = next(c for c in final if c["customer_id"] == d["duplicate_of"])
         orders.append({"order_id": f"O-{950001 + len(orders)}", "customer_id": d["customer_id"],
@@ -390,11 +414,11 @@ def main() -> None:
 
     # story rows must keep their positions in the dirty file
     pos = {r["customer_id"]: k for k, r in enumerate(final)}
-    story_ids = {clean[i]["customer_id"]: i for i in (52, 412, 777, 1043, 2001, 2002, 3000)}
+    story_ids = {clean[i]["customer_id"]: i for i in (R_CITY, R_PIN, R_REC, R_CONF, R_AGE, R_SMALL1, S["outliers"][0])}
 
     # orders: total mismatches
     order_truth = []
-    for o in rng.sample(orders, 30):
+    for o in rng.sample(orders, max(5, round(30 * SCALE))):
         good = o["total"]
         o["total"] = str(int(good) + rng.choice([-100, 100, 1000, -1, 10]))
         order_truth.append({"order_id": o["order_id"], "column": "total", "clean_value": good,

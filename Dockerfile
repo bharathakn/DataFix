@@ -19,7 +19,7 @@ COPY backend/pyproject.toml backend/uv.lock backend/README.md ./
 COPY backend/src ./src
 RUN uv sync --frozen --no-dev
 COPY backend/ ./
-COPY data/demo/customers_dirty.csv data/demo/orders.csv /app/data/demo/
+COPY data/demo_small/customers_dirty.csv data/demo_small/orders.csv /app/data/demo_small/
 COPY data/reference/pincodes.csv /app/data/reference/
 COPY --from=ui /app/frontend/dist /app/frontend/dist
 RUN useradd --create-home datafix && mkdir -p /tmp/datafix-sessions && chown datafix /tmp/datafix-sessions

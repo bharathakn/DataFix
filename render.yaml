@@ -6,7 +6,7 @@ services:
     plan: free            # 512 MB RAM: fine for the demo (peak 225 MB); 30k-row files need a plan with >= 1 GB
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
-    autoDeploy: false
+    autoDeploy: true      # every push to main redeploys
     envVars:
       - key: DATAFIX_PUBLIC
         value: "1"

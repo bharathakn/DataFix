@@ -38,7 +38,7 @@ scripts/start_demo.sh --offline  # no AI calls at all: template explanations + o
 scripts/start_demo.sh --lan      # also reachable from other devices on the same network
 ```
 
-Then open http://localhost:8000 and click **Load demo dataset**. Backup: `out/demo_backup.webm` (recorded by `frontend/scripts/rehearse.mjs`), or the CLI path below.
+Then open http://localhost:8000 and click **Load demo dataset** (1,020 customers + 2,318 orders from `data/demo_small/`, fixed end to end in under 5 s; `DATAFIX_DEMO_DIR=data/demo` loads the full 10,200-row demo instead). Backup: `out/demo_backup.webm` (recorded by `frontend/scripts/rehearse.mjs`), or the CLI path below.
 
 ## Quick start (development)
 
@@ -47,7 +47,8 @@ Requires `uv` and Node 20+ (see [docs/10_REQUIREMENTS.md](docs/10_REQUIREMENTS.m
 ```bash
 # reference + demo data (already generated; rerun any time)
 python3 scripts/build_pin_reference.py
-cd backend && uv run python ../scripts/make_demo_data.py && cd ..
+cd backend && uv run python ../scripts/make_demo_data.py && cd ..                                      # full demo, data/demo (tests)
+cd backend && uv run python ../scripts/make_demo_data.py --rows 1000 --out data/demo_small && cd ..   # app demo
 # backend
 cd backend && uv sync && uv run uvicorn api.main:app --reload --port 8000   # http://localhost:8000/api/health
 # frontend

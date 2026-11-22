@@ -95,9 +95,9 @@ export default function Upload() {
           <div>
             <div className="font-semibold">Demo dataset</div>
             <p className="mt-1.5 leading-relaxed text-slate-500 dark:text-slate-400">
-              10,200 Indian customer records plus 23,060 linked orders, with 1,678 realistic errors planted: blanks from one
+              1,020 Indian customer records plus 2,318 linked orders, with 189 realistic errors planted: blanks from one
               mobile-app batch, Excel-damaged phone numbers, misspelt cities, 5-digit PIN codes, duplicates, and Aadhaar and
-              PAN numbers hidden in free-text notes.
+              PAN numbers hidden in free-text notes. Small on purpose: the full clean-up runs in seconds.
             </p>
           </div>
         </div>

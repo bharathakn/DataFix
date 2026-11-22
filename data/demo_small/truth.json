@@ -1,0 +1,1850 @@
+{
+ "seed": 42,
+ "customers_cell_errors": [
+  {
+   "customer_id": "C-10413",
+   "base_index": 412,
+   "column": "pin",
+   "clean_value": "400001",
+   "dirty_value": "40001",
+   "error_type": "invalid_pin",
+   "story": "row 412",
+   "dirty_row": 412
+  },
+  {
+   "customer_id": "C-10053",
+   "base_index": 52,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Banglore",
+   "error_type": "misspelling",
+   "story": "row 52",
+   "dirty_row": 52
+  },
+  {
+   "customer_id": "C-10778",
+   "base_index": 777,
+   "column": "phone",
+   "clean_value": "8028182238",
+   "dirty_value": "80281",
+   "error_type": "truncated_phone",
+   "story": "row 777 phone recovery",
+   "dirty_row": 777
+  },
+  {
+   "customer_id": "C-10644",
+   "base_index": 643,
+   "column": "phone",
+   "clean_value": "8179624096",
+   "dirty_value": "",
+   "error_type": "missing",
+   "story": "row 643 refused: conflicting phones in orders",
+   "dirty_row": 643
+  },
+  {
+   "customer_id": "C-10202",
+   "base_index": 201,
+   "column": "age",
+   "clean_value": "68",
+   "dirty_value": "",
+   "error_type": "missing",
+   "story": "row 201 group-median imputation",
+   "dirty_row": 201
+  },
+  {
+   "customer_id": "C-10203",
+   "base_index": 202,
+   "column": "age",
+   "clean_value": "41",
+   "dirty_value": "",
+   "error_type": "missing",
+   "story": "row 202 refused: group too small",
+   "dirty_row": 202
+  },
+  {
+   "customer_id": "C-10197",
+   "base_index": 196,
+   "column": "city",
+   "clean_value": "Mumbai",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 196
+  },
+  {
+   "customer_id": "C-10800",
+   "base_index": 799,
+   "column": "city",
+   "clean_value": "Kolkata",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 800
+  },
+  {
+   "customer_id": "C-10586",
+   "base_index": 585,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 585
+  },
+  {
+   "customer_id": "C-10991",
+   "base_index": 990,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 1009
+  },
+  {
+   "customer_id": "C-10086",
+   "base_index": 85,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 85
+  },
+  {
+   "customer_id": "C-10034",
+   "base_index": 33,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 33
+  },
+  {
+   "customer_id": "C-10861",
+   "base_index": 860,
+   "column": "city",
+   "clean_value": "Ahmedabad",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 863
+  },
+  {
+   "customer_id": "C-10385",
+   "base_index": 384,
+   "column": "city",
+   "clean_value": "Chennai",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 384
+  },
+  {
+   "customer_id": "C-10747",
+   "base_index": 746,
+   "column": "city",
+   "clean_value": "New Delhi",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 746
+  },
+  {
+   "customer_id": "C-10657",
+   "base_index": 656,
+   "column": "city",
+   "clean_value": "Pune",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 656
+  },
+  {
+   "customer_id": "C-10464",
+   "base_index": 463,
+   "column": "city",
+   "clean_value": "Mumbai",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 463
+  },
+  {
+   "customer_id": "C-10822",
+   "base_index": 821,
+   "column": "city",
+   "clean_value": "Ahmedabad",
+   "dirty_value": "",
+   "error_type": "missing",
+   "root_cause": "mobile_app B07 drops city",
+   "dirty_row": 823
+  },
+  {
+   "customer_id": "C-10224",
+   "base_index": 223,
+   "column": "email",
+   "clean_value": "vikram.menon695@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 223
+  },
+  {
+   "customer_id": "C-10674",
+   "base_index": 673,
+   "column": "email",
+   "clean_value": "anil.rao40@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 673
+  },
+  {
+   "customer_id": "C-10148",
+   "base_index": 147,
+   "column": "email",
+   "clean_value": "tushar.menon227@gmail.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 147
+  },
+  {
+   "customer_id": "C-10362",
+   "base_index": 361,
+   "column": "email",
+   "clean_value": "aditya.joshi229@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 361
+  },
+  {
+   "customer_id": "C-10546",
+   "base_index": 545,
+   "column": "email",
+   "clean_value": "pranav.singh785@gmail.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 545
+  },
+  {
+   "customer_id": "C-10774",
+   "base_index": 773,
+   "column": "email",
+   "clean_value": "varun.singh281@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 773
+  },
+  {
+   "customer_id": "C-10909",
+   "base_index": 908,
+   "column": "email",
+   "clean_value": "farhan.khan331@gmail.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 916
+  },
+  {
+   "customer_id": "C-10448",
+   "base_index": 447,
+   "column": "email",
+   "clean_value": "anjali.bhat328@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 447
+  },
+  {
+   "customer_id": "C-10685",
+   "base_index": 684,
+   "column": "email",
+   "clean_value": "pallavi.reddy70@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 684
+  },
+  {
+   "customer_id": "C-10504",
+   "base_index": 503,
+   "column": "email",
+   "clean_value": "gaurav.bhat389@outlook.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 503
+  },
+  {
+   "customer_id": "C-10987",
+   "base_index": 986,
+   "column": "email",
+   "clean_value": "varun.nair73@gmail.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 1005
+  },
+  {
+   "customer_id": "C-10471",
+   "base_index": 470,
+   "column": "email",
+   "clean_value": "karan.deshpande116@outlook.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 470
+  },
+  {
+   "customer_id": "C-10934",
+   "base_index": 933,
+   "column": "email",
+   "clean_value": "vikram.kulkarni806@outlook.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 943
+  },
+  {
+   "customer_id": "C-10349",
+   "base_index": 348,
+   "column": "email",
+   "clean_value": "divya.nair185@gmail.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 348
+  },
+  {
+   "customer_id": "C-10299",
+   "base_index": 298,
+   "column": "email",
+   "clean_value": "rohan.chopra388@yahoo.com",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 298
+  },
+  {
+   "customer_id": "C-10426",
+   "base_index": 425,
+   "column": "age",
+   "clean_value": "36",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 425
+  },
+  {
+   "customer_id": "C-10390",
+   "base_index": 389,
+   "column": "age",
+   "clean_value": "67",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 389
+  },
+  {
+   "customer_id": "C-10585",
+   "base_index": 584,
+   "column": "age",
+   "clean_value": "41",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 584
+  },
+  {
+   "customer_id": "C-10437",
+   "base_index": 436,
+   "column": "age",
+   "clean_value": "51",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 436
+  },
+  {
+   "customer_id": "C-10128",
+   "base_index": 127,
+   "column": "age",
+   "clean_value": "31",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 127
+  },
+  {
+   "customer_id": "C-10507",
+   "base_index": 506,
+   "column": "age",
+   "clean_value": "62",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 506
+  },
+  {
+   "customer_id": "C-10174",
+   "base_index": 173,
+   "column": "age",
+   "clean_value": "23",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 173
+  },
+  {
+   "customer_id": "C-10587",
+   "base_index": 586,
+   "column": "age",
+   "clean_value": "64",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 586
+  },
+  {
+   "customer_id": "C-10699",
+   "base_index": 698,
+   "column": "age",
+   "clean_value": "32",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 698
+  },
+  {
+   "customer_id": "C-10326",
+   "base_index": 325,
+   "column": "age",
+   "clean_value": "45",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 325
+  },
+  {
+   "customer_id": "C-10489",
+   "base_index": 488,
+   "column": "phone",
+   "clean_value": "8157184090",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 488
+  },
+  {
+   "customer_id": "C-10694",
+   "base_index": 693,
+   "column": "phone",
+   "clean_value": "6158760545",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 693
+  },
+  {
+   "customer_id": "C-10029",
+   "base_index": 28,
+   "column": "phone",
+   "clean_value": "9183242102",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 28
+  },
+  {
+   "customer_id": "C-10256",
+   "base_index": 255,
+   "column": "phone",
+   "clean_value": "9363212347",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 255
+  },
+  {
+   "customer_id": "C-10306",
+   "base_index": 305,
+   "column": "phone",
+   "clean_value": "7994938743",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 305
+  },
+  {
+   "customer_id": "C-10289",
+   "base_index": 288,
+   "column": "phone",
+   "clean_value": "8695620175",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 288
+  },
+  {
+   "customer_id": "C-10849",
+   "base_index": 848,
+   "column": "phone",
+   "clean_value": "8394676626",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 851
+  },
+  {
+   "customer_id": "C-10445",
+   "base_index": 444,
+   "column": "phone",
+   "clean_value": "9244063062",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 444
+  },
+  {
+   "customer_id": "C-10678",
+   "base_index": 677,
+   "column": "phone",
+   "clean_value": "6732798059",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 677
+  },
+  {
+   "customer_id": "C-10230",
+   "base_index": 229,
+   "column": "phone",
+   "clean_value": "6806325431",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 229
+  },
+  {
+   "customer_id": "C-10234",
+   "base_index": 233,
+   "column": "phone",
+   "clean_value": "8695579887",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 233
+  },
+  {
+   "customer_id": "C-10193",
+   "base_index": 192,
+   "column": "phone",
+   "clean_value": "7933051728",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 192
+  },
+  {
+   "customer_id": "C-10754",
+   "base_index": 753,
+   "column": "phone",
+   "clean_value": "9728681123",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 753
+  },
+  {
+   "customer_id": "C-10303",
+   "base_index": 302,
+   "column": "phone",
+   "clean_value": "6782633373",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 302
+  },
+  {
+   "customer_id": "C-10866",
+   "base_index": 865,
+   "column": "phone",
+   "clean_value": "7097236108",
+   "dirty_value": "",
+   "error_type": "missing",
+   "dirty_row": 870
+  },
+  {
+   "customer_id": "C-10454",
+   "base_index": 453,
+   "column": "phone",
+   "clean_value": "7946430394",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 453
+  },
+  {
+   "customer_id": "C-10422",
+   "base_index": 421,
+   "column": "phone",
+   "clean_value": "6089219639",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 421
+  },
+  {
+   "customer_id": "C-10842",
+   "base_index": 841,
+   "column": "phone",
+   "clean_value": "7370342444",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 844
+  },
+  {
+   "customer_id": "C-10981",
+   "base_index": 980,
+   "column": "phone",
+   "clean_value": "6274392255",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 997
+  },
+  {
+   "customer_id": "C-10958",
+   "base_index": 957,
+   "column": "phone",
+   "clean_value": "8092846720",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 969
+  },
+  {
+   "customer_id": "C-10859",
+   "base_index": 858,
+   "column": "phone",
+   "clean_value": "7907551545",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 861
+  },
+  {
+   "customer_id": "C-10514",
+   "base_index": 513,
+   "column": "phone",
+   "clean_value": "8971075633",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 513
+  },
+  {
+   "customer_id": "C-10671",
+   "base_index": 670,
+   "column": "phone",
+   "clean_value": "8261053709",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 670
+  },
+  {
+   "customer_id": "C-10337",
+   "base_index": 336,
+   "column": "phone",
+   "clean_value": "9827788160",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 336
+  },
+  {
+   "customer_id": "C-10963",
+   "base_index": 962,
+   "column": "phone",
+   "clean_value": "9620990693",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 974
+  },
+  {
+   "customer_id": "C-10092",
+   "base_index": 91,
+   "column": "phone",
+   "clean_value": "7807374167",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 91
+  },
+  {
+   "customer_id": "C-10405",
+   "base_index": 404,
+   "column": "phone",
+   "clean_value": "8413845960",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "root_cause": "branch form placeholder",
+   "dirty_row": 404
+  },
+  {
+   "customer_id": "C-10322",
+   "base_index": 321,
+   "column": "phone",
+   "clean_value": "8357978630",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "dirty_row": 321
+  },
+  {
+   "customer_id": "C-10813",
+   "base_index": 812,
+   "column": "phone",
+   "clean_value": "7543551962",
+   "dirty_value": "9999999999",
+   "error_type": "disguised_missing",
+   "dirty_row": 813
+  },
+  {
+   "customer_id": "C-10439",
+   "base_index": 438,
+   "column": "email",
+   "clean_value": "riya.singh326@gmail.com",
+   "dirty_value": "test@test.com",
+   "error_type": "disguised_missing",
+   "dirty_row": 438
+  },
+  {
+   "customer_id": "C-10791",
+   "base_index": 790,
+   "column": "email",
+   "clean_value": "siddharth.nair600@gmail.com",
+   "dirty_value": "test@test.com",
+   "error_type": "disguised_missing",
+   "dirty_row": 791
+  },
+  {
+   "customer_id": "C-10214",
+   "base_index": 213,
+   "column": "email",
+   "clean_value": "arjun.mehta63@outlook.com",
+   "dirty_value": "test@test.com",
+   "error_type": "disguised_missing",
+   "dirty_row": 213
+  },
+  {
+   "customer_id": "C-10497",
+   "base_index": 496,
+   "column": "city",
+   "clean_value": "Kolkata",
+   "dirty_value": "Kolkta",
+   "error_type": "misspelling",
+   "dirty_row": 496
+  },
+  {
+   "customer_id": "C-10170",
+   "base_index": 169,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Bengaluru ",
+   "error_type": "misspelling",
+   "dirty_row": 169
+  },
+  {
+   "customer_id": "C-10699",
+   "base_index": 698,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "Hyderbad",
+   "error_type": "misspelling",
+   "dirty_row": 698
+  },
+  {
+   "customer_id": "C-10461",
+   "base_index": 460,
+   "column": "city",
+   "clean_value": "Pune",
+   "dirty_value": "pune",
+   "error_type": "misspelling",
+   "dirty_row": 460
+  },
+  {
+   "customer_id": "C-10731",
+   "base_index": 730,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "Hyderbad",
+   "error_type": "misspelling",
+   "dirty_row": 730
+  },
+  {
+   "customer_id": "C-10286",
+   "base_index": 285,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Bengaluru ",
+   "error_type": "misspelling",
+   "dirty_row": 285
+  },
+  {
+   "customer_id": "C-10463",
+   "base_index": 462,
+   "column": "city",
+   "clean_value": "Chennai",
+   "dirty_value": "Chennnai",
+   "error_type": "misspelling",
+   "dirty_row": 462
+  },
+  {
+   "customer_id": "C-10095",
+   "base_index": 94,
+   "column": "city",
+   "clean_value": "Chennai",
+   "dirty_value": "Chenai",
+   "error_type": "misspelling",
+   "dirty_row": 94
+  },
+  {
+   "customer_id": "C-10758",
+   "base_index": 757,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "Hydrabad",
+   "error_type": "misspelling",
+   "dirty_row": 757
+  },
+  {
+   "customer_id": "C-10554",
+   "base_index": 553,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Bengluru",
+   "error_type": "misspelling",
+   "dirty_row": 553
+  },
+  {
+   "customer_id": "C-10153",
+   "base_index": 152,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "Hydrabad",
+   "error_type": "misspelling",
+   "dirty_row": 152
+  },
+  {
+   "customer_id": "C-10736",
+   "base_index": 735,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "Hydrabad",
+   "error_type": "misspelling",
+   "dirty_row": 735
+  },
+  {
+   "customer_id": "C-10597",
+   "base_index": 596,
+   "column": "city",
+   "clean_value": "Hyderabad",
+   "dirty_value": "Hyderbad",
+   "error_type": "misspelling",
+   "dirty_row": 596
+  },
+  {
+   "customer_id": "C-10830",
+   "base_index": 829,
+   "column": "city",
+   "clean_value": "Mumbai",
+   "dirty_value": "Mumabi",
+   "error_type": "misspelling",
+   "dirty_row": 832
+  },
+  {
+   "customer_id": "C-10983",
+   "base_index": 982,
+   "column": "city",
+   "clean_value": "Chennai",
+   "dirty_value": "Chenai",
+   "error_type": "misspelling",
+   "dirty_row": 999
+  },
+  {
+   "customer_id": "C-10226",
+   "base_index": 225,
+   "column": "city",
+   "clean_value": "Mumbai",
+   "dirty_value": "Bombay",
+   "error_type": "alias",
+   "dirty_row": 225
+  },
+  {
+   "customer_id": "C-10719",
+   "base_index": 718,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Bangalore",
+   "error_type": "alias",
+   "dirty_row": 718
+  },
+  {
+   "customer_id": "C-10501",
+   "base_index": 500,
+   "column": "city",
+   "clean_value": "Mumbai",
+   "dirty_value": "Bombay",
+   "error_type": "alias",
+   "dirty_row": 500
+  },
+  {
+   "customer_id": "C-10918",
+   "base_index": 917,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Bangalore",
+   "error_type": "alias",
+   "dirty_row": 927
+  },
+  {
+   "customer_id": "C-10337",
+   "base_index": 336,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Bangalore",
+   "error_type": "alias",
+   "dirty_row": 336
+  },
+  {
+   "customer_id": "C-10658",
+   "base_index": 657,
+   "column": "city",
+   "clean_value": "Mumbai",
+   "dirty_value": "Bombay",
+   "error_type": "alias",
+   "dirty_row": 657
+  },
+  {
+   "customer_id": "C-10278",
+   "base_index": 277,
+   "column": "city",
+   "clean_value": "Kolkata",
+   "dirty_value": "Mumbai",
+   "error_type": "fd_violation",
+   "note": "city disagrees with PIN",
+   "dirty_row": 277
+  },
+  {
+   "customer_id": "C-10698",
+   "base_index": 697,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Kochi",
+   "error_type": "fd_violation",
+   "note": "city disagrees with PIN",
+   "dirty_row": 697
+  },
+  {
+   "customer_id": "C-10151",
+   "base_index": 150,
+   "column": "city",
+   "clean_value": "New Delhi",
+   "dirty_value": "Bengaluru",
+   "error_type": "fd_violation",
+   "note": "city disagrees with PIN",
+   "dirty_row": 150
+  },
+  {
+   "customer_id": "C-10097",
+   "base_index": 96,
+   "column": "city",
+   "clean_value": "Bengaluru",
+   "dirty_value": "Chennai",
+   "error_type": "fd_violation",
+   "note": "city disagrees with PIN",
+   "dirty_row": 96
+  },
+  {
+   "customer_id": "C-10958",
+   "base_index": 957,
+   "column": "email",
+   "clean_value": "isha.pandey327@gmail.com",
+   "dirty_value": "isha.pandey327 @gmail.com",
+   "error_type": "invalid_email",
+   "dirty_row": 969
+  },
+  {
+   "customer_id": "C-10135",
+   "base_index": 134,
+   "column": "email",
+   "clean_value": "pallavi.verma639@gmail.com",
+   "dirty_value": "pallavi.verma639@@gmail.com",
+   "error_type": "invalid_email",
+   "dirty_row": 134
+  },
+  {
+   "customer_id": "C-10348",
+   "base_index": 347,
+   "column": "email",
+   "clean_value": "manoj.mishra181@gmail.com",
+   "dirty_value": "manoj.mishra181gmail.com",
+   "error_type": "invalid_email",
+   "dirty_row": 347
+  },
+  {
+   "customer_id": "C-10098",
+   "base_index": 97,
+   "column": "email",
+   "clean_value": "rajesh.singh580@outlook.com",
+   "dirty_value": "rajesh.singh580@@outlook.com",
+   "error_type": "invalid_email",
+   "dirty_row": 97
+  },
+  {
+   "customer_id": "C-10790",
+   "base_index": 789,
+   "column": "email",
+   "clean_value": "meera.bhat858@gmail.com",
+   "dirty_value": "meera.bhat858@@gmail.com",
+   "error_type": "invalid_email",
+   "dirty_row": 790
+  },
+  {
+   "customer_id": "C-10283",
+   "base_index": 282,
+   "column": "email",
+   "clean_value": "yash.shah153@yahoo.com",
+   "dirty_value": "yash.shah153yahoo.com",
+   "error_type": "invalid_email",
+   "dirty_row": 282
+  },
+  {
+   "customer_id": "C-10364",
+   "base_index": 363,
+   "column": "email",
+   "clean_value": "komal.gupta95@yahoo.com",
+   "dirty_value": "komal.gupta95yahoo.com",
+   "error_type": "invalid_email",
+   "dirty_row": 363
+  },
+  {
+   "customer_id": "C-10379",
+   "base_index": 378,
+   "column": "email",
+   "clean_value": "vikram.verma839@yahoo.com",
+   "dirty_value": "vikram.verma839yahoo.com",
+   "error_type": "invalid_email",
+   "dirty_row": 378
+  },
+  {
+   "customer_id": "C-10518",
+   "base_index": 517,
+   "column": "email",
+   "clean_value": "harish.sharma489@yahoo.com",
+   "dirty_value": "harish.sharma489@yahoocom",
+   "error_type": "invalid_email",
+   "dirty_row": 517
+  },
+  {
+   "customer_id": "C-10990",
+   "base_index": 989,
+   "column": "email",
+   "clean_value": "sanjay.kulkarni168@outlook.com",
+   "dirty_value": "sanjay.kulkarni168 @outlook.com",
+   "error_type": "invalid_email",
+   "dirty_row": 1008
+  },
+  {
+   "customer_id": "C-10075",
+   "base_index": 74,
+   "column": "age",
+   "clean_value": "30",
+   "dirty_value": "0",
+   "error_type": "invalid_age",
+   "dirty_row": 74
+  },
+  {
+   "customer_id": "C-10303",
+   "base_index": 302,
+   "column": "age",
+   "clean_value": "57",
+   "dirty_value": "-5",
+   "error_type": "invalid_age",
+   "dirty_row": 302
+  },
+  {
+   "customer_id": "C-10153",
+   "base_index": 152,
+   "column": "age",
+   "clean_value": "19",
+   "dirty_value": "0",
+   "error_type": "invalid_age",
+   "dirty_row": 152
+  },
+  {
+   "customer_id": "C-10459",
+   "base_index": 458,
+   "column": "age",
+   "clean_value": "63",
+   "dirty_value": "-1",
+   "error_type": "invalid_age",
+   "dirty_row": 458
+  },
+  {
+   "customer_id": "C-10327",
+   "base_index": 326,
+   "column": "age",
+   "clean_value": "55",
+   "dirty_value": "999",
+   "error_type": "invalid_age",
+   "dirty_row": 326
+  },
+  {
+   "customer_id": "C-10065",
+   "base_index": 64,
+   "column": "signup_date",
+   "clean_value": "22/10/2022",
+   "dirty_value": "10/22/2022",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 64
+  },
+  {
+   "customer_id": "C-10150",
+   "base_index": 149,
+   "column": "signup_date",
+   "clean_value": "15/06/2026",
+   "dirty_value": "06/15/2026",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 149
+  },
+  {
+   "customer_id": "C-10443",
+   "base_index": 442,
+   "column": "signup_date",
+   "clean_value": "16/09/2022",
+   "dirty_value": "09/16/2022",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 442
+  },
+  {
+   "customer_id": "C-10933",
+   "base_index": 932,
+   "column": "signup_date",
+   "clean_value": "28/07/2023",
+   "dirty_value": "07/28/2023",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 942
+  },
+  {
+   "customer_id": "C-10296",
+   "base_index": 295,
+   "column": "signup_date",
+   "clean_value": "05/03/2025",
+   "dirty_value": "03/05/2025",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 295
+  },
+  {
+   "customer_id": "C-10342",
+   "base_index": 341,
+   "column": "signup_date",
+   "clean_value": "06/12/2025",
+   "dirty_value": "12/06/2025",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 341
+  },
+  {
+   "customer_id": "C-10273",
+   "base_index": 272,
+   "column": "signup_date",
+   "clean_value": "17/11/2022",
+   "dirty_value": "11/17/2022",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 272
+  },
+  {
+   "customer_id": "C-10229",
+   "base_index": 228,
+   "column": "signup_date",
+   "clean_value": "01/04/2023",
+   "dirty_value": "04/01/2023",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 228
+  },
+  {
+   "customer_id": "C-10030",
+   "base_index": 29,
+   "column": "signup_date",
+   "clean_value": "12/04/2026",
+   "dirty_value": "04/12/2026",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 29
+  },
+  {
+   "customer_id": "C-10408",
+   "base_index": 407,
+   "column": "signup_date",
+   "clean_value": "25/11/2022",
+   "dirty_value": "11/25/2022",
+   "error_type": "date_format",
+   "root_cause": "partner_api US dates",
+   "dirty_row": 407
+  },
+  {
+   "customer_id": "C-10382",
+   "base_index": 381,
+   "column": "pin",
+   "clean_value": "560001",
+   "dirty_value": "56001",
+   "error_type": "invalid_pin",
+   "dirty_row": 381
+  },
+  {
+   "customer_id": "C-10678",
+   "base_index": 677,
+   "column": "pin",
+   "clean_value": "600001",
+   "dirty_value": "60001",
+   "error_type": "invalid_pin",
+   "dirty_row": 677
+  },
+  {
+   "customer_id": "C-10802",
+   "base_index": 801,
+   "column": "pin",
+   "clean_value": "226010",
+   "dirty_value": "22010",
+   "error_type": "invalid_pin",
+   "dirty_row": 802
+  },
+  {
+   "customer_id": "C-10662",
+   "base_index": 661,
+   "column": "phone",
+   "clean_value": "6186766100",
+   "dirty_value": "61867",
+   "error_type": "truncated_phone",
+   "dirty_row": 661
+  },
+  {
+   "customer_id": "C-10163",
+   "base_index": 162,
+   "column": "phone",
+   "clean_value": "7601279611",
+   "dirty_value": "76012",
+   "error_type": "truncated_phone",
+   "dirty_row": 162
+  },
+  {
+   "customer_id": "C-10177",
+   "base_index": 176,
+   "column": "phone",
+   "clean_value": "9730371837",
+   "dirty_value": "97303",
+   "error_type": "truncated_phone",
+   "dirty_row": 176
+  },
+  {
+   "customer_id": "C-10825",
+   "base_index": 824,
+   "column": "phone",
+   "clean_value": "9048618670",
+   "dirty_value": "9.048618670E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": false,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 826
+  },
+  {
+   "customer_id": "C-10867",
+   "base_index": 866,
+   "column": "phone",
+   "clean_value": "9512476400",
+   "dirty_value": "9.512476400E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": false,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 871
+  },
+  {
+   "customer_id": "C-10498",
+   "base_index": 497,
+   "column": "phone",
+   "clean_value": "6925502130",
+   "dirty_value": "6.925502130E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": false,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 497
+  },
+  {
+   "customer_id": "C-10043",
+   "base_index": 42,
+   "column": "phone",
+   "clean_value": "9736576615",
+   "dirty_value": "9.736576615E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": false,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 42
+  },
+  {
+   "customer_id": "C-10139",
+   "base_index": 138,
+   "column": "phone",
+   "clean_value": "6899358891",
+   "dirty_value": "6.89935E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": true,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 138
+  },
+  {
+   "customer_id": "C-10951",
+   "base_index": 950,
+   "column": "phone",
+   "clean_value": "8597772659",
+   "dirty_value": "8.59777E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": true,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 961
+  },
+  {
+   "customer_id": "C-10893",
+   "base_index": 892,
+   "column": "phone",
+   "clean_value": "9015145992",
+   "dirty_value": "9.01514E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": true,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 899
+  },
+  {
+   "customer_id": "C-10884",
+   "base_index": 883,
+   "column": "phone",
+   "clean_value": "7159584174",
+   "dirty_value": "7.15958E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": true,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 890
+  },
+  {
+   "customer_id": "C-10383",
+   "base_index": 382,
+   "column": "phone",
+   "clean_value": "6209579073",
+   "dirty_value": "6.20957E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": true,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 382
+  },
+  {
+   "customer_id": "C-10764",
+   "base_index": 763,
+   "column": "phone",
+   "clean_value": "6577204410",
+   "dirty_value": "6.57720E+09",
+   "error_type": "excel_sci_notation",
+   "lossy": true,
+   "root_cause": "branch_upload via Excel",
+   "dirty_row": 763
+  },
+  {
+   "customer_id": "C-10714",
+   "base_index": 713,
+   "column": "name",
+   "clean_value": "Kavya D’Mello",
+   "dirty_value": "Kavya DâMello",
+   "error_type": "encoding",
+   "root_cause": "partner_api UTF-8 read as Latin-1",
+   "dirty_row": 713
+  },
+  {
+   "customer_id": "C-10255",
+   "base_index": 254,
+   "column": "name",
+   "clean_value": "Karan D’Souza",
+   "dirty_value": "Karan DâSouza",
+   "error_type": "encoding",
+   "root_cause": "partner_api UTF-8 read as Latin-1",
+   "dirty_row": 254
+  },
+  {
+   "customer_id": "C-10487",
+   "base_index": 486,
+   "column": "annual_income",
+   "clean_value": "330000",
+   "dirty_value": "3,30,000",
+   "error_type": "money_format",
+   "dirty_row": 486
+  },
+  {
+   "customer_id": "C-10851",
+   "base_index": 850,
+   "column": "annual_income",
+   "clean_value": "680000",
+   "dirty_value": "6,80,000",
+   "error_type": "money_format",
+   "dirty_row": 853
+  },
+  {
+   "customer_id": "C-10456",
+   "base_index": 455,
+   "column": "annual_income",
+   "clean_value": "780000",
+   "dirty_value": "7,80,000",
+   "error_type": "money_format",
+   "dirty_row": 455
+  },
+  {
+   "customer_id": "C-10719",
+   "base_index": 718,
+   "column": "annual_income",
+   "clean_value": "430000",
+   "dirty_value": "4,30,000",
+   "error_type": "money_format",
+   "dirty_row": 718
+  },
+  {
+   "customer_id": "C-10686",
+   "base_index": 685,
+   "column": "annual_income",
+   "clean_value": "660000",
+   "dirty_value": "0.066 Cr",
+   "error_type": "money_format",
+   "dirty_row": 685
+  },
+  {
+   "customer_id": "C-10709",
+   "base_index": 708,
+   "column": "annual_income",
+   "clean_value": "510000",
+   "dirty_value": "0.051 Cr",
+   "error_type": "money_format",
+   "dirty_row": 708
+  },
+  {
+   "customer_id": "C-10627",
+   "base_index": 626,
+   "column": "annual_income",
+   "clean_value": "570000",
+   "dirty_value": "₹5.7L",
+   "error_type": "money_format",
+   "dirty_row": 626
+  },
+  {
+   "customer_id": "C-10856",
+   "base_index": 855,
+   "column": "annual_income",
+   "clean_value": "500000",
+   "dirty_value": "₹5L",
+   "error_type": "money_format",
+   "dirty_row": 858
+  },
+  {
+   "customer_id": "C-10347",
+   "base_index": 346,
+   "column": "annual_income",
+   "clean_value": "260000",
+   "dirty_value": "2,60,000",
+   "error_type": "money_format",
+   "dirty_row": 346
+  },
+  {
+   "customer_id": "C-10210",
+   "base_index": 209,
+   "column": "annual_income",
+   "clean_value": "390000",
+   "dirty_value": "0.039 Cr",
+   "error_type": "money_format",
+   "dirty_row": 209
+  },
+  {
+   "customer_id": "C-10640",
+   "base_index": 639,
+   "column": "annual_income",
+   "clean_value": "640000",
+   "dirty_value": "₹6.4L",
+   "error_type": "money_format",
+   "dirty_row": 639
+  },
+  {
+   "customer_id": "C-10058",
+   "base_index": 57,
+   "column": "annual_income",
+   "clean_value": "620000",
+   "dirty_value": "6,20,000",
+   "error_type": "money_format",
+   "dirty_row": 57
+  },
+  {
+   "customer_id": "C-10976",
+   "base_index": 975,
+   "column": "annual_income",
+   "clean_value": "500000",
+   "dirty_value": "5,00,000",
+   "error_type": "money_format",
+   "dirty_row": 990
+  },
+  {
+   "customer_id": "C-10579",
+   "base_index": 578,
+   "column": "annual_income",
+   "clean_value": "880000",
+   "dirty_value": "8,80,000",
+   "error_type": "money_format",
+   "dirty_row": 578
+  },
+  {
+   "customer_id": "C-10495",
+   "base_index": 494,
+   "column": "annual_income",
+   "clean_value": "240000",
+   "dirty_value": "2,40,000",
+   "error_type": "money_format",
+   "dirty_row": 494
+  },
+  {
+   "customer_id": "C-10572",
+   "base_index": 571,
+   "column": "annual_income",
+   "clean_value": "590000",
+   "dirty_value": "5,90,000",
+   "error_type": "money_format",
+   "dirty_row": 571
+  },
+  {
+   "customer_id": "C-10989",
+   "base_index": 988,
+   "column": "annual_income",
+   "clean_value": "830000",
+   "dirty_value": "8,30,000",
+   "error_type": "money_format",
+   "dirty_row": 1007
+  },
+  {
+   "customer_id": "C-10225",
+   "base_index": 224,
+   "column": "annual_income",
+   "clean_value": "1420000",
+   "dirty_value": "0.142 Cr",
+   "error_type": "money_format",
+   "dirty_row": 224
+  },
+  {
+   "customer_id": "C-10701",
+   "base_index": 700,
+   "column": "annual_income",
+   "clean_value": "780000",
+   "dirty_value": "7,80,000",
+   "error_type": "money_format",
+   "dirty_row": 700
+  },
+  {
+   "customer_id": "C-10698",
+   "base_index": 697,
+   "column": "annual_income",
+   "clean_value": "340000",
+   "dirty_value": "0.034 Cr",
+   "error_type": "money_format",
+   "dirty_row": 697
+  },
+  {
+   "customer_id": "C-10597",
+   "base_index": 596,
+   "column": "name",
+   "clean_value": "Riya Mehta",
+   "dirty_value": " Riya Mehta",
+   "error_type": "whitespace_case",
+   "dirty_row": 596
+  },
+  {
+   "customer_id": "C-10236",
+   "base_index": 235,
+   "column": "name",
+   "clean_value": "Jyoti Iyer",
+   "dirty_value": "JYOTI IYER",
+   "error_type": "whitespace_case",
+   "dirty_row": 235
+  },
+  {
+   "customer_id": "C-10456",
+   "base_index": 455,
+   "column": "name",
+   "clean_value": "Imran Rao",
+   "dirty_value": "IMRAN RAO",
+   "error_type": "whitespace_case",
+   "dirty_row": 455
+  },
+  {
+   "customer_id": "C-10986",
+   "base_index": 985,
+   "column": "name",
+   "clean_value": "Priya Joshi",
+   "dirty_value": "PRIYA JOSHI",
+   "error_type": "whitespace_case",
+   "dirty_row": 1004
+  },
+  {
+   "customer_id": "C-10728",
+   "base_index": 727,
+   "column": "name",
+   "clean_value": "Manoj Mishra",
+   "dirty_value": "Manoj Mishra  ",
+   "error_type": "whitespace_case",
+   "dirty_row": 727
+  },
+  {
+   "customer_id": "C-10868",
+   "base_index": 867,
+   "column": "name",
+   "clean_value": "Rekha Patel",
+   "dirty_value": " Rekha Patel",
+   "error_type": "whitespace_case",
+   "dirty_row": 872
+  }
+ ],
+ "customers_duplicates": [
+  {
+   "customer_id": "C-20009",
+   "duplicate_of": "C-10529",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20004",
+   "duplicate_of": "C-10228",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20013",
+   "duplicate_of": "C-10654",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20011",
+   "duplicate_of": "C-10568",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20012",
+   "duplicate_of": "C-10626",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20007",
+   "duplicate_of": "C-10481",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20002",
+   "duplicate_of": "C-10059",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20003",
+   "duplicate_of": "C-10110",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20001",
+   "duplicate_of": "C-10049",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20010",
+   "duplicate_of": "C-10530",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20015",
+   "duplicate_of": "C-10880",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20005",
+   "duplicate_of": "C-10333",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20019",
+   "duplicate_of": "C-10955",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20008",
+   "duplicate_of": "C-10502",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20006",
+   "duplicate_of": "C-10465",
+   "error_type": "duplicate"
+  },
+  {
+   "customer_id": "C-20016",
+   "duplicate_of": "C-10916",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20014",
+   "duplicate_of": "C-10696",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20020",
+   "duplicate_of": "C-10956",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20017",
+   "duplicate_of": "C-10937",
+   "error_type": "near_duplicate"
+  },
+  {
+   "customer_id": "C-20018",
+   "duplicate_of": "C-10950",
+   "error_type": "near_duplicate"
+  }
+ ],
+ "orders_errors": [
+  {
+   "order_id": "O-500651",
+   "column": "total",
+   "clean_value": "1996",
+   "dirty_value": "2006",
+   "error_type": "crossfield_total"
+  },
+  {
+   "order_id": "O-501999",
+   "column": "total",
+   "clean_value": "14997",
+   "dirty_value": "15007",
+   "error_type": "crossfield_total"
+  },
+  {
+   "order_id": "O-501004",
+   "column": "total",
+   "clean_value": "995",
+   "dirty_value": "1095",
+   "error_type": "crossfield_total"
+  },
+  {
+   "order_id": "O-501246",
+   "column": "total",
+   "clean_value": "597",
+   "dirty_value": "596",
+   "error_type": "crossfield_total"
+  },
+  {
+   "order_id": "O-501692",
+   "column": "total",
+   "clean_value": "4995",
+   "dirty_value": "4895",
+   "error_type": "crossfield_total"
+  }
+ ],
+ "pii": [
+  {
+   "row_ref": "C-10090",
+   "column": "notes",
+   "pii_type": "aadhaar",
+   "value": "9466 1447 7616"
+  },
+  {
+   "row_ref": "C-10570",
+   "column": "notes",
+   "pii_type": "aadhaar",
+   "value": "8870 4796 6681"
+  },
+  {
+   "row_ref": "C-10106",
+   "column": "notes",
+   "pii_type": "aadhaar",
+   "value": "4905 2565 9955"
+  },
+  {
+   "row_ref": "C-10711",
+   "column": "notes",
+   "pii_type": "aadhaar",
+   "value": "2891 4233 0292"
+  },
+  {
+   "row_ref": "C-10921",
+   "column": "notes",
+   "pii_type": "aadhaar",
+   "value": "4764 0547 3988"
+  },
+  {
+   "row_ref": "C-10331",
+   "column": "notes",
+   "pii_type": "pan",
+   "value": "NFEPR1099I"
+  },
+  {
+   "row_ref": "C-10524",
+   "column": "notes",
+   "pii_type": "pan",
+   "value": "BLCPI3543C"
+  },
+  {
+   "row_ref": "C-10225",
+   "column": "notes",
+   "pii_type": "pan",
+   "value": "RMMPY0528J"
+  },
+  {
+   "row_ref": "C-10779",
+   "column": "notes",
+   "pii_type": "phone",
+   "value": "9473389147"
+  },
+  {
+   "row_ref": "C-10997",
+   "column": "notes",
+   "pii_type": "phone",
+   "value": "8247442035"
+  }
+ ],
+ "valid_outliers": [
+  {
+   "customer_id": "C-10301",
+   "column": "annual_income",
+   "value": "8000000"
+  },
+  {
+   "customer_id": "C-10351",
+   "column": "annual_income",
+   "value": "4500000"
+  },
+  {
+   "customer_id": "C-10411",
+   "column": "annual_income",
+   "value": "6200000"
+  },
+  {
+   "customer_id": "C-10521",
+   "column": "annual_income",
+   "value": "5000000"
+  },
+  {
+   "customer_id": "C-10631",
+   "column": "annual_income",
+   "value": "7500000"
+  }
+ ],
+ "story_rows": {
+  "C-10053": {
+   "base_index": 52,
+   "dirty_row": 52
+  },
+  "C-10413": {
+   "base_index": 412,
+   "dirty_row": 412
+  },
+  "C-10778": {
+   "base_index": 777,
+   "dirty_row": 777
+  },
+  "C-10644": {
+   "base_index": 643,
+   "dirty_row": 643
+  },
+  "C-10202": {
+   "base_index": 201,
+   "dirty_row": 201
+  },
+  "C-10203": {
+   "base_index": 202,
+   "dirty_row": 202
+  },
+  "C-10301": {
+   "base_index": 300,
+   "dirty_row": 300
+  }
+ }
+}

@@ -45,7 +45,9 @@ def run(live: bool = False, verbose: bool = True) -> dict:
     assert up["rows"] == 2 and up["stage"] == "loaded"
     s = call("post", "/sessions/demo").json()
     sid = s["session_id"]
-    assert s["rows"] == 10200 and s["linked_tables"][0]["name"] == "orders" and s["columns"]
+    from api.routes import DEMO  # the demo "Load demo dataset" opens (1,020 rows by default)
+    expected_rows = sum(1 for _ in (DEMO / "customers_dirty.csv").open(encoding="utf-8")) - 1
+    assert s["rows"] == expected_rows and s["linked_tables"][0]["name"] == "orders" and s["columns"]
     call("get", "/sessions")
     call("get", f"/sessions/{sid}")
     call("get", f"/sessions/{sid}/warnings", expect=409)  # not scanned yet -> clear error
@@ -57,18 +59,18 @@ def run(live: bool = False, verbose: bool = True) -> dict:
     assert w and w[0]["severity"] == "high"
     call("get", f"/sessions/{sid}/issues?type=fd_violation&limit=5")
     d = call("get", f"/sessions/{sid}/diagnosis?narrative={'true' if live else 'false'}").json()
-    assert any("71 of 73" in x["title"] for x in d["causes"])
+    assert any("blank city values come from source = mobile_app" in x["title"] for x in d["causes"])  # B07 story
     hm = call("get", f"/sessions/{sid}/heatmap?blocks=40").json()
     assert len(hm["cells"]) == 40 and hm["columns"][-1] == "(duplicates)"
     assert call("get", f"/sessions/{sid}/rules").json()
     rows = call("get", f"/sessions/{sid}/rows?limit=5&issue_type=invalid_format&column=pin").json()
-    assert rows["total"] >= 31 and rows["rows"][0]["cell_state"]["pin"] == "issue"
+    assert rows["total"] >= 4 and rows["rows"][0]["cell_state"]["pin"] == "issue"  # 1k demo: 4 bad PINs incl. row 412
 
     # plan + review
     pl = call("post", f"/sessions/{sid}/repair/plan", json={}).json()
-    assert pl["auto"] > 1000 and pl["refused"] > 0
+    assert pl["auto"] > 100 and pl["refused"] > 0  # 1k demo: 138 auto fixes
     pr = call("get", f"/sessions/{sid}/proposals?tier=review&sort=confidence&limit=3").json()
-    assert pr["total"] > 100 and pr["items"][0]["record_id"]
+    assert pr["total"] > 20 and pr["items"][0]["record_id"]
     groups = call("get", f"/sessions/{sid}/proposals/groups?tier=review").json()
     assert groups and groups[0]["count"] >= 1
     p412 = call("get", f"/sessions/{sid}/proposals?column=pin&limit=1000").json()["items"]
@@ -76,7 +78,7 @@ def run(live: bool = False, verbose: bool = True) -> dict:
     assert p412["candidates"][0]["value"] == "400001"
     call("get", f"/sessions/{sid}/proposals/{p412['proposal_id']}/explain")
     auto = call("post", f"/sessions/{sid}/repair/apply-auto").json()
-    assert auto["applied"] > 1000 and len(auto["checkpoints"]) == 5  # duplicate merges are review items
+    assert auto["applied"] > 100 and len(auto["checkpoints"]) == 5  # duplicate merges are review items
     pend = [p for p in pr["items"] if p["status"] == "pending"]
     call("post", f"/sessions/{sid}/review/{pend[0]['proposal_id']}", json={"action": "accept"})
     call("post", f"/sessions/{sid}/review/{pend[1]['proposal_id']}", json={"action": "reject"})

@@ -38,6 +38,10 @@ Moving the sessions to external storage would mean rewriting the engine's state 
 4. Check `https://<your-api>.onrender.com/api/health`. It should return `{"status":"ok", ..., "public": true}`.
    - The same URL also serves the full UI, so it already works as a single-host deployment.
 
+**Demo dataset:** the image ships only the 1,000-row app demo (`data/demo_small`), which runs the whole flow in seconds even on the free plan. Set `DATAFIX_DEMO_DIR=data/demo` only if you also copy the full demo into the image.
+
+**Auto-deploy:** `render.yaml` sets `autoDeploy: true`, so every push to `main` rebuilds and redeploys. If you created the service by hand rather than from the Blueprint, check **Settings → Build & Deploy → Auto-Deploy = On Commit**.
+
 **Plan size:** measured peak memory is about 225 MB for the demo (fits the free 512 MB plan) and about 555 MB for a 30k-row file plus 81k linked orders. For files that size, pick a plan with at least 1 GB of RAM.
 
 **Free plan:** the service sleeps after about 15 minutes without traffic, and the first request after that takes about a minute. Before a demo, open `/api/health` and wait for `ok`.

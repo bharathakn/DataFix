@@ -119,3 +119,20 @@ A hand-labelled file with one expected action per row (no repair / auto fix / hu
 | Ambiguous date `08-07-2025` | 1 | both readings offered for review (the key asks to convert only if unambiguous) |
 
 Rules added (none name this file's values): `24.0` is a valid age; a low-cardinality column whose top value covers ≥ 20% is a category even if the header says "customer"; amounts judged on a log scale ignoring zero/negative values; date separators that differ from the column's shape; ALL-CAPS values take the column's existing spelling; a rare 1–2 letter code that starts exactly one frequent value is a review suggestion; a once-only value outside a settled set of ≤ 10 values is flagged with no suggestion; the '@'-typed-as-dot email fix; New Delhi → Delhi alias; exact duplicates with different IDs go to review.
+
+## App demo: 1,000 rows (`data/demo_small`), 2026-11-22
+
+The demo the app loads was cut from 10,200 to 1,020 customers (+ 2,318 orders) because the free Render instance took too long on the full file. Same generator and seed; the full demo in `data/demo` is byte-identical and still drives the engine tests and the numbers above.
+
+| | 1k app demo | 10k full demo |
+|---|---|---|
+| Planted errors | 169 cell errors + 20 duplicates | 1,478 + 200 |
+| Clean rows before → after auto-fix | 82.84% → 94.90% | 84.70% → 94.95% |
+| Auto-fix changes (review / flagged / refused left open) | 138 (43 / 5 / 15) | 1,189 |
+| Do-no-harm checks | 8/8 | 8/8 |
+| Benchmark (live, seed 42) | 67 errors in 840 clean rows: F1 0.977, repair precision 100%, false repairs 0 | F1 0.99, precision 100%, false repairs 0 |
+| `datafix fix … --bench` (laptop) | 4.7 s | ≈ 20 s |
+| Slowest API call in `smoke_api.py` | 1.2 s (create demo session) | 6 s (scan) |
+| Full UI rehearsal (`PAUSE=0`) | 10.6 s | 31 s |
+
+All three source-lift stories survive at this size (12 of 14 placeholder phones from branch_upload; 12 of 12 blank cities from mobile_app B07; 10 of 10 scientific-notation phones from branch_upload) thanks to minimum counts in the generator.

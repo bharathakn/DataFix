@@ -22,7 +22,11 @@ from datafix.session import Session
 from .registry import ROOT, NotFound, registry
 
 router = APIRouter(prefix="/api")
-DEMO = ROOT / "data" / "demo"
+# "Load demo dataset": the 1,000-row demo by default (seconds even on a small free server).
+# DATAFIX_DEMO_DIR=data/demo switches to the full 10,200-row demo used by the engine tests and benchmarks.
+DEMO = Path(os.getenv("DATAFIX_DEMO_DIR", "data/demo_small"))
+if not DEMO.is_absolute():
+    DEMO = ROOT / DEMO
 MAX_UPLOAD_MB = int(os.getenv("DATAFIX_MAX_UPLOAD_MB", "200"))
 MAX_UPLOAD = MAX_UPLOAD_MB * 1024 * 1024
 

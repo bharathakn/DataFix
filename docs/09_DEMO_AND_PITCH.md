@@ -2,6 +2,15 @@
 
 ## 1. Demo dataset (`scripts/make_demo_data.py`, seed 42)
 
+Two sizes come from the same generator (changed 2026-11-22 so the hosted app answers in seconds):
+
+| Folder | Rows | Used by | Command |
+|---|---|---|---|
+| `data/demo_small/` | **1,020 customers + 2,318 orders, 189 planted errors** | **Load demo dataset** in the app (`DATAFIX_DEMO_DIR`, default `data/demo_small`), the UI scripts, the rehearsal, `smoke_api.py` | `make_demo_data.py --rows 1000 --out data/demo_small` |
+| `data/demo/` | 10,200 customers + 23,060 orders, 1,678 planted errors | engine tests (`tests/test_*_demo.py`, `test_session.py`, `test_phase3.py`) and the measured results in RESULTS.md | `make_demo_data.py` (byte-identical to before) |
+
+The small demo scales error counts ×0.1, with floors that keep each root-cause story above the diagnosis threshold of 10 issues: blank city in mobile_app B07 = 12, Excel phones = 10, partner_api US dates = 10, PII in notes = 10 (5 Aadhaar, 3 PAN, 2 phone). Story rows 52, 412 and 777 keep their numbers; the others move inside the file (§1.3). The tables below describe the full 10k demo.
+
 ### 1.1 Clean base
 
 `customers_clean.csv` — 10,000 rows:
@@ -54,33 +63,35 @@ All injections recorded in `truth.json`: `{row_id, column, clean_value, dirty_va
 
 ### 1.3 Story rows (guaranteed by the generator)
 
+Row numbers: small demo (app) / full demo.
+
 | Row | Setup | Expected behaviour |
 |---|---|---|
 | 412 (`C-10413`) | city Mumbai, locality "Stock Exchange", PIN `40001` | 29 valid PINs one digit away, 19 in Mumbai; only `400001` serves Stock Exchange → confidence ≥ 0.95 |
 | 52 | city `Banglore`, PIN 560001, state Karnataka | → `Bengaluru`; evidence: similarity 91%, PIN 560001, state; chatbot "Why did row 52 change?" |
 | 777 | phone `98765` (5 digits), orders for this customer have one distinct phone | Recovered from orders, confidence ~0.92 |
-| 1043 | phone missing, orders for this customer contain **two different phones** | **Refused**: "2 conflicting phones in orders — DataFix won't guess" |
-| 2001 | age missing, occupation `retired`, Pune | Imputed group median, tier review, marked **estimated** |
-| 2002 | age missing, occupation `astronaut` (only 2 rows) | **Refused**: "group too small (n=2)" |
-| 3000 | income `₹80,00,000` (real outlier) | Flagged as anomaly, **unchanged** |
+| 643 (`C-10644`) / 1043 (`C-11044`) | phone missing, orders for this customer contain **two different phones** | **Refused**: "2 conflicting phones in orders — DataFix won't guess" |
+| 201 / 2001 | age missing, occupation `retired`, Pune | Imputed group median, tier review, marked **estimated** |
+| 202 / 2002 | age missing, occupation `astronaut` (only 2 rows) | **Refused**: "group too small (n=2)" |
+| 300 / 3000 | income `₹80,00,000` (real outlier) | Flagged as anomaly, **unchanged** |
 
 ## 2. Five-minute demo script (as built)
 
-Start with `scripts/start_demo.sh` (add `--offline` if the Wi-Fi is unreliable or Gemini quota is low), open http://localhost:8000. Practise with a timer; `frontend/scripts/rehearse.mjs` clicks through exactly these steps and records `out/demo_backup.webm`.
+Start with `scripts/start_demo.sh` (add `--offline` if the Wi-Fi is unreliable or Gemini quota is low), open http://localhost:8000, or use the hosted app (docs/DEPLOY.md). Numbers are for the 1,000-row app demo. Practise with a timer; `frontend/scripts/rehearse.mjs` clicks through exactly these steps (10.6 s at `PAUSE=0`) and records `out/demo_backup.webm`.
 
 | Time | Step | Click | Say (gist) |
 |---|---|---|---|
 | 0:00 | Hook | title slide | "Every team cleans data. Nobody can prove their cleaning didn't break something. DataFix does." |
-| 0:20 | 1. Load | **Load demo dataset** | "10,200 customers and 23,060 orders with errors injected the way real pipelines create them. DataFix recognised every column from its values, not its name." |
-| 0:40 | 2. Scan | **Scan 10,200 rows** → Overview | "Only 84.7% of rows are fully clean: 1,678 errors. Here's what's wrong and where." Point at the heatmap stripe. |
-| 1:00 | 3. Why | sidebar **Diagnosis** | "Not just what, but why. 71 of 73 blank cities came from one mobile-app batch: 34% of that batch against 0.02% everywhere else. Branch uploads went through Excel and destroyed phone numbers." Scroll to the rules table: "Nobody wrote PIN → city. DataFix learned it from the data." |
-| 1:40 | 4. Fix | **Overview → Plan repairs → Apply 1,189 high-confidence fixes** | "It only auto-applies what it can prove: 95% or more. Even exact duplicates wait for you, because each has its own customer ID." Gauge goes 84.7% → 95.0%. |
+| 0:20 | 1. Load | **Load demo dataset** | "1,020 customers and 2,318 orders with errors injected the way real pipelines create them. DataFix recognised every column from its values, not its name." |
+| 0:40 | 2. Scan | **Scan 1,020 rows** → Overview | "Only 82.8% of rows are fully clean: 195 problems. Here's what's wrong and where." Point at the heatmap stripe. |
+| 1:00 | 3. Why | sidebar **Diagnosis** | "Not just what, but why. All 12 blank cities came from one mobile-app batch, B07. Branch uploads went through Excel and destroyed phone numbers." Scroll to the rules table: "Nobody wrote PIN → city. DataFix learned it from the data." |
+| 1:40 | 4. Fix | **Overview → Plan repairs → Apply 138 high-confidence fixes** | "It only auto-applies what it can prove: 95% or more. Even exact duplicates wait for you, because each has its own customer ID." Clean rows go 82.8% → 94.9%. |
 | 2:00 | 5. Row 412 | **Repair Studio → Applied → column pin → C-10413** | "PIN 40001 has five digits. 29 real PINs are one digit away, 19 of them in Mumbai, so city alone can't decide. Only one serves this row's locality, Stock Exchange." Point at the top-3 options. |
-| 2:30 | 6. Refusal | **column phone → C-10778**, then **Refused → C-11044** | "Row 777's phone was recovered from its orders. Row 1043 has two different phones in its orders, so DataFix refuses to guess." Pause here. |
+| 2:30 | 6. Refusal | **column phone → C-10778**, then **Refused → C-10644** | "Row 777's phone was recovered from its orders. Row 643 has two different phones in its orders, so DataFix refuses to guess." Pause here. |
 | 3:00 | 7. Undo | **History → Original → Back to the original → Confirm → Go back** | "Change of mind? Jump back to any checkpoint. The original file is never touched, and the audit chain proves nobody edited the log." |
 | 3:15 | 8. Chat | **Chat**: "How many customers are in Pune?", "Why did row 52 change?" | "Answers come from queries DataFix runs. Here's the query it ran." Expand "Ran 1 query". |
-| 3:45 | 9. Privacy | **Privacy → Mask all high-risk** | "50 Aadhaar, PAN and phone numbers were hidden in free-text notes, each confirmed by its checksum. One click to mask, and it's undoable." |
-| 4:05 | 10. Proof | **Validation**, then **Run benchmark** (≈ 6 s) | "Eight safety checks, all green: zero valid cells changed, and running DataFix again finds nothing more to auto-fix. And our own benchmark, live on your data: 160 planted errors, F1 0.99, zero false repairs." |
+| 3:45 | 9. Privacy | **Privacy → Mask all high-risk** | "10 Aadhaar, PAN and phone numbers were hidden in free-text notes, each confirmed by its checksum. One click to mask, and it's undoable." |
+| 4:05 | 10. Proof | **Validation**, then **Run benchmark** (≈ 1 s) | "Eight safety checks, all green: zero valid cells changed, and running DataFix again finds nothing more to auto-fix. And our own benchmark, live on your data: 67 planted errors, F1 0.98, zero false repairs." |
 | 4:35 | 11. Export | **Export → Download all (ZIP)** | "Cleaned data, an Excel copy with every change highlighted and explained, the report, a tamper-evident change log, and a recipe to re-run next month." |
 | 4:50 | Close | | "DataFix: find it, explain it, fix it safely, prove it." |
 
@@ -93,7 +104,7 @@ Tips: keep the browser at 100% zoom on a 1366×768+ projector; light theme; clos
 3. Approach: Detect → Diagnose → Repair → Validate → Explain → Track, with the confidence gate.
 4. What's different: comparison table (trimmed from the report: rules-only tools, HoloClean, Cleanlab, OpenRefine vs DataFix).
 5. Live demo.
-6. Results: **measured** numbers (from [RESULTS.md](RESULTS.md)): detection F1 0.99, repair precision 100%, **false repair rate 0%**, clean rows 84.7% → 95.0% after auto-fix, all 8 do-no-harm checks green; 10k customers + 23k orders end to end in 20 s, 100k + 233k in 150 s on a laptop.
+6. Results: **measured** numbers (from [RESULTS.md](RESULTS.md)): detection F1 0.99, repair precision 100%, **false repair rate 0%**, clean rows 84.7% → 95.0% after auto-fix, all 8 do-no-harm checks green (full 10k demo); the 1k app demo runs end to end in under 5 s; 10k customers + 23k orders in 20 s, 100k + 233k in 150 s on a laptop.
 7. Architecture (one diagram) + "LLM never sets values; works offline".
 8. Impact & roadmap: banking KYC, healthcare, e-commerce, government; drift monitoring, DB connectors, quality-gate in CI.
 

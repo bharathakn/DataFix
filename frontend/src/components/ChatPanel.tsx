@@ -10,7 +10,7 @@ import { Badge, Button } from './ui'
 interface Turn { role: 'user' | 'assistant'; text: string; reply?: ChatReply; error?: boolean }
 
 const SUGGESTIONS = [
-  'How many customers are in Pune?', 'Why did row 52 change?', 'Why did row 1043 not change?',
+  'How many customers are in Pune?', 'Why did row 52 change?', 'Why did row 643 not change?',
   'Which repairs are you least sure about?', 'Show duplicates in the email column', 'Undo the city fixes',
 ]
 
